@@ -82,6 +82,7 @@ function TurnLeft()
 end
 
 -- pull items from chest
+print("Getting items")
 TurnRight()
 local chestSize = inv.getInventorySize(sides.front)
 if chestSize == nil then
@@ -93,19 +94,16 @@ for i=1, chestSize do
 end
 TurnLeft()
 
-local startingSide = nav.getFacing()
-local upgAutoSlot = GetStackLabel("Automation Upgrade")
-local hasUpgAuto = upgAutoSlot ~= -1
-local upgProdSlot = GetStackLabel("Production Upgrade")
-local hasUpgProd = upgProdSlot ~= -1
 --remember to place it in the center, it will move one block to the left and start placing to it's right
 local apiariesPlaced = 0
+print("Starting")
 
 robot.move(sides.left)
 robot.move(sides.front)
 local currentInvSlot;
 local upper = false
 while(true) do
+	print("Placing apiary "..apiariesPlaced+1)
 	currentInvSlot = FindItem(APIARY);
 	if(currentInvSlot == -1) then break end
 	robot.select(currentInvSlot)
@@ -153,7 +151,17 @@ while(true) do
 	end
 
 	apiariesPlaced = apiariesPlaced + 1
+
+	if(apiariesPlaced == 16) then
+		print("16 apiaries placed, moving up")
+		robot.up()
+		robot.up()
+		upper = true
+	end
+
 	TurnLeft()
 	if(apiariesPlaced >= 32) then break end
-	robot.move(sides.front)
+	if(apiariesPlaced < 16) then robot.move(sides.front)
+	else if(apiariesPlaced > 16) robot.move(sides.back)
+	end
 end
