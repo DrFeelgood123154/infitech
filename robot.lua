@@ -75,14 +75,9 @@ function EquipLabel(what)
 end
 
 -- pull items from chest
-local invSide = sides.back
-local chestSize = inv.getInventorySize(invSide)
-if(chestSize == nil) then
-	invSide = sides.right
-	chestSize = inv.getInventorySize(invSide)
-end
+local chestSize = inv.getInventorySize(sides.right)
 if chestSize == nil then
-	print("No chest found")
+	print("No chest found (place to the right)")
 	return
 end
 for i=1, chestSize do
