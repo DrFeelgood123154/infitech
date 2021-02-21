@@ -75,14 +75,16 @@ function EquipLabel(what)
 end
 
 -- pull items from chest
-local chestSize = inv.getInventorySize(sides.right)
+robot.turnRight()
+local chestSize = inv.getInventorySize(sides.front)
 if chestSize == nil then
 	print("No chest found (place to the right)")
 	return
 end
 for i=1, chestSize do
-	inv.suckFromSlot(sides.back, i)
+	inv.suckFromSlot(sides.front, i)
 end
+robot.turnLeft()
 
 local startingSide = nav.getFacing()
 local upgAutoSlot = GetStackLabel("Automation Upgrade")
@@ -100,49 +102,51 @@ while(true) do
 	currentInvSlot = FindItem(APIARY);
 	if(currentInvSlot == -1) then break end
 	robot.select(currentInvSlot)
-	robot.place(sides.right, true)
+	robot.turnRight()
+	robot.place(sides.front, true)
 
 	currentInvSlot = FindItem(QUEEN)
 	if(currentInvSlot ~= -1) then
-		inv.dropIntoSlot(sides.right, 1, 1)
+		inv.dropIntoSlot(sides.front, 1, 1)
 	else
 		currentInvSlot = FindItem(DRONE)
 		if(currentInvSlot == -1) then break end
-		inv.dropIntoSlot(sides.right, 2, 1)
+		inv.dropIntoSlot(sides.front, 2, 1)
 
 		currentInvSlot = FindItem(PRINCESS)
 		if(currentInvSlot == -1) then break end
-		inv.dropIntoSlot(sides.right, 1, 1)
+		inv.dropIntoSlot(sides.front, 1, 1)
 	end
 
 	currentInvSlot = FindItemByLabel("Automation Upgrade")
 	if(currentInvSlot == -1) then break end
-	inv.dropIntoSlot(sides.right, 3, 1)
+	inv.dropIntoSlot(sides.front, 3, 1)
 
 	currentInvSlot = FindItemByLabel("Genetic Stabilizer Upgrade")
 	if(currentInvSlot == -1) then break end
-	inv.dropIntoSlot(sides.right, 4, 1)
+	inv.dropIntoSlot(sides.front, 4, 1)
 
 	if(not upper) then
 		robot.down()
 		currentInvSlot = FindCable()
 		robot.select(currentInvSlot)
-		robot.place(sides.right, true)
+		robot.place(sides.front, true)
 		robot.up()
 		robot.up()
 		currentInvSlot = FindItem("Transfer Pipe")
 		robot.select(currentInvSlot)
-		robot.place(sides.right, true)
+		robot.place(sides.front, true)
 		robot.down()
 	else
 		robot.up()
 		currentInvSlot = FindCable()
 		robot.select(currentInvSlot)
-		robot.place(sides.right)
+		robot.place(sides.front)
 		robot.down()
 	end
 
 	apiariesPlaced = apiariesPlaced + 1
+	robot.turnLeft()
 	if(apiariesPlaced >= 32) then break end
 	robot.move(sides.front)
 end
