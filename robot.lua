@@ -11,6 +11,7 @@ local nav = component.navigation
 
 local DRONE = "Forestry:beeDroneGE"
 local PRINCESS = "Forestry:beePrincessGE"
+local QUEEN = "Forestry:beeQueenGE"
 local APIARY = "gendustry:IndustrialApiary"
 
 function TurnTo(dir)
@@ -91,17 +92,26 @@ while(true) do
 	robot.select(currentInvSlot)
 	robot.place(sides.right, true)
 
-	currentInvSlot = FindItem(DRONE)
-	if(currentInvSlot == -1) then break end
-	inv.dropIntoSlot(sides.right, 2, 1)
+	currentInvSlot = FindItem(QUEEN)
+	if(currentInvSlot ~= -1) then
+		inv.dropIntoSlot(sides.right, 1, 1)
+	else
+		currentInvSlot = FindItem(DRONE)
+		if(currentInvSlot == -1) then break end
+		inv.dropIntoSlot(sides.right, 2, 1)
+
+		currentInvSlot = FindItem(PRINCESS)
+		if(currentInvSlot == -1) then break end
+		inv.dropIntoSlot(sides.right, 1, 1)
+	end
 
 	currentInvSlot = FindItemByLabel("Automation Upgrade")
 	if(currentInvSlot == -1) then break end
 	inv.dropIntoSlot(sides.right, 3, 1)
 
-	currentInvSlot = FindItem(PRINCESS)
+	currentInvSlot = FindItemByLabel("Genetic Stabilizer Upgrade")
 	if(currentInvSlot == -1) then break end
-	inv.dropIntoSlot(sides.right, 1, 1)
+	inv.dropIntoSlot(sides.right, 4, 1)
 
 	if(not upper) then
 		robot.down()
