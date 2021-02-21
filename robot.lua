@@ -74,8 +74,15 @@ function EquipLabel(what)
 	if(slot ~= -1) then inv.equip(slot) end
 end
 
+function TurnRight()
+	robot.turn(true)
+end
+function TurnLeft()
+	robot.turn(false)
+end
+
 -- pull items from chest
-robot.turnRight()
+TurnRight()
 local chestSize = inv.getInventorySize(sides.front)
 if chestSize == nil then
 	print("No chest found (place to the right)")
@@ -84,7 +91,7 @@ end
 for i=1, chestSize do
 	inv.suckFromSlot(sides.front, i)
 end
-robot.turnLeft()
+TurnLeft()
 
 local startingSide = nav.getFacing()
 local upgAutoSlot = GetStackLabel("Automation Upgrade")
@@ -102,7 +109,7 @@ while(true) do
 	currentInvSlot = FindItem(APIARY);
 	if(currentInvSlot == -1) then break end
 	robot.select(currentInvSlot)
-	robot.turnRight()
+	TurnRight()
 	robot.place(sides.front, true)
 
 	currentInvSlot = FindItem(QUEEN)
@@ -146,7 +153,7 @@ while(true) do
 	end
 
 	apiariesPlaced = apiariesPlaced + 1
-	robot.turnLeft()
+	TurnLeft()
 	if(apiariesPlaced >= 32) then break end
 	robot.move(sides.front)
 end
