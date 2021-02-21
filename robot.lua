@@ -74,6 +74,12 @@ function EquipLabel(what)
 	if(slot ~= -1) then inv.equip(slot) end
 end
 
+-- pull items from chest
+local chestSize = inv.getInventorySize(sides.back)
+for i=1, chestSize do
+	inv.suckFromSlot(sides.back, i)
+end
+
 local startingSide = nav.getFacing()
 local upgAutoSlot = GetStackLabel("Automation Upgrade")
 local hasUpgAuto = upgAutoSlot ~= -1
