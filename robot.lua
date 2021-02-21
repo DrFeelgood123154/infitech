@@ -157,14 +157,13 @@ while(true) do
 		robot.up()
 		robot.up()
 		upper = true
-	else if(apiariesPlaced == 32) then
+	else if(apiariesPlaced >= 32) then
 		print("Finished placing 32 apiaries")
 		return
 	end
 
 	TurnLeft()
-	if(apiariesPlaced >= 32) then break end
 	if(apiariesPlaced < 16) then robot.move(sides.front)
-	else if(apiariesPlaced > 16) robot.move(sides.back)
+	else if(apiariesPlaced > 16) then robot.move(sides.back)
 	end
 end
