@@ -36,47 +36,6 @@ autocraftData["Duct tape"] = {
 	keepStocked=100,
 	threshold=0
 }
---cells
-autocraftData["Oxygen Cell"] = {
-	label="gt.metaitem.01.30013.name",
-	keepStocked=5000,
-	threshold=2500
-}
-autocraftData["Hydrogen Cell"] = {
-	label="gt.metaitem.01.30001.name",
-	keepStocked=5000,
-	threshold=2500
-}
-autocraftData["Nitrogen Cell"] = {
-	label="gt.metaitem.01.30012.name",
-	keepStocked=5000,
-	threshold=2500
-}
-autocraftData["Naphtha Cell"] = {
-	label="gt.metaitem.01.30739.name",
-	keepStocked=1000,
-	threshold=500
-}
-autocraftData["Chlorine Cell"] = {
-	label="gt.metaitem.01.30023.name",
-	keepStocked=1000,
-	threshold=500
-}
-autocraftData["Fluorine Cell"] = {
-	label="gt.metaitem.01.30014.name",
-	keepStocked=1000,
-	threshold=500
-}
-autocraftData["Sulfuric Acid Cell"] = {
-	label="gt.metaitem.01.30720.name",
-	keepStocked=1000,
-	threshold=500
-}
-autocraftData["Water Cell"] = {
-	label="Water Cell",
-	keepStocked=1000,
-	threshold=500
-}
 --ebf
 autocraftData["Chrome Ingot"] = {
 	label="gt.metaitem.01.11030.name",
