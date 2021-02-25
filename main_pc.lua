@@ -201,10 +201,10 @@ function Draw()
    if(usedCPUs == maxCPUs) then gpu.setForeground(0xFF0000)
    else gpu.setForeground(0x00FF00) end
    print(usedCPUs.."/"..maxCPUs.." CPU")
-   printColor(0x00FF00, "Last crafts:")
+   --[[printColor(0x00FF00, "Last crafts:")
    for i, wat in pairs(lastItemsRequested) do
    	print(wat.qt.." "..wat.what)
-   end
+   end]]--
    printColor(0x00FF00, "=Currently crafting: ")
    if(#currentlyCrafting == 0) then print("-")
    else
@@ -220,7 +220,7 @@ function Draw()
 		for k,v in pairs(waitingToCraft) do print(v) end
    end
 
-   print("Redstone frequency: "..emitRedstoneAt)
+   --print("Redstone frequency: "..emitRedstoneAt)
    if(lastError ~= "") then print(lastError) end
    --[[if(ae.getStoredPower() == 0) then
 		gpu.setForeground(0xFF0000)
