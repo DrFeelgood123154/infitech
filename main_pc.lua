@@ -307,8 +307,8 @@ function Draw()
 		timeToZero = timeToZero .. "-"
 	end
 
-	print("Highest supply:\t"..formatInt(highestEnergyIncome).." \t"..timeToZero)
-	print("Highest drain:\t"..formatInt(highestEnergyDrain).." ("..math.ceil(highestEnergyDrain/gtPowerVoltage).." A)")
+	print("Highest supply:\t"..formatInt(math.floor(highestEnergyIncome)).." \t"..timeToZero)
+	print("Highest drain:\t"..formatInt(math.floor(highestEnergyDrain)).." ("..math.ceil(highestEnergyDrain/gtPowerVoltage).." A)")
 end
 
 while(true) do
