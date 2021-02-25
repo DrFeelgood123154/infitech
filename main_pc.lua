@@ -193,8 +193,8 @@ function Draw()
 		gtPowerAmpMax = gtPowerAmpMax + batteryBuffers[i].getOutputAmperage()
 	end
 
-	gtPowerDrainAvg = math.floor(gtPowerDrainAvg * 0.8 + gtPowerDrain * 0.2)
-	gtPowerSupplyAvg = math.floor(gtPowerSupplyAvg * 0.8 + gtPowerSupply * 0.2)
+	gtPowerDrainAvg = gtPowerDrainAvg * 0.8 + gtPowerDrain * 0.2
+	gtPowerSupplyAvg = gtPowerSupplyAvg * 0.8 + gtPowerSupply * 0.2
 
 	if(gtPowerSupplyAvg > highestEnergyIncome) then highestEnergyIncome = gtPowerSupplyAvg end
 	if(gtPowerDrainAvg > highestEnergyDrain) then highestEnergyDrain = gtPowerDrainAvg end
@@ -272,8 +272,8 @@ function Draw()
 	if(gtPowerDrainAvg > gtPowerSupplyAvg) then color = 0xFF0000
 	else color = 0x00FF00 end
 	printColor(color, string.format("Out/In:\t%s / %s (%s)",
-		formatInt(gtPowerDrainAvg),
-		formatInt(gtPowerSupplyAvg),
+		formatInt(math.floor(gtPowerDrainAvg)),
+		formatInt(math.floor(gtPowerSupplyAvg)),
 		((gtPowerSupplyAvg > 0) and math.floor(gtPowerDrainAvg/gtPowerSupplyAvg*100) or "-").."%"
 	))
 	--amp
