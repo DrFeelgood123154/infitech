@@ -299,11 +299,10 @@ function Draw()
 	end
 
 	if seconds > 0 then
-		timeToZero = timeToZero .. string.format("%02.f:%02.f:%02.f",
-			math.floor(seconds/3600),
-			math.floor(seconds/60 - (hours*60)),
-			math.floor(seconds - hours*3600 - mins *60)
-		)
+		local hours = math.floor(seconds/3600);
+		local mins = math.floor(seconds/60 - (hours*60));
+		local secs = math.floor(seconds - hours*3600 - mins *60);
+		timeToZero = timeToZero .. string.format("%02.f:%02.f:%02.f", hours, mins, secs)
 	else
 		timeToZero = timeToZero .. "-"
 	end
