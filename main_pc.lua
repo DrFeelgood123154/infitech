@@ -170,6 +170,8 @@ end
 local gtPowerVoltage = 0
 if(#batteryBuffers > 0) then gtPowerVoltage = batteryBuffers[1].getOutputVoltage() end
 
+local gtPowerDrainAvg = 0
+local grPowerSupplyAvg = 0
 function Draw()
 	local powerDrain = ae.getAvgPowerUsage()
 	local powerSupply = ae.getAvgPowerInjection()
@@ -190,72 +192,123 @@ function Draw()
 		gtPowerSupply = gtPowerSupply + batteryBuffers[i].getAverageElectricInput()
 		gtPowerAmpMax = gtPowerAmpMax + batteryBuffers[i].getOutputAmperage()
 	end
-	if(gtPowerSupply > highestEnergyIncome) then highestEnergyIncome = gtPowerSupply end
-	if(gtPowerDrain > highestEnergyDrain) then highestEnergyDrain = gtPowerDrain end
-	gtPowerAmpUsed = math.ceil(gtPowerDrain / gtPowerVoltage)
+
+	gtPowerDrainAvg = gtPowerDrainAvg * 0.8 + gtPowerDrain * 0.2
+	gtPowerSupplyAvg = gtPowerSupplyAvg * 0.8 + gtPowerSupply * 0.2
+
+	if(gtPowerSupplyAvg > highestEnergyIncome) then highestEnergyIncome = gtPowerSupplyAvg end
+	if(gtPowerDrainAvg > highestEnergyDrain) then highestEnergyDrain = gtPowerDrainAvg end
+	gtPowerAmpUsed = math.ceil(gtPowerDrainAvg / gtPowerVoltageAvg)
 
 	if(powerDrain >= powerSupply) then powerColor = 0xFF0000
 	elseif(powerDrain >= powerSupply*0.75) then powerColor = 0xFFFF00 end
-   term.clear()
-   --   crafting
-   if(usedCPUs == maxCPUs) then gpu.setForeground(0xFF0000)
-   else gpu.setForeground(0x00FF00) end
-   print(usedCPUs.."/"..maxCPUs.." CPU")
-   --[[printColor(0x00FF00, "Last crafts:")
-   for i, wat in pairs(lastItemsRequested) do
-   	print(wat.qt.." "..wat.what)
-   end]]--
-   printColor(0x00FF00, "=Currently crafting: ")
-   if(#currentlyCrafting == 0) then print("-")
-   else
-      local i = 0
-      for k,v in pairs(currentlyCrafting) do
-         print(v)
-         i = i+1
-         if(i>4) then break end
-      end
-   end
-   if(#waitingToCraft > 0) then
-      print("Waiting to craft: ")
-		for k,v in pairs(waitingToCraft) do print(v) end
-   end
 
-   --print("Redstone frequency: "..emitRedstoneAt)
-   if(lastError ~= "") then print(lastError) end
-   --[[if(ae.getStoredPower() == 0) then
+	term.clear()
+
+	-- CPU Status
+	if(usedCPUs == maxCPUs) then 
 		gpu.setForeground(0xFF0000)
-		print("!!! NO POWER IN AE !!!")
-		gpu.setForeground(0xFFFFFF)
-   end]]--
-   printColor(powerColor, "=== AE power: "..math.floor(powerDrain/powerSupply*100).."%")
-   printColor(powerColor, "Used: "..math.floor(powerDrain).." / "..math.floor(powerSupply).."\tIdle:"..math.floor(powerIdle))
-   local color
-   if(gtPower < gtPowerMax*0.10) then color = 0xFF0000
-   elseif(gtPower < gtPowerMax*0.25) then color = 0xFFFF00
-   else color = 0x00FF00 end
-   printColor(color, "=== GT power: "..math.floor(gtPower/gtPowerMax*100).."%")
-   printColor(color, "Store: \t"..formatInt(gtPower).." EU / "..formatInt(gtPowerMax).." EU")
-   if(gtPowerDrain > gtPowerSupply) then color = 0xFF0000
-   else color = 0x00FF00 end
-   printColor(color, "Drain: \t"..formatInt(gtPowerDrain).." / "..formatInt(gtPowerSupply).. " ("..math.floor(gtPowerDrain/gtPowerSupply*100).."%)")
-   --amp
-   if(gtPowerAmpUsed > gtPowerAmpMax*0.75) then color = 0xFFFF00
-   else color = 0x00FF00 end
-   printColor(color, "Amps: \t"..gtPowerAmpUsed.." / "..gtPowerAmpMax)
-	local timeToZero = "-"
-	local energyDelta = gtPowerDrain*20 - gtPowerSupply*20
-	if(energyDelta > 0) then
-		local seconds = tonumber(gtPower / energyDelta)
-		if seconds <= 0 then
-			timeToZero = "00:00:00";
-		else
-		local hours = string.format("%02.f", math.floor(seconds/3600));
-		local mins = string.format("%02.f", math.floor(seconds/60 - (hours*60)));
-		local secs = string.format("%02.f", math.floor(seconds - hours*3600 - mins *60));
-		timeToZero = hours..":"..mins..":"..secs
+	else 
+		gpu.setForeground(0x00FF00) 
+	end
+	print(usedCPUs.."/"..maxCPUs.." CPU")
+
+	-- Last Crafts
+	--[[
+		printColor(0x00FF00, "Last crafts:")
+		for i, wat in pairs(lastItemsRequested) do
+		print(wat.qt.." "..wat.what)
+		end
+	]]--
+	
+	-- Currently Crafting
+	if #currentlyCrafting > 0 then
+		printColor(0x00FF00, "= Currently crafting:")
+
+		local i = 0
+		for k,v in pairs(currentlyCrafting) do
+			print(v)
+			i = i+1
+			if(i>4) then break end
 		end
 	end
-	print("Highest supply:\t"..formatInt(highestEnergyIncome).." \tTime to zero energy: "..timeToZero)
+
+	-- Waiting to Craft
+	if(#waitingToCraft > 0) then
+		printColor(0x00FF00,"= Waiting to craft:")
+		for k,v in pairs(waitingToCraft) do print(v) end
+	end
+
+	-- Crafting error
+	--print("Redstone frequency: "..emitRedstoneAt)
+	if(lastError ~= "") then
+		printColor(0xFF0000,lastError)
+	end
+
+	-- AE Power
+	--[[if(ae.getStoredPower() == 0) then
+	gpu.setForeground(0xFF0000)
+	print("!!! NO POWER IN AE !!!")
+	gpu.setForeground(0xFFFFFF)
+	end]]--
+
+	printColor(powerColor,
+		string.format("=== AE Power: %s (%s/%s) Idle: %s",
+			math.floor(powerDrain/powerSupply*100).."%",
+			math.floor(powerDrain),
+			math.floor(powerSupply),
+			math.floor(powerIdle)
+		)
+	)
+
+	local color
+	if(gtPower < gtPowerMax*0.10) then color = 0xFF0000
+	elseif(gtPower < gtPowerMax*0.25) then color = 0xFFFF00
+	else color = 0x00FF00 end
+
+	-- GT Power
+	printColor(color, "=== GT power: "..math.floor(gtPower/gtPowerMax*100).."%")
+	printColor(color, "Store: \t"..formatInt(gtPower).." EU / "..formatInt(gtPowerMax).." EU")
+	if(gtPowerDrainAvg > gtPowerSupplyAvg) then color = 0xFF0000
+	else color = 0x00FF00 end
+	printColor(color, string.format("In/Out: \t%s / %s (%s)",
+		formatInt(gtPowerDrainAvg),
+		formatInt(gtPowerSupplyAvg),
+		math.floor(gtPowerDrainAvg/gtPowerSupplyAvg*100).."%"
+	))
+	--amp
+	if(gtPowerAmpUsed > gtPowerAmpMax*0.75) then color = 0xFFFF00
+	else color = 0x00FF00 end
+
+	printColor(color, string.format("Amps: \t%s / %s",
+		gtPowerAmpUsed,
+		gtPowerAmpMax
+	))
+
+	-- Time to zero or full energy
+	local timeToZero = "-"
+	local seconds = 0
+	local powerDelta = ((gtPowerDrain-gtPowerSupply)*20)
+
+	if gtPowerDrain > gtPowerSupply then
+		seconds = tonumber(gtPower / powerDelta)
+		timeToZero = "Time to zero energy: "
+	elseif gtPowerDrain < gtPowerSupply then
+		seconds = tonumber((gtPowerMax - gtPower) / powerDelta)
+		timeToZero = "Time to full energy: "
+	end
+
+	if seconds > 0 then
+		timeToZero = timeToZero .. string.format("%02.f:%02.f:%02.f",
+			math.floor(seconds/3600),
+			math.floor(seconds/60 - (hours*60)),
+			math.floor(seconds - hours*3600 - mins *60)
+		)
+	else
+		timeToZero = timeToZero .. "-"
+	end
+
+	print("Highest supply:\t"..formatInt(highestEnergyIncome).." \t"..timeToZero)
 	print("Highest drain:\t"..formatInt(highestEnergyDrain).." ("..math.ceil(highestEnergyDrain/gtPowerVoltage).." A)")
 end
 
