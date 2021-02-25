@@ -294,7 +294,7 @@ function Draw()
 		seconds = tonumber(gtPower / powerDelta)
 		timeToZero = "Time to zero energy: "
 	elseif gtPowerDrainAvg < gtPowerSupplyAvg then
-		seconds = tonumber((gtPowerMax - gtPower) / powerDelta)
+		seconds = tonumber((gtPowerMax - gtPower) / (-powerDelta))
 		timeToZero = "Time to full energy: "
 	end
 
