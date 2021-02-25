@@ -37,7 +37,7 @@ local lastItemsRequested = {}
 
 function LoadAutocraftData()
 	package.loaded.autocraft = nil
-	autocraftData = require("autocraft")
+	autocraftData = require("ac_data")
 	local i = 0
 	for k,v in pairs(autocraftData) do
 		i = i+1
