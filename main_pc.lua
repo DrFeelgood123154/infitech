@@ -274,7 +274,7 @@ function Draw()
 	printColor(color, string.format("Out/In:\t%s / %s (%s)",
 		formatInt(math.floor(gtPowerDrainAvg)),
 		formatInt(math.floor(gtPowerSupplyAvg)),
-		((gtPowerSupplyAvg > 0) and math.floor(gtPowerDrainAvg/gtPowerSupplyAvg*100) or "-").."%"
+		((math.floor(gtPowerSupplyAvg) > 0) and math.floor(gtPowerDrainAvg/gtPowerSupplyAvg*100) or "-").."%"
 	))
 	--amp
 	if(gtPowerAmpUsed > gtPowerAmpMax*0.75) then color = 0xFFFF00
