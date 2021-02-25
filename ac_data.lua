@@ -14,17 +14,33 @@ condition:
 materials - divide toCraft by this
 ]]--
 local autocraftData = {}
+-- MC
+autocraftData["Stick"] = {
+	label="Stick",
+	keepStocked=1000,
+	threshold=100
+}
+autocraftData["Planks"] = {
+	label="Jungle Wood Planks",
+	keepStocked=10000,
+	threshold=2000
+}
+autocraftData["Bone Meal"] = {
+	label="Bone Meal",
+	keepStocked=5000,
+	threshold=4000
+}
+autocraftData["Paper"] = {
+	label="Paper",
+	keepStocked=100,
+	threshold=0
+}
+
 autocraftData["Tiny Titanium Dust"] = {
 	name="gregtech:gt.metaitem.01",
 	damage=28,
 	keepStocked=100,
 	threshold=0
-}
-autocraftData["Raw Rubber Dust"] = {
-	name="gregtech:gt.metaitem.01",
-	damage=2896,
-	keepStocked=5000,
-	threshold=1000
 }
 autocraftData["Powderbarrel"] = {
 	label="gt.blockreinforced.5.name",
@@ -117,28 +133,6 @@ autocraftData["Pure Fluix Crystal"] = {
 	threshold=500
 }
 
--- MC
-autocraftData["Paper"] = {
-	label="Paper",
-	keepStocked=100,
-	threshold=0
-}
-autocraftData["Stick"] = {
-	label="Stick",
-	keepStocked=1000,
-	threshold=100
-}
-autocraftData["Planks"] = {
-	name="ExtrabiomesXL:planks",
-	damage=1,
-	keepStocked=1000,
-	threshold=100
-}
-autocraftData["Bone Meal"] = {
-	label="Bone Meal",
-	keepStocked=5000,
-	threshold=4000
-}
 --[[ spawners
 autocraftData["Leather"] = {
 	label="Leather",
