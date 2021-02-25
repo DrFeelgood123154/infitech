@@ -198,7 +198,7 @@ function Draw()
 
 	if(gtPowerSupplyAvg > highestEnergyIncome) then highestEnergyIncome = gtPowerSupplyAvg end
 	if(gtPowerDrainAvg > highestEnergyDrain) then highestEnergyDrain = gtPowerDrainAvg end
-	gtPowerAmpUsed = math.ceil(gtPowerDrainAvg / gtPowerVoltageAvg)
+	gtPowerAmpUsed = math.ceil(gtPowerDrainAvg / gtPowerVoltage)
 
 	if(powerDrain >= powerSupply) then powerColor = 0xFF0000
 	elseif(powerDrain >= powerSupply*0.75) then powerColor = 0xFFFF00 end
@@ -288,12 +288,12 @@ function Draw()
 	-- Time to zero or full energy
 	local timeToZero = "-"
 	local seconds = 0
-	local powerDelta = ((gtPowerDrain-gtPowerSupply)*20)
+	local powerDelta = ((gtPowerDrainAvg-gtPowerSupplyAvg)*20)
 
-	if gtPowerDrain > gtPowerSupply then
+	if gtPowerDrainAvg > gtPowerSupplyAvg then
 		seconds = tonumber(gtPower / powerDelta)
 		timeToZero = "Time to zero energy: "
-	elseif gtPowerDrain < gtPowerSupply then
+	elseif gtPowerDrainAvg < gtPowerSupplyAvg then
 		seconds = tonumber((gtPowerMax - gtPower) / powerDelta)
 		timeToZero = "Time to full energy: "
 	end
