@@ -171,7 +171,7 @@ local gtPowerVoltage = 0
 if(#batteryBuffers > 0) then gtPowerVoltage = batteryBuffers[1].getOutputVoltage() end
 
 local gtPowerDrainAvg = 0
-local grPowerSupplyAvg = 0
+local gtPowerSupplyAvg = 0
 function Draw()
 	local powerDrain = ae.getAvgPowerUsage()
 	local powerSupply = ae.getAvgPowerInjection()
