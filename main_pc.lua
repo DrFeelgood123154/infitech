@@ -193,8 +193,8 @@ function Draw()
 		gtPowerAmpMax = gtPowerAmpMax + batteryBuffers[i].getOutputAmperage()
 	end
 
-	gtPowerDrainAvg = gtPowerDrainAvg * 0.8 + gtPowerDrain * 0.2
-	gtPowerSupplyAvg = gtPowerSupplyAvg * 0.8 + gtPowerSupply * 0.2
+	gtPowerDrainAvg = math.floor(gtPowerDrainAvg * 0.8 + gtPowerDrain * 0.2)
+	gtPowerSupplyAvg = math.floor(gtPowerSupplyAvg * 0.8 + gtPowerSupply * 0.2)
 
 	if(gtPowerSupplyAvg > highestEnergyIncome) then highestEnergyIncome = gtPowerSupplyAvg end
 	if(gtPowerDrainAvg > highestEnergyDrain) then highestEnergyDrain = gtPowerDrainAvg end
@@ -268,19 +268,19 @@ function Draw()
 
 	-- GT Power
 	printColor(color, "=== GT power: "..math.floor(gtPower/gtPowerMax*100).."%")
-	printColor(color, "Store: \t"..formatInt(gtPower).." EU / "..formatInt(gtPowerMax).." EU")
+	printColor(color, "Store:\t"..formatInt(gtPower).." EU / "..formatInt(gtPowerMax).." EU")
 	if(gtPowerDrainAvg > gtPowerSupplyAvg) then color = 0xFF0000
 	else color = 0x00FF00 end
-	printColor(color, string.format("In/Out: \t%s / %s (%s)",
+	printColor(color, string.format("Out/In:\t%s / %s (%s)",
 		formatInt(gtPowerDrainAvg),
 		formatInt(gtPowerSupplyAvg),
-		math.floor(gtPowerDrainAvg/gtPowerSupplyAvg*100).."%"
+		((gtPowerSupplyAvg > 0) and math.floor(gtPowerDrainAvg/gtPowerSupplyAvg*100) or "-").."%"
 	))
 	--amp
 	if(gtPowerAmpUsed > gtPowerAmpMax*0.75) then color = 0xFFFF00
 	else color = 0x00FF00 end
 
-	printColor(color, string.format("Amps: \t%s / %s",
+	printColor(color, string.format("Amps:\t%s / %s",
 		gtPowerAmpUsed,
 		gtPowerAmpMax
 	))
