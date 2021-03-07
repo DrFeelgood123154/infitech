@@ -12,7 +12,7 @@ local gpu = component.gpu
 local defaultColor = 0xFFFFFF
 gpu.setForeground(defaultColor)
 
-function printColor(color, wat)
+local function printColor(color, wat)
 	gpu.setForeground(color)
 	print(wat)
 	gpu.setForeground(defaultColor)
@@ -20,130 +20,239 @@ end
 
 -- general
 local loopSleep = 1
-local lastError = ""
-local emitRedstoneAt = 0 -- frequency, do nothing if 0
 
 --crafting
 local maxCPUs = 4
 local usedCPUs = 0
+local activeUnimportantCPUs = 0
 local waitBeforeCrafting = 30 -- seconds
 local autocraftData = {}
-local waitingToCraftMax = 3 -- limit array size
-local waitingToCraft = {}
-local currentlyCraftingMax = 3 -- limit array size
-local currentlyCrafting = {}
-local lastItemsRequestedSize = 5
-local lastItemsRequested = {}
 
-function LoadAutocraftData()
-	package.loaded.autocraft = nil
+local displayMax = 10
+local waitingToCraft = {}
+local currentlyCrafting = {}
+local debugList = {}
+
+local defaultEvents = {
+	-- arguments to all these functions:
+		-- data = the autocraftData[item] table itself
+		-- ae = reference to ae object
+		-- cpustatus = {
+		--	activeCPUs = nr of ae crafting CPUs activated by the computer,
+		--	activeCPUsTotal = nr of ae crafting CPUs currently active total,
+		--	activeUnimportantCPUs = nr of ae crafting CPUs currently busy with unimportant recipes,
+		--	totalCPUs = nr of total CPUs
+		-- }
+
+	shouldCraft = function(data,ae,cpustatus)
+		if data.aeitem.size < data.threshold then
+			if data.unimportant and cpustatus.activeCPUsTotal-cpustatus.activeUnimportantCPUs > 0 then
+				--table.insert(debugList,"Waiting to craft " .. data.name .. " because unimportant")
+				return nil, "Unimportant"
+			end
+
+			if not data.important and cpustatus.activeCPUs > maxCPUs then
+				--table.insert(debugList,"Waiting to craft " .. data.name .. " because out of CPUs")
+				return nil, "Not enough CPUs"
+			end
+
+			if data.startCraftingAt == nil then
+				-- if startCraftingAt is nil, then set the end time
+				data.startCraftingAt = computer.uptime() + data.waitToCraft
+				return nil, "Waiting " .. data.waitToCraft .. "s"
+			else
+				--table.insert(debugList,"Waiting to craft " .. data.name .. " for "..math.max(0,math.floor((data.startCraftingAt-computer.uptime())*10+0.5)/10).." seconds")
+				if data.startCraftingAt <= computer.uptime() then
+					return true
+				else
+					local s = math.max(0,math.floor(data.startCraftingAt-computer.uptime()))
+					return nil, "Waiting "..s.."s"
+				end
+			end
+		else
+			-- reset
+			data.startCraftingAt = nil
+			return false
+		end
+	end,
+	start = function(data,ae,cpustatus)
+		local amount = data.keepStocked - data.aeitem.size
+		--table.insert(debugList,"Amount to craft: "..amount)
+		if amount <= 0 then return false end -- uh oh something went wrong
+		data.amountToCraft = amount
+		data.amountAtStart = data.aeitem.size
+
+		local craftable = ae.getCraftables(data.filter)
+		if craftable[1] ~= nil then
+			--table.insert(debugList,"Craftable found")
+			craftable = craftable[1]
+
+			data.craftStatus = craftable.request(amount)
+			if data.craftStatus.isCanceled() then
+				return false, "Unable to craft"
+			else
+				return true
+			end
+		end
+
+		return false, "Missing recipe"
+	end,
+	isFinished = function(data,ae,cpustatus)
+		return data.craftStatus and (data.craftStatus.isDone() or data.craftStatus.isCanceled())
+	end,
+	finished = function(data,ae,cpustatus)
+		-- reset some values
+		data.startCraftingAt = nil
+		data.craftStatus = nil
+	end,
+	displayStatus = function(data)
+		local clr = {
+			["Unable to craft"] = 0xFF0000,
+			["Missing recipe"] = 0xFF0000,
+			["default"] = 0xFFFFFF
+		}
+		local err = ""
+		if data.error ~= nil then
+			err = " (" .. data.error .. ")"
+		end
+
+		-- Print status
+		printColor(
+			clr[data.error or "default"] or clr.default,
+			string.format("%sx %s%s",
+				math.max(0,(data.amountToCraft or data.keepStocked) - 
+					(data.aeitem.size-(data.amountAtStart or 0))),
+				data.name,
+				err
+			)
+		)
+	end
+}
+
+local function LoadAutocraftData()
+	package.loaded.ac_data = nil
 	autocraftData = require("ac_data")
+
 	local i = 0
-	for k,v in pairs(autocraftData) do
-		i = i+1
-		v.currentlyCrafting = 0
-		v.craftBegin = nil
-		if(v.waitToCraft == nil) then v.waitToCraft = waitBeforeCrafting end
+	for name, data in pairs(autocraftData) do
+		i = i + 1
+
+		data.currentlyCrafting = false
+		data.name = name
+		data.threshold = data.threshold or data.keepStocked
+
+		-- Set default events
+		if not data.events then 
+			data.events = defaultEvents
+		else
+			for k,v in pairs(defaultEvents) do
+				if not data.events[k] then data.events[k] = v end
+			end
+		end
+		
+		-- set default filter
+		if not data.filter then
+			data.filter = {
+				label = name
+			}
+		end
+
+		if not data.waitToCraft then data.waitToCraft = waitBeforeCrafting end
 	end
 	printColor(0x00FF00, "Loaded "..i.." autocraft items")
 end
 LoadAutocraftData()
 
-function Autocrafting()
-   lastError = ""
-   currentlyCrafting = {}
-   waitingToCraft = {}
-   for item, data in pairs(autocraftData) do
-      local filter = {}
-      if(data.damage ~= 0) then filter["damage"] = data.damage end
-      if(data.name ~= "-") then filter["name"] = data.name end
-      if(data.label ~= "-") then filter["label"] = data.label end
+local function Autocrafting()
+	currentlyCrafting = {}
+	waitingToCraft = {}
+	debugList = {}
 
-      local toCraft = 0
-      local craft = false
-		if(data.condition == nil) then
-			local aeitems = ae.getItemsInNetwork(filter)
-			local stored = 0
-			if(aeitems[1] ~= nil) then stored = aeitems[1].size end
-			toCraft = data.keepStocked - stored
-			craft = toCraft > data.threshold
-		else
-			if(data.condition.type == "moreThan") then
-				local aeItems = ae.getItemsInNetwork(data.condition.filter)
-				if(aeItems[1] ~= nil and aeItems[1].size > data.condition.quantity) then
-					if(data.condition.materials ~= nil) then
-						toCraft = math.floor((aeItems[1].size - data.condition.quantity)/data.condition.materials)
-					else
-						toCraft = 1
-					end
-					craft = true
-				end
-			end
+	local c = ae.getCpus()
+	local cpustatus = {
+		activeCPUsTotal = 0,
+		activeCPUs = usedCPUs,
+		activeUnimportantCPUs = activeUnimportantCPUs,
+		CPUs = c.n
+	}
+
+	for i=1,c.n do
+		if c[i].busy then 
+			cpustatus.activeCPUsTotal = cpustatus.activeCPUsTotal + 1
 		end
-		-- request
-		local waitDelta = 0 -- time left to ok craft
-		if(craft) then
-			if(data.craftBegin == nil) then data.craftBegin = computer.uptime() end
-			waitDelta = data.craftBegin+data.waitToCraft - computer.uptime()
-			if(data.wait == nil) then waitDelta = 0 end
-			if(waitDelta > 0) then
-				-- whatever
-			elseif(data.redstoneFrequency == nil) then
-				local craftable = ae.getCraftables(filter)
-				if(#craftable > 0) then
-					if(usedCPUs < maxCPUs and data.currentlyCrafting == 0) then
-						data.craftStatus = craftable[1].request(toCraft)
-						usedCPUs = usedCPUs + 1
-						data.currentlyCrafting = toCraft
-						if(not data.craftStatus.isCanceled()) then
-							local last = lastItemsRequested[#lastItemsRequested]
-							if(last ~= nil and last.what == item) then last.qt = last.qt + toCraft
-							else table.insert(lastItemsRequested, {what=item,qt=toCraft})
-							end
-							if(#lastItemsRequested > lastItemsRequestedSize) then table.remove(lastItemsRequested, 1) end
-						end
-					end
-				elseif(#craftable == 0) then
-					lastError = "No crafting recipe available for "..item
-					lastError = lastError .. sr.serialize(filter) .. "\n" .. sr.serialize(craftable)
-				end
-			elseif(data.redstoneFrequency ~= nil and emitRedstoneAt == 0) then
-				emitRedstoneAt = data.redstoneFrequency
-				data.currentlyCrafting = toCraft
-			end
-			-- add to queue
-			if(data.currentlyCrafting == 0 and #waitingToCraft < waitingToCraftMax) then
-				if(waitDelta > 0) then
-					table.insert(waitingToCraft, toCraft.." "..item.."("..math.floor(waitDelta).."s)")
+	end
+
+	local function updateCPUStatus(data,dir)
+		usedCPUs = usedCPUs + dir
+		cpustatus.activeCPUs = usedCPUs
+		if data.unimportant then
+			activeUnimportantCPUs = activeUnimportantCPUs + dir
+			cpustatus.activeUnimportantCPUs = activeUnimportantCPUs
+		end
+	end
+
+	local function pushCurrentlyCrafting(data)
+		table.insert(currentlyCrafting,data)
+	end
+
+	local function pushWaitingToCraft(data)
+		if data.error == "Missing recipe" then
+			table.insert(waitingToCraft,data) -- put it at the end of the list
+		else
+			table.insert(waitingToCraft,1,data)
+		end
+	end
+
+	for name, data in pairs(autocraftData) do
+		--table.insert(debugList,"checking: " .. item)
+		local aeitem = ae.getItemsInNetwork(data.filter)
+		if aeitem[1] ~= nil then
+			aeitem = aeitem[1]
+		else
+			-- item not found, make some fake data and hope for the best
+			aeitem = {
+				size = 0, damage=0, 
+				label=data.filter.label or name, 
+				name=data.filter.name or name, 
+				maxDamage = 0, maxSize = 64, 
+				hasTag = false
+			}
+		end
+			
+		data.aeitem = aeitem
+		--table.insert(debugList,"item name: " .. data.filter.label .. ", count: " .. aeitem.size)
+
+		if not data.currentlyCrafting then
+			local should, err = data.events.shouldCraft(data,ae,cpustatus)
+			data.error = err
+			if should == true then
+				--table.insert(debugList,"Should start")
+				local start, err = data.events.start(data,ae,cpustatus) 
+				data.error = err
+				if start then
+					--table.insert(debugList,"Has started")
+					data.currentlyCrafting = true
+
+					updateCPUStatus(data,1)
+					pushCurrentlyCrafting(data)
 				else
-					table.insert(waitingToCraft, toCraft.." "..item)
+					pushWaitingToCraft(data)
 				end
-			end
-		end
-		-- check craft status
-		if(data.redstoneFrequency == nil) then
-			if(data.craftStatus == nil) then
-				data.currentlyCrafting = 0
-			elseif(data.craftStatus.isDone() or data.craftStatus.isCanceled()) then
-				if(not data.craftStatus.isCanceled()) then data.craftBegin = nil end
-				data.currentlyCrafting = 0
-				data.craftStatus = nil
-				usedCPUs = usedCPUs - 1
-			elseif(#currentlyCrafting < currentlyCraftingMax) then
-				table.insert(currentlyCrafting, data.currentlyCrafting.." "..item)
+			elseif should == nil then
+				pushWaitingToCraft(data)
 			end
 		else
-			if(emitRedstoneAt == data.redstoneFrequency) then
-				table.insert(currentlyCrafting, data.currentlyCrafting.." "..item)
-				if(data.keepStocked ~= nil and stored ~= nil and stored >= data.keepStocked) then
-					data.currentlyCrafting = 0
-					emitRedstoneAt = 0
-				end
+			if data.events.isFinished(data,ae,cpustatus) then
+				--table.insert(debugList,"Finished")
+				data.events.finished(data,ae,cpustatus)
+				data.currentlyCrafting = false
+				updateCPUStatus(data,-1)
 			else
-				data.currentlyCrafting = 0
+				pushCurrentlyCrafting(data)
 			end
 		end
-	end -- loop?
+
+	end
 end
 
 --gt
@@ -213,37 +322,44 @@ function Draw()
 	end
 	print(usedCPUs.."/"..maxCPUs.." CPU")
 
-	-- Last Crafts
+	-- debug
 	--[[
-		printColor(0x00FF00, "Last crafts:")
-		for i, wat in pairs(lastItemsRequested) do
-		print(wat.qt.." "..wat.what)
+		printColor(0x00FF00, "DEBUG:")
+		for i, msg in pairs(debugList) do
+			print(i..": "..msg)
 		end
-	]]--
+	--]]--
 	
-	-- Currently Crafting
-	if #currentlyCrafting > 0 then
-		printColor(0x00FF00, "= Currently crafting:")
-
-		local i = 0
-		for k,v in pairs(currentlyCrafting) do
-			print(v)
-			i = i+1
-			if(i>4) then break end
+	local displaySlotsLeft = displayMax
+	local function displayList(list)
+		for k,v in pairs(list) do
+			if displaySlotsLeft - ((#list-k)>0 and 1 or 0) <= 0 then
+				if k < #list then
+					print("+ " .. (#list - k) .. " others")
+					displaySlotsLeft = displaySlotsLeft - 1
+				end
+				break
+			end
+			displaySlotsLeft = displaySlotsLeft - 1
+			local s = v.events.displayStatus(v)
+			if s then print(s) end
 		end
 	end
 
+	-- Currently Crafting
+	if #currentlyCrafting > 0 then
+		printColor(0x00FF00, "= Currently crafting:")
+		displayList(currentlyCrafting)
+	end
+
 	-- Waiting to Craft
-	if(#waitingToCraft > 0) then
+	if #waitingToCraft > 0 then
 		printColor(0x00FF00,"= Waiting to craft:")
-		for k,v in pairs(waitingToCraft) do print(v) end
+		displayList(waitingToCraft)
 	end
 
 	-- Crafting error
 	--print("Redstone frequency: "..emitRedstoneAt)
-	if(lastError ~= "") then
-		printColor(0xFF0000,lastError)
-	end
 
 	-- AE Power
 	--[[if(ae.getStoredPower() == 0) then
@@ -312,17 +428,10 @@ function Draw()
 end
 
 while(true) do
-	emitRedstoneAt = 0
 	if(ae.getStoredPower() > 0) then
-	Autocrafting()
+		Autocrafting()
 	end
 
-	if(emitRedstoneAt ~= 0) then
-		redstone.setWirelessFrequency(emitRedstoneAt)
-		redstone.setWirelessOutput(true)
-	else
-		redstone.setWirelessOutput(false)
-	end
-   Draw()
-   os.sleep(loopSleep)
+	Draw()
+	os.sleep(loopSleep)
 end
