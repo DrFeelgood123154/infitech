@@ -319,7 +319,7 @@ local function Draw()
 		end
 		allbattery_info[i] = {
 			clr,
-			string.format("\t%s\t%s / %s\t(%s)",
+			string.format("\t%s\t%s / %s\t\t(%s)",
 				math.floor(pwr/pwrMax*100+0.5).."%",
 				formatInt(drain), formatInt(supply),
 				percent .. "%"
@@ -417,20 +417,26 @@ local function Draw()
 		else color = 0xFF0000 end
 	end
 
-	printColor(color, string.format("=== GT Power: %s EU / %s EU\t%s / %s Amps",
+	printColor(color, string.format("=== GT Power:\t%s\t%s / %s EU\t%s / %s Amps",
+		math.floor(gtPower/gtPowerMax*100).."%",
 		formatInt(gtPower),
 		formatInt(gtPowerMax),
 		gtPowerAmpUsed,
 		gtPowerAmpMax
 	))
-	if gtPowerDrainAvg >= gtPowerSupplyAvg then color = 0xFF0000
-	elseif gtPowerDrainAvg >= gtPowerSupplyAvg*0.75 then color = 0xFFFF00
-	else color = 0x00FF00 end
-	printColor(color, string.format("Total:\t\t%s\t%s / %s\t(%s)",
-		math.floor(gtPower/gtPowerMax*100).."%",
+
+	local percent = math.floor(gtPowerDrainAvg/gtPowerSupplyAvg*100+0.5)
+	local color = 0x00FF00
+	if percent == math.huge or percent < 0 or percent > 10000 then
+		percent = "-"
+	else
+		if percent >= 100 then color = 0xFF0000
+		elseif percent >= 75 then color = 0xFFFF00 end
+	end
+	printColor(color, string.format("Total:\t\t\t%s / %s\t\t(%s)",
 		formatInt(math.floor(gtPowerDrainAvg)),
 		formatInt(math.floor(gtPowerSupplyAvg)),
-		((math.floor(gtPowerSupplyAvg) > 0) and math.floor(gtPowerDrainAvg/gtPowerSupplyAvg*100) or "-").."%"
+		percent.."%"
 	))
 
 	-- all batteries
