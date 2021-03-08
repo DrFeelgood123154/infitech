@@ -279,6 +279,7 @@ end
 local gtPowerVoltage = 0
 if(#batteryBuffers > 0) then gtPowerVoltage = batteryBuffers[1].getOutputVoltage() end
 
+local warningBlink = false
 local gtPowerDrainAvg = 0
 local gtPowerSupplyAvg = 0
 local function Draw()
@@ -293,13 +294,37 @@ local function Draw()
 	local gtPowerAmpMax = 0
 	local gtPowerAmpUsed = 0
 
+	local allbattery_info = {}
+
 	for i=1, #batteryBuffers do
 		local data = batteryBuffers[i].getSensorInformation()
-		gtPower = gtPower + unformatInt(data[3])
-		gtPowerMax = gtPowerMax + unformatInt(data[4])
-		gtPowerDrain = gtPowerDrain + batteryBuffers[i].getAverageElectricOutput()
-		gtPowerSupply = gtPowerSupply + batteryBuffers[i].getAverageElectricInput()
+		local pwr = unformatInt(data[3])
+		local pwrMax = unformatInt(data[4])
+		local drain = batteryBuffers[i].getAverageElectricOutput()
+		local supply = batteryBuffers[i].getAverageElectricInput()
+
+		gtPower = gtPower + pwr
+		gtPowerMax = gtPowerMax + pwrMax
+		gtPowerDrain = gtPowerDrain + drain
+		gtPowerSupply = gtPowerSupply + supply
 		gtPowerAmpMax = gtPowerAmpMax + batteryBuffers[i].getOutputAmperage()
+
+		local percent = math.floor(drain/supply*100+0.5)
+		local clr = 0x00FF00
+		if percent == math.huge or percent < 0 or percent > 10000 then
+			percent = "-"
+		else
+			if percent >= 100 then clr = 0xFF0000
+			elseif percent >= 75 then clr = 0xFFFF00 end
+		end
+		allbattery_info[i] = {
+			clr,
+			string.format("\t%s\t%s / %s\t(%s)",
+				math.floor(pwr/pwrMax*100+0.5).."%",
+				formatInt(drain), formatInt(supply),
+				percent .. "%"
+			)
+		}
 	end
 
 	gtPowerDrainAvg = gtPowerDrainAvg * 0.7 + gtPowerDrain * 0.3
@@ -384,23 +409,37 @@ local function Draw()
 	else color = 0x00FF00 end
 
 	-- GT Power
-	printColor(color, "=== GT power: "..math.floor(gtPower/gtPowerMax*100).."%")
-	printColor(color, "Store:\t"..formatInt(gtPower).." EU / "..formatInt(gtPowerMax).." EU")
-	if(gtPowerDrainAvg > gtPowerSupplyAvg) then color = 0xFF0000
+
+	-- make color blink if we use too many amps
+	if gtPowerAmpUsed >= math.floor(gtPowerAmpMax*0.9) then
+		warningBlink = not warningBlink
+		if warningBlink then color = 0xFFFF00
+		else color = 0xFF0000 end
+	end
+
+	printColor(color, string.format("=== GT Power: %s EU / %s EU\t%s / %s Amps",
+		formatInt(gtPower),
+		formatInt(gtPowerMax),
+		gtPowerAmpUsed,
+		gtPowerAmpMax
+	))
+	if gtPowerDrainAvg >= gtPowerSupplyAvg then color = 0xFF0000
+	elseif gtPowerDrainAvg >= gtPowerSupplyAvg*0.75 then color = 0xFFFF00
 	else color = 0x00FF00 end
-	printColor(color, string.format("Out/In:\t%s / %s (%s)",
+	printColor(color, string.format("Total:\t\t%s\t%s / %s\t(%s)",
+		math.floor(gtPower/gtPowerMax*100).."%",
 		formatInt(math.floor(gtPowerDrainAvg)),
 		formatInt(math.floor(gtPowerSupplyAvg)),
 		((math.floor(gtPowerSupplyAvg) > 0) and math.floor(gtPowerDrainAvg/gtPowerSupplyAvg*100) or "-").."%"
 	))
-	--amp
-	if(gtPowerAmpUsed > gtPowerAmpMax*0.75) then color = 0xFFFF00
-	else color = 0x00FF00 end
 
-	printColor(color, string.format("Amps:\t%s / %s",
-		gtPowerAmpUsed,
-		gtPowerAmpMax
-	))
+	-- all batteries
+	for i=1,#allbattery_info do 
+		printColor(
+			allbattery_info[i][1],
+			(i==1 and "Buffers:" or "\t") .. allbattery_info[i][2]
+		)
+	end
 
 	-- Time to zero or full energy
 	local timeToZero = "-"
@@ -409,10 +448,10 @@ local function Draw()
 
 	if gtPowerDrainAvg > gtPowerSupplyAvg then
 		seconds = tonumber(gtPower / powerDelta)
-		timeToZero = "Time to zero energy: "
+		timeToZero = "Time to zero: "
 	elseif gtPowerDrainAvg < gtPowerSupplyAvg then
 		seconds = tonumber((gtPowerMax - gtPower) / (-powerDelta))
-		timeToZero = "Time to full energy: "
+		timeToZero = "Time to full: "
 	end
 
 	if seconds > 0 then
@@ -424,8 +463,11 @@ local function Draw()
 		timeToZero = timeToZero .. "-"
 	end
 
-	print("Highest supply:\t"..formatInt(math.floor(highestEnergyIncome)).." \t"..timeToZero)
-	print("Highest drain:\t"..formatInt(math.floor(highestEnergyDrain)).." ("..math.ceil(highestEnergyDrain/gtPowerVoltage).." A)")
+	print(string.format("Highest supply/drain:\t%s/%s\t%s",
+		formatInt(math.floor(highestEnergyIncome)),
+		formatInt(math.floor(highestEnergyDrain)).." ("..math.ceil(highestEnergyDrain/gtPowerVoltage).." A)",
+		timeToZero
+	))
 end
 
 while(true) do
