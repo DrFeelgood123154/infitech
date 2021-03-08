@@ -19,12 +19,16 @@ local function printColor(color, wat)
 end
 
 -- general
-local loopSleep = 1
+local loopSleep = 0.5
 
 --crafting
-local maxCPUs = 4
-local usedCPUs = 0
-local activeUnimportantCPUs = 0
+local cpustatus = {
+	activeCPUsTotal = 0,
+	activeCPUs = 0,
+	activeUnimportantCPUs = 0,
+	totalCPUs = 0,
+	maxCPUs = 4 -- edit this if necessary
+}
 local waitBeforeCrafting = 30 -- seconds
 local autocraftData = {}
 
@@ -42,6 +46,7 @@ local defaultEvents = {
 		--	activeCPUsTotal = nr of ae crafting CPUs currently active total,
 		--	activeUnimportantCPUs = nr of ae crafting CPUs currently busy with unimportant recipes,
 		--	totalCPUs = nr of total CPUs
+		--	maxCPUs = max cpus allowed by config in main script
 		-- }
 
 	shouldCraft = function(data,ae,cpustatus)
@@ -51,7 +56,7 @@ local defaultEvents = {
 				return nil, "Unimportant"
 			end
 
-			if not data.important and cpustatus.activeCPUs > maxCPUs then
+			if not data.important and cpustatus.activeCPUs > cpustatus.maxCPUs then
 				--table.insert(debugList,"Waiting to craft " .. data.name .. " because out of CPUs")
 				return nil, "Not enough CPUs"
 			end
@@ -169,12 +174,8 @@ local function Autocrafting()
 	debugList = {}
 
 	local c = ae.getCpus()
-	local cpustatus = {
-		activeCPUsTotal = 0,
-		activeCPUs = usedCPUs,
-		activeUnimportantCPUs = activeUnimportantCPUs,
-		CPUs = c.n
-	}
+	cpustatus.activeCPUsTotal = 0
+	cpustatus.totalCPUs = c.n
 
 	for i=1,c.n do
 		if c[i].busy then 
@@ -183,11 +184,10 @@ local function Autocrafting()
 	end
 
 	local function updateCPUStatus(data,dir)
-		usedCPUs = usedCPUs + dir
-		cpustatus.activeCPUs = usedCPUs
+		cpustatus.activeCPUs = cpustatus.activeCPUs + dir
+		cpustatus.activeCPUsTotal = cpustatus.activeCPUsTotal + dir
 		if data.unimportant then
-			activeUnimportantCPUs = activeUnimportantCPUs + dir
-			cpustatus.activeUnimportantCPUs = activeUnimportantCPUs
+			cpustatus.activeUnimportantCPUs = cpustatus.activeUnimportantCPUs + dir
 		end
 	end
 
@@ -281,7 +281,7 @@ if(#batteryBuffers > 0) then gtPowerVoltage = batteryBuffers[1].getOutputVoltage
 
 local gtPowerDrainAvg = 0
 local gtPowerSupplyAvg = 0
-function Draw()
+local function Draw()
 	local powerDrain = ae.getAvgPowerUsage()
 	local powerSupply = ae.getAvgPowerInjection()
 	local powerIdle = ae.getIdlePowerUsage()
@@ -302,8 +302,8 @@ function Draw()
 		gtPowerAmpMax = gtPowerAmpMax + batteryBuffers[i].getOutputAmperage()
 	end
 
-	gtPowerDrainAvg = gtPowerDrainAvg * 0.8 + gtPowerDrain * 0.2
-	gtPowerSupplyAvg = gtPowerSupplyAvg * 0.8 + gtPowerSupply * 0.2
+	gtPowerDrainAvg = gtPowerDrainAvg * 0.7 + gtPowerDrain * 0.3
+	gtPowerSupplyAvg = gtPowerSupplyAvg * 0.7 + gtPowerSupply * 0.3
 
 	if(gtPowerSupplyAvg > highestEnergyIncome) then highestEnergyIncome = gtPowerSupplyAvg end
 	if(gtPowerDrainAvg > highestEnergyDrain) then highestEnergyDrain = gtPowerDrainAvg end
@@ -315,12 +315,13 @@ function Draw()
 	term.clear()
 
 	-- CPU Status
-	if(usedCPUs == maxCPUs) then 
-		gpu.setForeground(0xFF0000)
-	else 
-		gpu.setForeground(0x00FF00) 
-	end
-	print(usedCPUs.."/"..maxCPUs.." CPU")
+	local clr = 0x00FF00
+	if cpustatus.activeCPUs >= cpustatus.maxCPUs then clr = 0xFFFF00
+	elseif cpustatus.activeCPUs > math.ceil(cpustatus.totalCPUs*0.8) then clr = 0xFF0000 end
+	printColor(clr,string.format("=== CPUs: OC/Allowed: %s/%s - Active/Total: %s/%s",
+		cpustatus.activeCPUs,cpustatus.maxCPUs,
+		cpustatus.activeCPUsTotal,cpustatus.totalCPUs
+	))
 
 	-- debug
 	--[[
