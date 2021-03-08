@@ -35,6 +35,7 @@
 				--	activeCPUsTotal = nr of ae crafting CPUs currently active total,
 				--	activeUnimportantCPUs = nr of ae crafting CPUs currently busy with unimportant recipes,
 				--	totalCPUs = nr of total CPUs
+				--	maxCPUs = max cpus allowed by config in main script
 				-- }
 
 			shouldCraft = function(data,ae,cpustatus),
