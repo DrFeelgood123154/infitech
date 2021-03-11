@@ -95,7 +95,7 @@ autocraftData["Tiny Titanium Dust"] = {
 		name = "gregtech:gt.metaitem.01",
 		damage = 28,
 	},
-	keepStocked=100,
+	keepStocked=256,
 }
 autocraftData["Powderbarrel"] = {
 	filter = {
@@ -181,6 +181,62 @@ autocraftData["Pure Fluix Crystal"] = {
 	threshold = 500,
 	unimportant = true
 }
+autocraftData["Enchanted Golden Apple"] = {
+	filter = {
+		name="minecraft:golden_apple",
+		damage=1
+	},
+	keepStocked = 128,
+	threshold = 32,
+	unimportant = true
+}
+
+local function addGTItem(name,label,amount,threshold)
+	amount = amount or 500
+	threshold = threshold or math.floor(amount*0.25)
+	autocraftData[name] = {
+		filter = {
+			label="gt.metaitem.01."..label..".name",
+		},
+		keepStocked = amount,
+		threshold = threshold
+	}
+	return autocraftData[name]
+end
+local function addImportantGTItem(name,label,amount,threshold)
+	amount = amount or 1000
+	threshold = threshold or math.floor(amount*0.5)
+	addGTItem(name,label,amount,threshold).important = true
+end
+
+local function addUnimportantGTItem(name,label,amount,threshold)
+	amount = amount or 4000
+	threshold = threshold or math.floor(amount*0.25)
+	addGTItem(name,label,amount,threshold).unimportant = true
+end
+
+-- GT Items with normal priority
+addGTItem("Nitrogen Cell",30012)
+addGTItem("Oxygen Cell",30013)
+addGTItem("Chlorine Cell",30023)
+addGTItem("Fluorine Cell",30014)
+addGTItem("Naphtha Cell",30739)
+addGTItem("Sulfuric Acid Cell",30720)
+
+-- GT items with high priority (these are currently handled by export buses, maybe change later)
+-- addImportantGTItem(name,label[,amount,threshold])
+
+-- GT items with reduced priority
+-- maybe move some of these to important later and remove their export buses
+addUnimportantGTItem("Silicon Ingot",11020)
+addUnimportantGTItem("Tungsten Ingot",11081)
+addUnimportantGTItem("Tungstensteel Ingot",11316,1000)
+addUnimportantGTItem("Aluminium Ingot",11019)
+addUnimportantGTItem("Osmium Ingot",11083,400)
+addUnimportantGTItem("Steel Ingot",11305)
+addUnimportantGTItem("Naquadah Ingot",11305,400)
+addUnimportantGTItem("Naquadah Alloy Ingot",11325,200)
+
 
 --[[
 -- these are export bussed with crafting cards for now
