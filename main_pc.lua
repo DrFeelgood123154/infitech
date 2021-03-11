@@ -311,7 +311,8 @@ local function Draw()
 
 		local percent = math.floor(drain/supply*100+0.5)
 		local clr = 0x00FF00
-		if percent == math.huge or percent < 0 or percent > 10000 then
+		if (drain == 0 and supply == 0) or 
+			percent == math.huge or percent < 0 or percent > 10000 then
 			percent = "-"
 		else
 			if percent >= 100 then clr = 0xFF0000
@@ -427,7 +428,8 @@ local function Draw()
 
 	local percent = math.floor(gtPowerDrainAvg/gtPowerSupplyAvg*100+0.5)
 	local color = 0x00FF00
-	if percent == math.huge or percent < 0 or percent > 10000 then
+	if (gtPowerDrainAvg == 0 and gtPowerSupplyAvg == 0) or 
+		percent == math.huge or percent < 0 or percent > 10000 then
 		percent = "-"
 	else
 		if percent >= 100 then color = 0xFF0000
