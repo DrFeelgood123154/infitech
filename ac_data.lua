@@ -16,11 +16,13 @@
 
 		-- options
 		keepStocked = 1000, -- keep this many in storage,
-		threshold = 100, -- will only begin crafting once number of items drops below this number. If unspecified, defaults to equal keepStocked
+		threshold = 100, -- will only begin crafting once number of items drops below this number. If unspecified, defaults to equal math.floor(keepStocked*0.75)
+		maxCraft = nil, -- max amount of items to craft in one go (before waiting waitToCraft*0.5 amount of time to check again). default is equal to keepStocked
 		redstoneFrequency = nil, -- Emit this redstone signal to craft instead of crafting from ae. useful for powered spawners
 		waitToCraft = nil, -- wait this many seconds before starting to craft, default 30
 		important = false, -- if true, will always craft, ignoring the number of CPUs in use
-		unimportant = false, -- if true, will only craft if nothing else is being crafted (except other unimportant crafts)
+		unimportant = false, -- if true, will only craft if nothing else is being crafted (except other unimportant crafts),
+							 -- or if the number of available CPUs is greater 10
 
 		events = {  -- optional table of events
 					-- keep in mind overriding these functions will make your code 
@@ -79,15 +81,16 @@ autocraftData["Stick"] = {
 autocraftData["Jungle Wood Planks"] = {
 	keepStocked = 10000,
 	threshold = 8000,
-	unimportant = true
+	unimportant = true,
+	maxCraft = 5000,
 }
 autocraftData["Bone Meal"] = {
 	keepStocked = 5000,
-	threshold = 1000
+	threshold = 1000,
+	maxCraft = 2000,
 }
 autocraftData["Paper"] = {
-	keepStocked = 100,
-	unimportant = true
+	keepStocked = 500
 }
 
 autocraftData["Tiny Titanium Dust"] = {
@@ -157,6 +160,15 @@ autocraftData["ME Glass Cable - Fluix"] = {
 	keepStocked = 128,
 	unimportant = true
 }
+autocraftData["Nether Quartz"] = {
+	filter = {
+		label="Nether Quartz",
+	},
+	keepStocked = 5000,
+	threshold = 1000,
+	unimportant = true,
+	maxCraft = 1000,
+}
 autocraftData["Charged Certus Quartz"] = {
 	filter = {
 		label="Charged Certus Quartz Crystal",
@@ -206,13 +218,17 @@ end
 local function addImportantGTItem(name,label,amount,threshold)
 	amount = amount or 1000
 	threshold = threshold or math.floor(amount*0.5)
-	addGTItem(name,label,amount,threshold).important = true
+	local ret = addGTItem(name,label,amount,threshold)
+	ret.important = true
+	return ret
 end
 
 local function addUnimportantGTItem(name,label,amount,threshold)
 	amount = amount or 4000
 	threshold = threshold or math.floor(amount*0.25)
-	addGTItem(name,label,amount,threshold).unimportant = true
+	local ret = addGTItem(name,label,amount,threshold)
+	ret.unimportant = true
+	return ret
 end
 
 -- GT Items with normal priority
@@ -222,9 +238,17 @@ addGTItem("Chlorine Cell",30023)
 addGTItem("Fluorine Cell",30014)
 addGTItem("Naphtha Cell",30739)
 addGTItem("Sulfuric Acid Cell",30720)
+addGTItem("Nitrogen Dioxide Cell",30717)
+addGTItem("Hydrogen Cell",30001)
+
+addGTItem("Soldering Alloy",11314,1000)
 
 -- GT items with high priority (these are currently handled by export buses, maybe change later)
 -- addImportantGTItem(name,label[,amount,threshold])
+
+-- Osmium wire is a special case with "02" instead of "01" in the label so we override it after
+addImportantGTItem("Fine Osmium Wire",19083,512).filter.label = "gt.metaitem.02.19083.name"
+addImportantGTItem("Platinum Foil",29085,512)
 
 -- GT items with reduced priority
 -- maybe move some of these to important later and remove their export buses
@@ -234,8 +258,10 @@ addUnimportantGTItem("Tungstensteel Ingot",11316,1000)
 addUnimportantGTItem("Aluminium Ingot",11019)
 addUnimportantGTItem("Osmium Ingot",11083,400)
 addUnimportantGTItem("Steel Ingot",11305)
-addUnimportantGTItem("Naquadah Ingot",11305,400)
+addUnimportantGTItem("Naquadah Ingot",11324,400)
 addUnimportantGTItem("Naquadah Alloy Ingot",11325,200)
+addUnimportantGTItem("Certus Quartz",8516,10000).maxCraft = 1000
+addUnimportantGTItem("Yttrium Barium Cuprate Ingot",11358,2000)
 
 
 --[[
