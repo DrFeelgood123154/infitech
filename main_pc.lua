@@ -51,12 +51,12 @@ local defaultEvents = {
 
 	shouldCraft = function(data,ae,cpustatus)
 		if data.aeitem.size < data.threshold then
-			if data.unimportant and cpustatus.activeCPUsTotal-cpustatus.activeUnimportantCPUs > 0 then
+			if data.unimportant and cpustatus.activeCPUsTotal-cpustatus.activeUnimportantCPUs > 0 and cpustatus.totalCPUs-cpustatus.activeCPUsTotal < 10 then
 				--table.insert(debugList,"Waiting to craft " .. data.name .. " because unimportant")
 				return nil, "Unimportant"
 			end
 
-			if not data.important and cpustatus.activeCPUs > cpustatus.maxCPUs then
+			if not data.important and cpustatus.activeCPUs >= cpustatus.maxCPUs then
 				--table.insert(debugList,"Waiting to craft " .. data.name .. " because out of CPUs")
 				return nil, "Not enough CPUs"
 			end
@@ -82,6 +82,13 @@ local defaultEvents = {
 	end,
 	start = function(data,ae,cpustatus)
 		local amount = data.keepStocked - data.aeitem.size
+		local new_amount = math.min(data.maxCraft,amount)
+
+		if amount > new_amount then
+			-- limited by maxCraft
+			data.maxCraftBound = true
+		end
+
 		--table.insert(debugList,"Amount to craft: "..amount)
 		if amount <= 0 then return false end -- uh oh something went wrong
 		data.amountToCraft = amount
@@ -106,9 +113,17 @@ local defaultEvents = {
 		return data.craftStatus and (data.craftStatus.isDone() or data.craftStatus.isCanceled())
 	end,
 	finished = function(data,ae,cpustatus)
+		if data.maxCraftBound then
+			-- Start quicker next time
+			data.startCraftingAt = computer.uptime() + data.waitToCraft * 0.5
+		end
+
 		-- reset some values
 		data.startCraftingAt = nil
 		data.craftStatus = nil
+		data.amountToCraft = nil
+		data.amountAtStart = nil
+		data.maxCraftBound = nil
 	end,
 	displayStatus = function(data)
 		local clr = {
@@ -144,7 +159,8 @@ local function LoadAutocraftData()
 
 		data.currentlyCrafting = false
 		data.name = name
-		data.threshold = data.threshold or data.keepStocked
+		data.threshold = data.threshold or math.floor(data.keepStocked*0.75)
+		data.maxCraft = data.keepStocked
 
 		-- Set default events
 		if not data.events then 
