@@ -8,6 +8,7 @@ local sides = require("sides")
 local redstone = component.redstone
 local ae = component.me_interface
 local gpu = component.gpu
+local colors = require("colors")
 
 local defaultColor = 0xFFFFFF
 gpu.setForeground(defaultColor)
@@ -285,7 +286,8 @@ GetBatteries()
 print("Found "..#batteryBuffers.." battery buffers")
 
 function formatInt(i)
-  return tostring(i):reverse():gsub("%d%d%d", "%1,"):reverse():gsub("^,", "")
+	if i > 10^18 then return "battery goes brr" end
+	return tostring(i):reverse():gsub("%d%d%d", "%1,"):reverse():gsub("^,", "")
 end
 function unformatInt(i)
 	local temp = string.gsub(i,"[^%d]","")
@@ -295,6 +297,7 @@ end
 local gtPowerVoltage = 0
 if(#batteryBuffers > 0) then gtPowerVoltage = batteryBuffers[1].getOutputVoltage() end
 
+local turbinesOn = false
 local warningBlink = false
 local gtPowerDrainAvg = 0
 local gtPowerSupplyAvg = 0
@@ -458,11 +461,13 @@ local function Draw()
 	))
 
 	-- all batteries
-	for i=1,#allbattery_info do 
-		printColor(
-			allbattery_info[i][1],
-			(i==1 and "Buffers:" or "\t") .. allbattery_info[i][2]
-		)
+	if #allbattery_info > 1 then
+		for i=1,#allbattery_info do 
+			printColor(
+				allbattery_info[i][1],
+				(i==1 and "Buffers:" or "\t") .. allbattery_info[i][2]
+			)
+		end
 	end
 
 	-- Time to zero or full energy
@@ -472,28 +477,46 @@ local function Draw()
 
 	if gtPowerDrainAvg > gtPowerSupplyAvg then
 		seconds = tonumber(gtPower / powerDelta)
-		timeToZero = "Time to zero: "
+		timeToZero = "Zero: "
 	elseif gtPowerDrainAvg < gtPowerSupplyAvg then
 		seconds = tonumber((gtPowerMax - gtPower) / (-powerDelta))
-		timeToZero = "Time to full: "
+		timeToZero = "Full: "
 	end
 
 	if seconds > 0 then
-		local hours = math.floor(seconds/3600);
-		local mins = math.floor(seconds/60 - (hours*60));
-		local secs = math.floor(seconds - hours*3600 - mins *60);
-		timeToZero = timeToZero .. string.format("%02.f:%02.f:%02.f", hours, mins, secs)
+		if timeToZero == "Full: " and gtPowerMax > 10^18 then
+			local hours = math.floor(seconds/3600)
+			local years = math.floor(hours / 8765.81277)
+			timeToZero = "Full: " .. formatInt(years) .. " years"
+		else
+			local hours = math.floor(seconds/3600);
+			local mins = math.floor(seconds/60 - (hours*60));
+			local secs = math.floor(seconds - hours*3600 - mins *60);
+			timeToZero = timeToZero .. string.format("%02.f:%02.f:%02.f", hours, mins, secs)
+		end
 	else
 		timeToZero = timeToZero .. "-"
 	end
 
-	print(string.format("Highest supply/drain:\t%s/%s\t%s",
-		formatInt(math.floor(highestEnergyIncome)),
+	print(string.format("Highest drain/supply:\t%s/%s\t%s",
 		formatInt(math.floor(highestEnergyDrain)).." ("..math.ceil(highestEnergyDrain/gtPowerVoltage).." A)",
+		formatInt(math.floor(highestEnergyIncome)),
 		timeToZero
 	))
+
+	-- control turbines
+	if gtPower < 80*10^9 and not turbinesOn then
+		turbinesOn = true
+		redstone.setBundledOutput(sides.south,colors.red,15)
+	elseif gtPower > 100*10^9 and turbinesOn then
+		turbinesOn = false
+		redstone.setBundledOutput(sides.south,colors.red,0)
+	end
+
+	print(turbinesOn and "Turbines on" or "Turbines off")
 end
 
+redstone.setBundledOutput(sides.south,colors.red,0) -- reset when starting
 while(true) do
 	if(ae.getStoredPower() > 0) then
 		Autocrafting()
