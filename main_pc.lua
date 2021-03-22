@@ -287,7 +287,7 @@ print("Found "..#batteryBuffers.." battery buffers")
 
 function formatInt(i)
 	if i > 10^18 then return "battery goes brr" end
-	return tostring(i):reverse():gsub("%d%d%d", "%1,"):reverse():gsub("^,", "")
+	return (tostring(i):reverse():gsub("%d%d%d", "%1,"):reverse():gsub("^,", ""))
 end
 function unformatInt(i)
 	local temp = string.gsub(i,"[^%d]","")
@@ -316,39 +316,54 @@ local function Draw()
 	local allbattery_info = {}
 
 	for i=1, #batteryBuffers do
-		local data = batteryBuffers[i].getSensorInformation()
-		local pwr = unformatInt(data[3])
-		local pwrMax = unformatInt(data[4])
-		local drain = batteryBuffers[i].getAverageElectricOutput()
-		local supply = batteryBuffers[i].getAverageElectricInput()
+		local bat = batteryBuffers[i]
+		--local data = batteryBuffers[i].getSensorInformation()
+		--local pwr = unformatInt(data[3])
+		--local pwrMax = unformatInt(data[4])
+		local pwr = bat.getEUStored()
+		local pwrMax = bat.getEUMaxStored()
+		for i=1,bat.getOutputAmperage() do
+			pwr = pwr + bat.getBatteryCharge(i)
+			pwrMax = pwrMax + bat.getMaxBatteryCharge(i)
+		end
+
+		local drain = bat.getEUOutputAverage() --bat.getAverageElectricOutput()
+		local supply = bat.getEUInputAverage() --bat.getAverageElectricInput()
 
 		gtPower = gtPower + pwr
 		gtPowerMax = gtPowerMax + pwrMax
 		gtPowerDrain = gtPowerDrain + drain
 		gtPowerSupply = gtPowerSupply + supply
-		gtPowerAmpMax = gtPowerAmpMax + batteryBuffers[i].getOutputAmperage()
+		gtPowerAmpMax = gtPowerAmpMax + bat.getOutputAmperage()
 
-		local percent = math.floor(drain/supply*100+0.5)
-		local clr = 0x00FF00
-		if (drain == 0 and supply == 0) or 
-			percent == math.huge or percent < 0 or percent > 10000 then
-			percent = "-"
-		else
-			if percent >= 100 then clr = 0xFF0000
-			elseif percent >= 75 then clr = 0xFFFF00 end
+		if #batteryBuffers > 1 then
+			local percent = math.floor(drain/supply*100+0.5)
+			local clr = 0x00FF00
+			if (drain == 0 and supply == 0) or 
+				percent == math.huge or percent < 0 or percent > 10000 then
+				percent = "-"
+			else
+				if percent >= 100 then clr = 0xFF0000
+				elseif percent >= 75 then clr = 0xFFFF00 end
+			end
+			allbattery_info[i] = {
+				clr,
+				string.format("\t%s\t%s / %s\t\t(%s)",
+					math.floor(pwr/pwrMax*100+0.5).."%",
+					formatInt(drain), formatInt(supply),
+					percent .. "%"
+				)
+			}
 		end
-		allbattery_info[i] = {
-			clr,
-			string.format("\t%s\t%s / %s\t\t(%s)",
-				math.floor(pwr/pwrMax*100+0.5).."%",
-				formatInt(drain), formatInt(supply),
-				percent .. "%"
-			)
-		}
 	end
 
-	gtPowerDrainAvg = gtPowerDrainAvg * 0.7 + gtPowerDrain * 0.3
-	gtPowerSupplyAvg = gtPowerSupplyAvg * 0.7 + gtPowerSupply * 0.3
+	if gtPowerDrainAvg == 0 then gtPowerDrainAvg = gtPowerDrain else
+		gtPowerDrainAvg = gtPowerDrainAvg * 0.6 + gtPowerDrain * 0.4
+	end
+
+	if gtPowerSupplyAvg == 0 then gtPowerSupplyAvg = gtPowerSupply else
+		gtPowerSupplyAvg = gtPowerSupplyAvg * 0.6 + gtPowerSupply * 0.4
+	end
 
 	if(gtPowerSupplyAvg > highestEnergyIncome) then highestEnergyIncome = gtPowerSupplyAvg end
 	if(gtPowerDrainAvg > highestEnergyDrain) then highestEnergyDrain = gtPowerDrainAvg end
