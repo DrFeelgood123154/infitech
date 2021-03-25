@@ -522,16 +522,16 @@ local function Draw()
 	-- control turbines
 	if gtPower < 80*10^9 and not turbinesOn then
 		turbinesOn = true
-		redstone.setBundledOutput(sides.south,colors.red,15)
+		redstone.setBundledOutput(sides.left,colors.red,255)
 	elseif gtPower > 100*10^9 and turbinesOn then
 		turbinesOn = false
-		redstone.setBundledOutput(sides.south,colors.red,0)
+		redstone.setBundledOutput(sides.left,colors.red,0)
 	end
 
 	print(turbinesOn and "Turbines on" or "Turbines off")
 end
 
-redstone.setBundledOutput(sides.south,colors.red,0) -- reset when starting
+redstone.setBundledOutput(sides.left,colors.red,0) -- reset when starting
 while(true) do
 	if(ae.getStoredPower() > 0) then
 		Autocrafting()
