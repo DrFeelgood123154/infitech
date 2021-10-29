@@ -95,7 +95,6 @@ function DumpItems()
 end
 
 -- pull items from chest
-print("Getting items")
 local chestSize = inv.getInventorySize(sides.front)
 
 local normalOpened = 0
@@ -105,12 +104,14 @@ print("Starting")
 
 local currentInvSlot;
 while(true) do
+	print("Getting items")
+	local foundSomething = false
 	for i=1, chestSize do
 		local wat = inv.getStackInSlot(sides.front, i)
 		if(wat ~= nil) then
 			wat = wat.label
 			if(string.find(wat, "Treasure") ~= nil) then
-				while(inv.suckFromSlot(sides.front, i)) do end
+				while(inv.suckFromSlot(sides.front, i)) do foundSomething = true end
 			end
 		end
 	end
@@ -140,6 +141,11 @@ while(true) do
 	print("Normal: "..normalOpened)
 	print("Uncommon: "..uncommonOpened)
 	print("Rare: "..rareOpened)
-	print("Sleeping for 15 minutes")
-	os.sleep(15*60)
+
+	if not foundSomething then
+		print("Sleeping for 15 minutes")
+		os.sleep(15*60)
+	else
+		os.sleep(1)
+	end
 end
