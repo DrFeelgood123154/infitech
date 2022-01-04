@@ -78,19 +78,19 @@ autocraftData["Stick"] = {
 	threshold=900,
 	unimportant = true
 }
-autocraftData["Jungle Wood Planks"] = {
-	keepStocked = 10000,
-	threshold = 8000,
+autocraftData["Oak Wood Planks"] = {
+	keepStocked = 10000, -- 10000
+	threshold = 2000, -- 8000
 	unimportant = true,
-	maxCraft = 5000,
+	maxCraft = 1000, -- 5000
 }
 autocraftData["Bone Meal"] = {
-	keepStocked = 5000,
-	threshold = 1000,
-	maxCraft = 2000,
+	keepStocked = 2000, -- 5000
+	threshold = 400, -- 1000
+	maxCraft = 500, -- 2000
 }
 autocraftData["Paper"] = {
-	keepStocked = 500
+	keepStocked = 500 -- 5000
 }
 
 autocraftData["Tiny Titanium Dust"] = {
@@ -107,27 +107,12 @@ autocraftData["Powderbarrel"] = {
 	keepStocked=1024,
 	threshold=512
 }
-autocraftData["Duct tape"] = {
-	filter = {
-		label="gt.metaitem.01.32764.name",
-	},
-	keepStocked = 128,
-	threshold = 64,
-	unimportant = true
-}
-autocraftData["Magnesium Dust"] = {
-	filter = {
-		label="gt.metaitem.01.2018.name",
-	},
-	keepStocked = 10000,
-	threshold = 9000
-}
 autocraftData["Tin Ingot"] = {
 	filter = {
 		label="gt.metaitem.01.11057.name",
 	},
 	keepStocked = 10000,
-	threshold = 9000
+	threshold = 5000
 }
 
 -- IC2
@@ -135,8 +120,8 @@ autocraftData["Empty Cell"] = {
 	filter = {
 		name="IC2:itemCellEmpty",
 	},
-	keepStocked = 1000,
-	threshold = 500
+	keepStocked = 200,
+	threshold = 100
 }
 -- AE
 autocraftData["Blank Pattern"] = {
@@ -164,8 +149,8 @@ autocraftData["Nether Quartz"] = {
 	filter = {
 		label="Nether Quartz",
 	},
-	keepStocked = 5000,
-	threshold = 1000,
+	keepStocked = 500, --- 5000
+	threshold = 100, -- 1000
 	unimportant = true,
 	maxCraft = 1000,
 }
@@ -173,24 +158,24 @@ autocraftData["Charged Certus Quartz"] = {
 	filter = {
 		label="Charged Certus Quartz Crystal",
 	},
-	keepStocked = 1000,
-	threshold = 500,
+	keepStocked = 500, -- 1000
+	threshold = 100, -- 50
 	unimportant = true
 }
 autocraftData["Pure Certus Quartz"] = {
 	filter = {
 		label="Pure Certus Quartz Crystal",
 	},
-	keepStocked = 1000,
-	threshold = 500,
+	keepStocked = 500, -- 1000
+	threshold = 100, -- 500
 	unimportant = true
 }
 autocraftData["Pure Fluix Crystal"] = {
 	filter = {
 		label="Pure Fluix Crystal",
 	},
-	keepStocked = 1000,
-	threshold = 500,
+	keepStocked = 500, -- 1000
+	threshold = 100, -- 500
 	unimportant = true
 }
 autocraftData["Enchanted Golden Apple"] = {
@@ -200,6 +185,45 @@ autocraftData["Enchanted Golden Apple"] = {
 	},
 	keepStocked = 128,
 	threshold = 32,
+	unimportant = true
+}
+autocraftData["Advanced Circuit"] = {
+	keepStocked = 2000,
+	threshold = 1000,
+	important = true
+}
+autocraftData["Quad Uranium Cell"] = {
+	filter = {
+		label="gt.reactorUraniumQuad.name"
+	},
+	keepStocked = 32,
+	threshold = 16,
+	important = true
+}
+autocraftData["Quad Thorium Cell"] = {
+	filter = {
+		label="gt.Quad_Thoriumcell.name"
+	},
+	keepStocked = 32,
+	threshold = 16,
+	important = true
+}
+autocraftData["Genetics Labware"] = {
+	keepStocked = 50,
+	threshold = 25
+}
+autocraftData["Flint"] = {
+	keepStocked = 512,
+	threshold = 128
+}
+autocraftData["Black Carpet"] = {
+	keepStocked = 5000,
+	threshold = 4000,
+	unimportant = true
+}
+autocraftData["Sugar"] = {
+	keepStocked = 4000,
+	threshold = 1000,
 	unimportant = true
 }
 
@@ -228,20 +252,25 @@ local function addUnimportantGTItem(name,label,amount,threshold)
 	threshold = threshold or math.floor(amount*0.25)
 	local ret = addGTItem(name,label,amount,threshold)
 	ret.unimportant = true
+	ret.maxCraft = 256
 	return ret
 end
 
 -- GT Items with normal priority
-addGTItem("Nitrogen Cell",30012)
+addGTItem("Nitrogen Cell",30012, 100) -- all used to be undefined (500)
 addGTItem("Oxygen Cell",30013)
-addGTItem("Chlorine Cell",30023)
-addGTItem("Fluorine Cell",30014)
-addGTItem("Naphtha Cell",30739)
-addGTItem("Sulfuric Acid Cell",30720)
-addGTItem("Nitrogen Dioxide Cell",30717)
-addGTItem("Hydrogen Cell",30001)
+addGTItem("Chlorine Cell",30023, 100)
+addGTItem("Fluorine Cell",30014, 100)
+addGTItem("Naphtha Cell",30739, 100)
+addGTItem("Sulfuric Acid Cell",30720, 100)
+addGTItem("Nitrogen Dioxide Cell",30717, 100)
+addGTItem("Hydrogen Cell",30001, 100)
 
-addGTItem("Soldering Alloy",11314,1000)
+addGTItem("Soldering Alloy",11314,200) -- 1000
+addGTItem("Magnesium Dust",2018,10000)
+
+addGTItem("Aluminium Ingot",11019,5000).maxCraft = 256
+addGTItem("Lithium Ingot",11006,1000)
 
 -- GT items with high priority (these are currently handled by export buses, maybe change later)
 -- addImportantGTItem(name,label[,amount,threshold])
@@ -249,31 +278,33 @@ addGTItem("Soldering Alloy",11314,1000)
 -- Osmium wire is a special case with "02" instead of "01" in the label so we override it after
 addImportantGTItem("Fine Osmium Wire",19083,512).filter.label = "gt.metaitem.02.19083.name"
 addImportantGTItem("Platinum Foil",29085,512)
+addImportantGTItem("Fine Annealed Copper Wire",19345,512).filter.label = "gt.metaitem.02.19345.name"
+addImportantGTItem("Duct Tape",32764,1000)
+addImportantGTItem("Steel Screw",27305,1000)
+addImportantGTItem("Lubricant Cell",30724,1000)
+addImportantGTItem("Platinum Ingot",11085)
+addImportantGTItem("Potassium Dust",2025)
+addImportantGTItem("Chrome Ingot",11030,4000).maxCraft = 1000
+addImportantGTItem("Lutetium Ingot",11078)
+addImportantGTItem("Silicon Ingot",11020,4000).maxCraft = 1000
+addImportantGTItem("Enriched Naquadah Ingot",11326)
 
 -- GT items with reduced priority
 -- maybe move some of these to important later and remove their export buses
-addUnimportantGTItem("Silicon Ingot",11020)
-addUnimportantGTItem("Tungsten Ingot",11081)
-addUnimportantGTItem("Tungstensteel Ingot",11316,1000)
-addUnimportantGTItem("Aluminium Ingot",11019)
-addUnimportantGTItem("Osmium Ingot",11083,400)
-addUnimportantGTItem("Steel Ingot",11305)
-addUnimportantGTItem("Naquadah Ingot",11324,400)
-addUnimportantGTItem("Naquadah Alloy Ingot",11325,200)
-addUnimportantGTItem("Certus Quartz",8516,10000).maxCraft = 1000
+addUnimportantGTItem("Tungsten Ingot",11081).maxCraft = 1000
+addUnimportantGTItem("Tungstensteel Ingot",11316,1000).maxCraft = 1000
+addUnimportantGTItem("Osmium Ingot",11083,400).maxCraft = 1000
+addUnimportantGTItem("Steel Ingot",11305).maxCraft = 1000
+addUnimportantGTItem("Naquadah Ingot",11324,400).maxCraft = 1000
+addUnimportantGTItem("Naquadah Alloy Ingot",11325,200).maxCraft = 1000
+addUnimportantGTItem("Certus Quartz",8516,10000).maxCraft = 128
 addUnimportantGTItem("Yttrium Barium Cuprate Ingot",11358,2000)
+addUnimportantGTItem("Lapis Plate",17526,5000)
+addUnimportantGTItem("Tiny Polyethylene Pulp",874)
 
 
 --[[
 -- these are export bussed with crafting cards for now
-autocraftData["Silicon Ingot"] = {
-	filter = {
-		label="gt.metaitem.01.11020.name",
-	},
-	keepStocked = 1000,
-	threshold = 200,
-	important = true
-}
 autocraftData["Lutetium Ingot"] = {
 	filter = {
 		label="gt.metaitem.01.11078.name",
