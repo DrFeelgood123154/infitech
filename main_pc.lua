@@ -51,7 +51,7 @@ local defaultEvents = {
 		-- }
 
 	shouldCraft = function(data,ae,cpustatus)
-		if data.aeitem.size < data.threshold then
+		if data.aeitem.size < data.threshold or (data.maxCraftBound and data.aeitem.size < data.keepStocked) then
 			if data.unimportant and cpustatus.activeCPUsTotal-cpustatus.activeUnimportantCPUs > 0 and cpustatus.totalCPUs-cpustatus.activeCPUsTotal < 10 then
 				--table.insert(debugList,"Waiting to craft " .. data.name .. " because unimportant")
 				return nil, "Unimportant"
@@ -78,6 +78,7 @@ local defaultEvents = {
 		else
 			-- reset
 			data.startCraftingAt = nil
+			data.maxCraftBound = nil
 			return false
 		end
 	end,
@@ -89,6 +90,8 @@ local defaultEvents = {
 			-- limited by maxCraft
 			data.maxCraftBound = true
 		end
+
+		amount = new_amount
 
 		--table.insert(debugList,"Amount to craft: "..amount)
 		if amount <= 0 then return false end -- uh oh something went wrong
@@ -114,17 +117,18 @@ local defaultEvents = {
 		return data.craftStatus and (data.craftStatus.isDone() or data.craftStatus.isCanceled())
 	end,
 	finished = function(data,ae,cpustatus)
-		if data.maxCraftBound then
+		if data.maxCraftBound and data.aeitem.size < data.keepStocked then
 			-- Start quicker next time
 			data.startCraftingAt = computer.uptime() + data.waitToCraft * 0.5
+		else
+			-- reset some values
+			data.startCraftingAt = nil
+			data.maxCraftBound = nil
 		end
 
-		-- reset some values
-		data.startCraftingAt = nil
 		data.craftStatus = nil
 		data.amountToCraft = nil
 		data.amountAtStart = nil
-		data.maxCraftBound = nil
 	end,
 	displayStatus = function(data)
 		local clr = {
@@ -137,12 +141,15 @@ local defaultEvents = {
 			err = " (" .. data.error .. ")"
 		end
 
+		if err == "" and data.maxCraft < (data.amountToCraft or data.keepStocked) then
+			err = " (max " .. data.maxCraft .. "x)"
+		end
+
 		-- Print status
 		printColor(
 			clr[data.error or "default"] or clr.default,
 			string.format("%sx %s%s",
-				math.max(0,(data.amountToCraft or data.keepStocked) - 
-					(data.aeitem.size-(data.amountAtStart or 0))),
+				math.max(0,(data.amountToCraft or data.keepStocked) - (data.aeitem.size-(data.amountAtStart or 0))),
 				data.name,
 				err
 			)
@@ -161,7 +168,7 @@ local function LoadAutocraftData()
 		data.currentlyCrafting = false
 		data.name = name
 		data.threshold = data.threshold or math.floor(data.keepStocked*0.75)
-		data.maxCraft = data.keepStocked
+		data.maxCraft = data.maxCraft or data.keepStocked
 
 		-- Set default events
 		if not data.events then 
@@ -452,7 +459,7 @@ local function Draw()
 		else color = 0xFF0000 end
 	end
 
-	printColor(color, string.format("=== GT Power:\t%s\t%s / %s EU\t%s / %s Amps",
+	printColor(color, string.format("= GT Power: %s\t%s / %s EU\t%s / %s Amps",
 		math.floor(gtPower/gtPowerMax*100).."%",
 		formatInt(gtPower),
 		formatInt(gtPowerMax),
@@ -469,7 +476,7 @@ local function Draw()
 		if percent >= 100 then color = 0xFF0000
 		elseif percent >= 75 then color = 0xFFFF00 end
 	end
-	printColor(color, string.format("Total:\t\t\t%s / %s\t\t(%s)",
+	printColor(color, string.format("Total:\t\t%s / %s\t\t(%s)",
 		formatInt(math.floor(gtPowerDrainAvg)),
 		formatInt(math.floor(gtPowerSupplyAvg)),
 		percent.."%"
