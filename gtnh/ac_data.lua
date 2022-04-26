@@ -73,34 +73,56 @@
 
 local autocraftData = {}
 
+local NORMAL = 1
+local IMPORTANT = 2
+local UNIMPORTANT = 3
 
-local function addGTItem(name,label,amount,threshold)
-	amount = amount or 500
-	threshold = threshold or math.floor(amount*0.25)
+local function addGTItem(name,filter,priority,amount,threshold,maxCraft)
+	filter = filter or {label=name}
+	priority = priority or NORMAL
+	amount = amount or ({[NORMAL]=500,[IMPORTANT]=1000,[UNIMPORTANT]=4000})[priority]
+	threshold = threshold or math.floor(amount * ({[NORMAL]=0.25,[IMPORTANT]=0.5,[UNIMPORTANT]=0.25})[priority])
+	maxCraft = maxCraft or ({[UNIMPORTANT]=256})[priority]
 	autocraftData[name] = {
-		filter = {
-			label="gt.metaitem.01."..label..".name",
-		},
+		filter = filter,
 		keepStocked = amount,
-		threshold = threshold
+		threshold = threshold,
+		important = priority == IMPORTANT,
+		unimportant = priority == UNIMPORTANT,
+		maxCraft = maxCraft
 	}
 	return autocraftData[name]
 end
-local function addImportantGTItem(name,label,amount,threshold)
-	amount = amount or 1000
-	threshold = threshold or math.floor(amount*0.5)
-	local ret = addGTItem(name,label,amount,threshold)
-	ret.important = true
-	return ret
+
+--[[
+local function basicFilter(label, prefix)
+	prefix = prefix or "01"
+	return {label = "gt.metaitem." .. prefix .. "." .. label .. ".name"}
+end
+]]
+local function stainlessCellFilter(fluid)
+	return {label = "Large Stainless Steel Fluid Cell", fluid_name = string.lower(fluid)}
 end
 
-local function addUnimportantGTItem(name,label,amount,threshold)
-	amount = amount or 4000
-	threshold = threshold or math.floor(amount*0.25)
-	local ret = addGTItem(name,label,amount,threshold)
-	ret.unimportant = true
-	ret.maxCraft = 256
-	return ret
+addGTItem("Stainless Oxygen Cell", stainlessCellFilter("Oxygen"), IMPORTANT, 200)
+addGTItem("Stainless Hydrogen Cell", stainlessCellFilter("Hydrogen"), IMPORTANT, 200)
+
+local NormalPriorityCellSpam = {
+	"Ethanol", "Ether", "Heavy Fuel", "Iron III Chloride", "Light Fuel", "P-507",
+	"Radon", "Refined Glue", "Sodium Persulfate", "Steam", "Nitrogen Dioxide",
+	"Molten Polyethylene", "Molten Silicone Rubber", "Molten Soldering Alloy",
+	"Sulfuric Acid", "Nitric Acid", "Ammonium Chloride", "Molten Rubber",
+	"Molten Epoxid", "Helium", "Ammonia", "Titaniumtetrachloride",
+	"Propene", "Phenol", "Acetone", "Ethylene", "Mercury", "Water",
+	"Methane", "Molten Polytetrafluoroethylene", "Hydrofluoric Acid",
+	"Fluorine", "Hydrochloric Acid", "Chlorine", "Oxygen"
+}
+
+for i=1, #NormalPriorityCellSpam do
+	addGTItem(NormalPriorityCellSpam[i] .. " Cell", nil, NORMAL, 64)
 end
+
+addGTItem("Sodium Hydroxide Dust", nil, NORMAL, 64)
+addGTItem("Quicklime Dust", nil, NORMAL, 64)
 
 return autocraftData

@@ -20,7 +20,10 @@ local function printColor(color, wat)
 end
 
 -- general
-local loopSleep = 0.5
+local sleepTime = 0.5
+local drawTime = 0.5
+local craftTime = 1
+local startTime = computer.uptime()
 
 --crafting
 local cpustatus = {
@@ -28,15 +31,18 @@ local cpustatus = {
 	activeCPUs = 0,
 	activeUnimportantCPUs = 0,
 	totalCPUs = 0,
-	maxCPUs = 4 -- edit this if necessary
+	maxCPUs = 8 -- edit this if necessary
 }
 local waitBeforeCrafting = 30 -- seconds
 local autocraftData = {}
 
 local displayMax = 10
 local waitingToCraft = {}
+local waitingToCraftLookup = {}
 local currentlyCrafting = {}
+local currentlyCraftingLookup = {}
 local debugList = {}
+local currentlyCheckingName
 
 local defaultEvents = {
 	-- arguments to all these functions:
@@ -149,7 +155,7 @@ local defaultEvents = {
 		printColor(
 			clr[data.error or "default"] or clr.default,
 			string.format("%sx %s%s",
-				math.max(0,(data.amountToCraft or data.keepStocked) - (data.aeitem.size-(data.amountAtStart or 0))),
+				math.floor(math.max(0,(data.amountToCraft or data.keepStocked) - (data.aeitem.size-(data.amountAtStart or 0)))),
 				data.name,
 				err
 			)
@@ -161,9 +167,9 @@ local function LoadAutocraftData()
 	package.loaded.ac_data = nil
 	autocraftData = require("ac_data")
 
-	local i = 0
+	numberOfCraftData = 0
 	for name, data in pairs(autocraftData) do
-		i = i + 1
+		numberOfCraftData = numberOfCraftData + 1
 
 		data.currentlyCrafting = false
 		data.name = name
@@ -188,14 +194,14 @@ local function LoadAutocraftData()
 
 		if not data.waitToCraft then data.waitToCraft = waitBeforeCrafting end
 	end
-	printColor(0x00FF00, "Loaded "..i.." autocraft items")
+	printColor(0x00FF00, "Loaded "..numberOfCraftData.." autocraft items")
 end
 LoadAutocraftData()
 
 local function Autocrafting()
-	currentlyCrafting = {}
-	waitingToCraft = {}
-	debugList = {}
+	local name, data = next(autocraftData,currentlyCheckingName)
+	currentlyCheckingName = name
+	if data == nil then return end
 
 	local c = ae.getCpus()
 	cpustatus.activeCPUsTotal = 0
@@ -216,18 +222,37 @@ local function Autocrafting()
 	end
 
 	local function pushCurrentlyCrafting(data)
+		if currentlyCraftingLookup[data.name] then return end
 		table.insert(currentlyCrafting,data)
+		currentlyCraftingLookup[data.name] = true
 	end
 
 	local function pushWaitingToCraft(data)
+		if waitingToCraftLookup[data.name] then return end
+
 		if data.error == "Missing recipe" then
 			table.insert(waitingToCraft,data) -- put it at the end of the list
 		else
 			table.insert(waitingToCraft,1,data)
 		end
+
+		waitingToCraftLookup[data.name] = true
 	end
 
-	for name, data in pairs(autocraftData) do
+	local function removeFromBoth(data)
+		waitingToCraftLookup[data.name] = nil
+		currentlyCraftingLookup[data.name] = nil
+
+		for i=1,#waitingToCraft do
+			if waitingToCraft[i] == data then table.remove(waitingToCraft,i) break end
+		end
+
+		for i=1,#currentlyCrafting do
+			if currentlyCrafting[i] == data then table.remove(currentlyCrafting,i) break end
+		end
+	end
+
+	--for name, data in pairs(autocraftData) do
 		--table.insert(debugList,"checking: " .. item)
 		local aeitem = ae.getItemsInNetwork(data.filter)
 		if aeitem[1] ~= nil then
@@ -264,6 +289,8 @@ local function Autocrafting()
 				end
 			elseif should == nil then
 				pushWaitingToCraft(data)
+			else
+				removeFromBoth(data)
 			end
 		else
 			if data.events.isFinished(data,ae,cpustatus) then
@@ -271,12 +298,13 @@ local function Autocrafting()
 				data.events.finished(data,ae,cpustatus)
 				data.currentlyCrafting = false
 				updateCPUStatus(data,-1)
+				removeFromBoth(data)
 			else
 				pushCurrentlyCrafting(data)
 			end
 		end
 
-	end
+	--end
 end
 
 --gt
@@ -307,8 +335,9 @@ local hardCodedAmperage = 64
 
 function formatInt(i)
 	if i > 10^18 then return "battery goes brr" end
-	i = math.floor(i)
-	return (tostring(i):reverse():gsub("%d%d%d", "%1,"):reverse():gsub("^,", ""))
+	local neg = i<0
+	i = math.floor(math.abs(i))
+	return (neg and "-" or "") .. (tostring(i):reverse():gsub("%d%d%d", "%1,"):reverse():gsub("^,", ""))
 end
 function unformatInt(i)
 	local temp = string.gsub(i,"[^%d]","")
@@ -328,6 +357,8 @@ local turbinesOn = false
 local warningBlink = false
 local gtPowerDrainAvg = 0
 local gtPowerSupplyAvg = 0
+local gtPowerIOAvg10min = 0
+local gtPowerIOAvg1hour = 0
 local function Draw()
 	local powerDrain = ae.getAvgPowerUsage()
 	local powerSupply = ae.getAvgPowerInjection()
@@ -339,40 +370,39 @@ local function Draw()
 	local gtPowerSupply = 0
 	local gtPowerAmpMax = 0
 	local gtPowerAmpUsed = 0
-
 	local allbattery_info = {}
 
-	for i=1, #batteryBuffers do
-		local bat = batteryBuffers[i]
-		--local data = batteryBuffers[i].getSensorInformation()
-		--local pwr = unformatInt(data[3])
-		--local pwrMax = unformatInt(data[4])
-		local pwr = bat.getEUStored()
-		local pwrMax = bat.getEUMaxStored()
+	if #batteryBuffers > 1 then
+		for i=1, #batteryBuffers do
+			local bat = batteryBuffers[i]
+			--local data = batteryBuffers[i].getSensorInformation()
+			--local pwr = unformatInt(data[3])
+			--local pwrMax = unformatInt(data[4])
+			local pwr = bat.getEUStored()
+			local pwrMax = bat.getEUMaxStored()
 
-		if bat.getBatteryCharge ~= nil then
-			local amps = bat.getOutputAmperage()
-			if amps and amps > 1 then
-				for i=1,amps do
-					pwr = pwr + bat.getBatteryCharge(i)
-					pwrMax = pwrMax + bat.getMaxBatteryCharge(i)
+			if bat.getBatteryCharge ~= nil then
+				local amps = bat.getOutputAmperage()
+				if amps and amps > 1 then
+					for i=1,amps do
+						pwr = pwr + bat.getBatteryCharge(i)
+						pwrMax = pwrMax + bat.getMaxBatteryCharge(i)
+					end
+					gtPowerAmpMax = amps
 				end
-				gtPowerAmpMax = amps
+			else
+				-- assume it's a gtnh multiblock with 64 amps out
+				gtPowerAmpMax = hardCodedAmperage
 			end
-		else
-			-- assume it's a gtnh multiblock with 64 amps out
-			gtPowerAmpMax = hardCodedAmperage
-		end
 
-		local drain = bat.getEUOutputAverage() --bat.getAverageElectricOutput()
-		local supply = bat.getEUInputAverage() --bat.getAverageElectricInput()
+			local drain = bat.getEUOutputAverage() --bat.getAverageElectricOutput()
+			local supply = bat.getEUInputAverage() --bat.getAverageElectricInput()
 
-		gtPower = gtPower + pwr
-		gtPowerMax = gtPowerMax + pwrMax
-		gtPowerDrain = gtPowerDrain + drain
-		gtPowerSupply = gtPowerSupply + supply
+			gtPower = gtPower + pwr
+			gtPowerMax = gtPowerMax + pwrMax
+			gtPowerDrain = gtPowerDrain + drain
+			gtPowerSupply = gtPowerSupply + supply
 
-		if #batteryBuffers > 1 then
 			local percent = math.floor(drain/supply*100+0.5)
 			local clr = 0x00FF00
 			if (drain == 0 and supply == 0) or 
@@ -391,14 +421,28 @@ local function Draw()
 				)
 			}
 		end
-	end
 
-	if gtPowerDrainAvg == 0 then gtPowerDrainAvg = gtPowerDrain else
-		gtPowerDrainAvg = gtPowerDrainAvg * 0.9 + gtPowerDrain * 0.1
-	end
+		local sleepMult = sleepTime / 0.1
 
-	if gtPowerSupplyAvg == 0 then gtPowerSupplyAvg = gtPowerSupply else
-		gtPowerSupplyAvg = gtPowerSupplyAvg * 0.9 + gtPowerSupply * 0.1
+		if gtPowerDrainAvg == 0 then gtPowerDrainAvg = gtPowerDrain else
+			gtPowerDrainAvg = gtPowerDrainAvg * 0.9 + gtPowerDrain * 0.1
+		end
+
+		if gtPowerSupplyAvg == 0 then gtPowerSupplyAvg = gtPowerSupply else
+			gtPowerSupplyAvg = gtPowerSupplyAvg * 0.9 + gtPowerSupply * 0.1
+		end
+
+		local diff  = gtPowerSupplyAvg - gtPowerDrainAvg
+		if gtPowerIOAvg10min == 0 then gtPowerIOAvg10min = diff else
+			gtPowerIOAvg10min = gtPowerIOAvg10min * (1-1/(600/sleepMult)) + diff * (1/(600/sleepMult))
+		end
+		if gtPowerIOAvg1hour == 0 then gtPowerIOAvg1hour = diff else
+			gtPowerIOAvg1hour = gtPowerIOAvg1hour * (1-1/(3600/sleepMult)) + diff * (1/(3600/sleepMult))
+		end
+	else
+		gtPower = batteryBuffers[1].getEUStored()
+		gtPowerMax = batteryBuffers[1].getEUMaxStored()
+		gtPowerAmpMax = hardCodedAmperage
 	end
 
 	if(gtPowerSupplyAvg > highestEnergyIncome) then highestEnergyIncome = gtPowerSupplyAvg end
@@ -418,14 +462,6 @@ local function Draw()
 		cpustatus.activeCPUs,cpustatus.maxCPUs,
 		cpustatus.activeCPUsTotal,cpustatus.totalCPUs
 	))
-
-	-- debug
-	--[[
-		printColor(0x00FF00, "DEBUG:")
-		for i, msg in pairs(debugList) do
-			print(i..": "..msg)
-		end
-	--]]--
 	
 	local displaySlotsLeft = displayMax
 	local function displayList(list)
@@ -441,6 +477,10 @@ local function Draw()
 			local s = v.events.displayStatus(v)
 			if s then print(s) end
 		end
+	end
+
+	if currentlyCheckingName then
+		print("Checking item: " .. currentlyCheckingName)
 	end
 
 	-- Currently Crafting
@@ -505,7 +545,7 @@ local function Draw()
 		if percent >= 100 then color = 0xFF0000
 		elseif percent >= 75 then color = 0xFFFF00 end
 	end
-	printColor(color, string.format("Total:\t\t%s / %s\t\t(%s)",
+	printColor(color, string.format("Total -/+:\t\t%s / %s\t\t(%s)",
 		formatInt(gtPowerDrainAvg),
 		formatInt(gtPowerSupplyAvg),
 		percent.."%"
@@ -524,13 +564,13 @@ local function Draw()
 	-- Time to zero or full energy
 	local timeToZero = "-"
 	local seconds = 0
-	local powerDelta = ((gtPowerDrainAvg-gtPowerSupplyAvg)*20)
+	local powerDelta = gtPowerIOAvg10min*20 --((gtPowerDrainAvg-gtPowerSupplyAvg)*20)
 
-	if gtPowerDrainAvg > gtPowerSupplyAvg then
-		seconds = tonumber(gtPower / powerDelta)
+	if powerDelta < 0 then
+		seconds = tonumber(gtPower / math.abs(powerDelta))
 		timeToZero = "Zero: "
-	elseif gtPowerDrainAvg < gtPowerSupplyAvg then
-		seconds = tonumber((gtPowerMax - gtPower) / (-powerDelta))
+	elseif powerDelta > 0 then
+		seconds = tonumber((gtPowerMax - gtPower) / powerDelta)
 		timeToZero = "Full: "
 	end
 
@@ -549,11 +589,17 @@ local function Draw()
 		timeToZero = timeToZero .. "-"
 	end
 
-	print(string.format("Highest drain/supply:\t%s/%s\t%s",
-		formatInt(math.floor(highestEnergyDrain)).." ("..math.ceil(highestEnergyDrain/gtPowerVoltage).." A)",
-		formatInt(math.floor(highestEnergyIncome)),
+	print(string.format("Highest -/+:\t%s/%s\t%s",
+		formatInt(highestEnergyDrain).." ("..math.ceil(highestEnergyDrain/gtPowerVoltage).." A)",
+		formatInt(highestEnergyIncome),
 		timeToZero
 	))
+	local t = computer.uptime()
+	printColor((t-startTime) < 600 and 0x0000FF or 0xFFFFFF, 
+		string.format("Avg 10 min:\t%s ",formatInt(gtPowerIOAvg10min).." ("..math.ceil(gtPowerIOAvg10min/gtPowerVoltage).." A)"))
+	printColor((t-startTime) < 3600 and 0x0000FF or 0xFFFFFF, 
+		string.format("Avg 1 hour:\t%s", formatInt(gtPowerIOAvg1hour).." ("..math.ceil(gtPowerIOAvg1hour/gtPowerVoltage).." A)")
+	)
 
 	-- control turbines
 	--[[
@@ -567,14 +613,56 @@ local function Draw()
 
 	print(turbinesOn and "Turbines on" or "Turbines off")
 	]]
+
+	-- debug
+	--[[
+		printColor(0x00FF00, "DEBUG:")
+		for i, msg in pairs(debugList) do
+			print(i..": "..msg)
+		end
+		debugList = {}
+	--]]--
 end
 
 --redstone.setBundledOutput(sides.left,colors.red,0) -- reset when starting
+if #batteryBuffers < 2 then sleepTime = 0 end
+
+local nextDraw = computer.uptime() + drawTime
+local nextCraft = computer.uptime() + craftTime
 while(true) do
-	if(ae.getStoredPower() > 0) then
-		Autocrafting()
+	if sleepTime == 0 then
+		local gtPowerDrain = batteryBuffers[1].getEUOutputAverage() --bat.getAverageElectricOutput()
+		local gtPowerSupply = batteryBuffers[1].getEUInputAverage() --bat.getAverageElectricInput()
+
+		local seconds = 5
+		local mult = 1/(20*seconds)
+
+		if gtPowerDrainAvg == 0 then gtPowerDrainAvg = gtPowerDrain else
+			gtPowerDrainAvg = gtPowerDrainAvg * (1-mult) + gtPowerDrain * mult
+		end
+
+		if gtPowerSupplyAvg == 0 then gtPowerSupplyAvg = gtPowerSupply else
+			gtPowerSupplyAvg = gtPowerSupplyAvg * (1-mult) + gtPowerSupply * mult
+		end
+
+		local diff  = gtPowerSupplyAvg - gtPowerDrainAvg
+		if gtPowerIOAvg10min == 0 then gtPowerIOAvg10min = diff else
+			gtPowerIOAvg10min = gtPowerIOAvg10min * (1-1/(600/seconds)) + diff * (1/(600/seconds))
+		end
+		if gtPowerIOAvg1hour == 0 then gtPowerIOAvg1hour = diff else
+			gtPowerIOAvg1hour = gtPowerIOAvg1hour * (1-1/(3600/seconds)) + diff * (1/(3600/seconds))
+		end
 	end
 
-	Draw()
-	os.sleep(loopSleep)
+	local t = computer.uptime()
+	if t > nextDraw then
+		nextDraw = t + drawTime
+		Draw()
+	end
+
+	if t > nextCraft then
+		nextCraft = t + craftTime
+		Autocrafting()
+	end
+	os.sleep(sleepTime)
 end
