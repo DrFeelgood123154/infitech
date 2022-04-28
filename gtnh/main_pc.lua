@@ -33,16 +33,19 @@ local cpustatus = {
 	totalCPUs = 0,
 	maxCPUs = 8 -- edit this if necessary
 }
-local waitBeforeCrafting = 30 -- seconds
+local waitBeforeCrafting = 0 -- seconds
 local autocraftData = {}
 
-local displayMax = 10
+local displayMax = 16
 local waitingToCraft = {}
 local waitingToCraftLookup = {}
 local currentlyCrafting = {}
 local currentlyCraftingLookup = {}
+local maxRestartAmounts = {}
 local debugList = {}
 local currentlyCheckingName
+local currentlyCheckingIdx = 0
+local numberOfCraftData
 
 local defaultEvents = {
 	-- arguments to all these functions:
@@ -68,13 +71,13 @@ local defaultEvents = {
 				return nil, "Not enough CPUs"
 			end
 
-			if data.startCraftingAt == nil then
+			if data.startCraftingAt == nil and data.waitToCraft > 0 then
 				-- if startCraftingAt is nil, then set the end time
 				data.startCraftingAt = computer.uptime() + data.waitToCraft
 				return nil, "Waiting " .. data.waitToCraft .. "s"
 			else
 				--table.insert(debugList,"Waiting to craft " .. data.name .. " for "..math.max(0,math.floor((data.startCraftingAt-computer.uptime())*10+0.5)/10).." seconds")
-				if data.startCraftingAt <= computer.uptime() then
+				if not data.startCraftingAt or data.startCraftingAt <= computer.uptime() then
 					return true
 				else
 					local s = math.max(0,math.floor(data.startCraftingAt-computer.uptime()))
@@ -90,11 +93,19 @@ local defaultEvents = {
 	end,
 	start = function(data,ae,cpustatus)
 		local amount = data.keepStocked - data.aeitem.size
+		
 		local new_amount = math.min(data.maxCraft,amount)
-
-		if amount > new_amount then
-			-- limited by maxCraft
-			data.maxCraftBound = true
+		
+		if data.finishedAtTheSameTime and data.restartAmount > 0 then
+			-- if it's restarting immediately, skip maxcraft checking and double the amount
+			new_amount = new_amount * data.restartAmount
+			maxRestartAmounts[data.name] = math.max(maxRestartAmounts[data.name] or 0,data.restartAmount)
+		else
+			data.restartAmount = 0
+			if amount > new_amount then
+				-- limited by maxCraft
+				data.maxCraftBound = true
+			end
 		end
 
 		amount = new_amount
@@ -135,19 +146,24 @@ local defaultEvents = {
 		data.craftStatus = nil
 		data.amountToCraft = nil
 		data.amountAtStart = nil
+		data.restartAmount = (data.restartAmount or 0) + 2
 	end,
 	displayStatus = function(data)
 		local clr = {
 			["Unable to craft"] = 0xFF0000,
 			["Missing recipe"] = 0xFF0000,
-			["default"] = 0xFFFFFF
+			["default"] = 0xFFFFFF,
+			["restarted"] = 0xFF9900
 		}
 		local err = ""
 		if data.error ~= nil then
 			err = " (" .. data.error .. ")"
 		end
 
-		if err == "" and data.maxCraft < (data.amountToCraft or data.keepStocked) then
+		if (data.error == nil or data.error == "restarted") and data.restartAmount ~= nil and data.restartAmount > 0 then
+			err = " (+" .. data.restartAmount .. "x)"
+			data.error = "restarted"
+		elseif data.error == nil and data.maxCraft < (data.amountToCraft or data.keepStocked) then
 			err = " (max " .. data.maxCraft .. "x)"
 		end
 
@@ -199,9 +215,14 @@ end
 LoadAutocraftData()
 
 local function Autocrafting()
+	currentlyCheckingIdx = currentlyCheckingIdx + 1
 	local name, data = next(autocraftData,currentlyCheckingName)
+	if data == nil then
+		currentlyCheckingIdx = 1
+		name, data = next(autocraftData)
+		if data == nil then return end
+	end
 	currentlyCheckingName = name
-	if data == nil then return end
 
 	local c = ae.getCpus()
 	cpustatus.activeCPUsTotal = 0
@@ -271,6 +292,16 @@ local function Autocrafting()
 		data.aeitem = aeitem
 		--table.insert(debugList,"item name: " .. data.filter.label .. ", count: " .. aeitem.size)
 
+		data.finishedAtTheSameTime = nil
+		if data.currentlyCrafting and data.events.isFinished(data,ae,cpustatus) then
+			--table.insert(debugList,"Finished")
+			data.events.finished(data,ae,cpustatus)
+			data.currentlyCrafting = false
+			updateCPUStatus(data,-1)
+			removeFromBoth(data)
+			data.finishedAtTheSameTime = true
+		end
+
 		if not data.currentlyCrafting then
 			local should, err = data.events.shouldCraft(data,ae,cpustatus)
 			data.error = err
@@ -291,16 +322,6 @@ local function Autocrafting()
 				pushWaitingToCraft(data)
 			else
 				removeFromBoth(data)
-			end
-		else
-			if data.events.isFinished(data,ae,cpustatus) then
-				--table.insert(debugList,"Finished")
-				data.events.finished(data,ae,cpustatus)
-				data.currentlyCrafting = false
-				updateCPUStatus(data,-1)
-				removeFromBoth(data)
-			else
-				pushCurrentlyCrafting(data)
 			end
 		end
 
@@ -355,11 +376,12 @@ end
 
 local turbinesOn = false
 local warningBlink = false
-local gtPowerDrainAvg = 0
-local gtPowerSupplyAvg = 0
-local gtPowerIOAvg10min = 0
-local gtPowerIOAvg1hour = 0
+local gtPowerDrainAvg = nil
+local gtPowerSupplyAvg = nil
+local gtPowerIOAvg10min = nil
+local gtPowerIOAvg1hour = nil
 local function Draw()
+	local uptime = computer.uptime()-startTime
 	local powerDrain = ae.getAvgPowerUsage()
 	local powerSupply = ae.getAvgPowerInjection()
 	local powerIdle = ae.getIdlePowerUsage()
@@ -422,22 +444,22 @@ local function Draw()
 			}
 		end
 
-		local sleepMult = sleepTime / 0.1
+		local sleepMult = 0.1 / sleepTime
 
-		if gtPowerDrainAvg == 0 then gtPowerDrainAvg = gtPowerDrain else
-			gtPowerDrainAvg = gtPowerDrainAvg * 0.9 + gtPowerDrain * 0.1
+		if gtPowerDrainAvg == nil then gtPowerDrainAvg = gtPowerDrain else
+			gtPowerDrainAvg = gtPowerDrainAvg * (1-sleepMult) + gtPowerDrain * sleepMult
 		end
 
-		if gtPowerSupplyAvg == 0 then gtPowerSupplyAvg = gtPowerSupply else
-			gtPowerSupplyAvg = gtPowerSupplyAvg * 0.9 + gtPowerSupply * 0.1
+		if gtPowerSupplyAvg == nil then gtPowerSupplyAvg = gtPowerSupply else
+			gtPowerSupplyAvg = gtPowerSupplyAvg * (1-sleepMult) + gtPowerSupply * sleepMult
 		end
 
 		local diff  = gtPowerSupplyAvg - gtPowerDrainAvg
-		if gtPowerIOAvg10min == 0 then gtPowerIOAvg10min = diff else
-			gtPowerIOAvg10min = gtPowerIOAvg10min * (1-1/(600/sleepMult)) + diff * (1/(600/sleepMult))
+		if gtPowerIOAvg10min == nil or uptime < 20 then gtPowerIOAvg10min = diff else
+			gtPowerIOAvg10min = gtPowerIOAvg10min * (1-1/(600*sleepMult)) + diff * (1/(600*sleepMult))
 		end
-		if gtPowerIOAvg1hour == 0 then gtPowerIOAvg1hour = diff else
-			gtPowerIOAvg1hour = gtPowerIOAvg1hour * (1-1/(3600/sleepMult)) + diff * (1/(3600/sleepMult))
+		if gtPowerIOAvg1hour == nil or uptime < 20 then gtPowerIOAvg1hour = diff else
+			gtPowerIOAvg1hour = gtPowerIOAvg1hour * (1-1/(3600*sleepMult)) + diff * (1/(3600*sleepMult))
 		end
 	else
 		gtPower = batteryBuffers[1].getEUStored()
@@ -463,36 +485,54 @@ local function Draw()
 		cpustatus.activeCPUsTotal,cpustatus.totalCPUs
 	))
 	
-	local displaySlotsLeft = displayMax
-	local function displayList(list)
+	local function displayList(list, count, slotsLeft, display)
+		local idx = 0
 		for k,v in pairs(list) do
-			if displaySlotsLeft - ((#list-k)>0 and 1 or 0) <= 0 then
-				if k < #list then
-					print("+ " .. (#list - k) .. " others")
-					displaySlotsLeft = displaySlotsLeft - 1
+			idx = idx + 1
+
+			local s = display(k,v)
+			if s then
+				slotsLeft = slotsLeft - 1
+				if slotsLeft <= 0 then
+					if count ~= nil then
+						print("+ " .. (count - idx) .. " others")
+					else
+						print("+ some others")
+					end
+					return slotsLeft
 				end
-				break
+
+				print(s)
 			end
-			displaySlotsLeft = displaySlotsLeft - 1
-			local s = v.events.displayStatus(v)
-			if s then print(s) end
 		end
+		return slotsLeft
 	end
 
 	if currentlyCheckingName then
-		print("Checking item: " .. currentlyCheckingName)
+		print(string.format("Checking item (%s/%s): %s",
+			currentlyCheckingIdx,
+			numberOfCraftData,
+			currentlyCheckingName
+		))
 	end
 
+	local slotsLeft = displayMax
 	-- Currently Crafting
 	if #currentlyCrafting > 0 then
 		printColor(0x00FF00, "= Currently crafting:")
-		displayList(currentlyCrafting)
+		slotsLeft = displayList(currentlyCrafting, #currentlyCrafting, slotsLeft, function(k,v) v.events.displayStatus(v) end)
 	end
 
 	-- Waiting to Craft
 	if #waitingToCraft > 0 then
 		printColor(0x00FF00,"= Waiting to craft:")
-		displayList(waitingToCraft)
+		slotsLeft = displayList(waitingToCraft, #waitingToCraft, slotsLeft, function(k,v) v.events.displayStatus(v) end)
+	end
+
+	-- Max restart amounts
+	if next(maxRestartAmounts) ~= nil then
+		printColor(0x00FF00,"= Max restart amounts:")
+		slotsLeft = displayList(maxRestartAmounts, nil, slotsLeft, function(k,v) return k .. ": " .. v .. "x" end)
 	end
 
 	-- Crafting error
@@ -545,7 +585,7 @@ local function Draw()
 		if percent >= 100 then color = 0xFF0000
 		elseif percent >= 75 then color = 0xFFFF00 end
 	end
-	printColor(color, string.format("Total -/+:\t\t%s / %s\t\t(%s)",
+	printColor(color, string.format("Total -/+:\t%s / %s\t\t(%s)",
 		formatInt(gtPowerDrainAvg),
 		formatInt(gtPowerSupplyAvg),
 		percent.."%"
@@ -589,15 +629,14 @@ local function Draw()
 		timeToZero = timeToZero .. "-"
 	end
 
-	print(string.format("Highest -/+:\t%s/%s\t%s",
+	print(string.format("Highest -/+:\t%s / %s\t%s",
 		formatInt(highestEnergyDrain).." ("..math.ceil(highestEnergyDrain/gtPowerVoltage).." A)",
 		formatInt(highestEnergyIncome),
 		timeToZero
 	))
-	local t = computer.uptime()
-	printColor((t-startTime) < 600 and 0x0000FF or 0xFFFFFF, 
+	printColor((uptime < 20 and 0x00FF00 or (uptime < 600 and 0x0000FF or 0xFFFFFF)),
 		string.format("Avg 10 min:\t%s ",formatInt(gtPowerIOAvg10min).." ("..math.ceil(gtPowerIOAvg10min/gtPowerVoltage).." A)"))
-	printColor((t-startTime) < 3600 and 0x0000FF or 0xFFFFFF, 
+	printColor((uptime < 20 and 0x00FF00 or (uptime < 3600 and 0x0000FF or 0xFFFFFF)), 
 		string.format("Avg 1 hour:\t%s", formatInt(gtPowerIOAvg1hour).." ("..math.ceil(gtPowerIOAvg1hour/gtPowerVoltage).." A)")
 	)
 
@@ -630,6 +669,8 @@ if #batteryBuffers < 2 then sleepTime = 0 end
 local nextDraw = computer.uptime() + drawTime
 local nextCraft = computer.uptime() + craftTime
 while(true) do
+	local t = computer.uptime()
+
 	if sleepTime == 0 then
 		local gtPowerDrain = batteryBuffers[1].getEUOutputAverage() --bat.getAverageElectricOutput()
 		local gtPowerSupply = batteryBuffers[1].getEUInputAverage() --bat.getAverageElectricInput()
@@ -637,24 +678,23 @@ while(true) do
 		local seconds = 5
 		local mult = 1/(20*seconds)
 
-		if gtPowerDrainAvg == 0 then gtPowerDrainAvg = gtPowerDrain else
+		if gtPowerDrainAvg == nil then gtPowerDrainAvg = gtPowerDrain else
 			gtPowerDrainAvg = gtPowerDrainAvg * (1-mult) + gtPowerDrain * mult
 		end
 
-		if gtPowerSupplyAvg == 0 then gtPowerSupplyAvg = gtPowerSupply else
+		if gtPowerSupplyAvg == nil then gtPowerSupplyAvg = gtPowerSupply else
 			gtPowerSupplyAvg = gtPowerSupplyAvg * (1-mult) + gtPowerSupply * mult
 		end
 
 		local diff  = gtPowerSupplyAvg - gtPowerDrainAvg
-		if gtPowerIOAvg10min == 0 then gtPowerIOAvg10min = diff else
-			gtPowerIOAvg10min = gtPowerIOAvg10min * (1-1/(600/seconds)) + diff * (1/(600/seconds))
+		if gtPowerIOAvg10min == nil or t - startTime < 20 then gtPowerIOAvg10min = diff else
+			gtPowerIOAvg10min = gtPowerIOAvg10min * (1-1/(600*20*seconds)) + diff * (1/(600*20*seconds))
 		end
-		if gtPowerIOAvg1hour == 0 then gtPowerIOAvg1hour = diff else
-			gtPowerIOAvg1hour = gtPowerIOAvg1hour * (1-1/(3600/seconds)) + diff * (1/(3600/seconds))
+		if gtPowerIOAvg1hour == nil or t - startTime < 20 then gtPowerIOAvg1hour = diff else
+			gtPowerIOAvg1hour = gtPowerIOAvg1hour * (1-1/(3600*20*seconds)) + diff * (1/(3600*20*seconds))
 		end
 	end
 
-	local t = computer.uptime()
 	if t > nextDraw then
 		nextDraw = t + drawTime
 		Draw()
