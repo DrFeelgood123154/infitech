@@ -31,12 +31,12 @@ local cpustatus = {
 	activeCPUs = 0,
 	activeUnimportantCPUs = 0,
 	totalCPUs = 0,
-	maxCPUs = 8 -- edit this if necessary
+	maxCPUs = 16 -- edit this if necessary
 }
 local waitBeforeCrafting = 0 -- seconds
 local autocraftData = {}
 
-local displayMax = 16
+local displayMax = 14
 local waitingToCraft = {}
 local waitingToCraftLookup = {}
 local currentlyCrafting = {}
@@ -45,7 +45,8 @@ local maxRestartAmounts = {}
 local debugList = {}
 local currentlyCheckingName
 local currentlyCheckingIdx = 0
-local numberOfCraftData
+local numberOfCraftData = 0
+local probablyOutOfItems = {}
 
 local defaultEvents = {
 	-- arguments to all these functions:
@@ -114,6 +115,7 @@ local defaultEvents = {
 		if amount <= 0 then return false end -- uh oh something went wrong
 		data.amountToCraft = amount
 		data.amountAtStart = data.aeitem.size
+		data.startedAt = computer.uptime()
 
 		local craftable = ae.getCraftables(data.filter)
 		if craftable[1] ~= nil then
@@ -146,7 +148,14 @@ local defaultEvents = {
 		data.craftStatus = nil
 		data.amountToCraft = nil
 		data.amountAtStart = nil
-		data.restartAmount = (data.restartAmount or 0) + 2
+
+		if data.restartAmount > 0 and computer.uptime()-data.startedAt > numberOfCraftData * craftTime * 3 then
+			data.restartAmount = 0
+			probablyOutOfItems[data.name] = true
+		else
+			data.restartAmount = (data.restartAmount or 0) + 2
+			probablyOutOfItems[data.name] = nil
+		end
 	end,
 	displayStatus = function(data)
 		local clr = {
@@ -176,6 +185,8 @@ local defaultEvents = {
 				err
 			)
 		)
+
+		return true
 	end
 }
 
@@ -191,6 +202,7 @@ local function LoadAutocraftData()
 		data.name = name
 		data.threshold = data.threshold or math.floor(data.keepStocked*0.75)
 		data.maxCraft = data.maxCraft or data.keepStocked
+		data.aeitem = {size=0}
 
 		-- Set default events
 		if not data.events then 
@@ -214,74 +226,98 @@ local function LoadAutocraftData()
 end
 LoadAutocraftData()
 
-local function Autocrafting()
-	currentlyCheckingIdx = currentlyCheckingIdx + 1
-	local name, data = next(autocraftData,currentlyCheckingName)
-	if data == nil then
-		currentlyCheckingIdx = 1
-		name, data = next(autocraftData)
-		if data == nil then return end
+local function enumerator(tbl)
+	local enumer = {
+		next = function(self)
+			self.idx = self.idx + 1
+			self.key, self.value = next(tbl, self.key)
+			if not self.key or not self.value then
+				self:reset()
+			end
+			return self.value
+		end,
+		reset = function(self)
+			self.key = nil
+			self.idx = 0
+			return self:next()
+		end,
+		idx = 0
+	}
+	return enumer
+end
+
+local function updateCPUStatus(data,dir)
+	cpustatus.activeCPUs = cpustatus.activeCPUs + dir
+	cpustatus.activeCPUsTotal = cpustatus.activeCPUsTotal + dir
+	if data.unimportant then
+		cpustatus.activeUnimportantCPUs = cpustatus.activeUnimportantCPUs + dir
 	end
-	currentlyCheckingName = name
+end
 
-	local c = ae.getCpus()
+local function pushCurrentlyCrafting(data)
+	if currentlyCraftingLookup[data.name] then return end
+	data.currentlyCrafting = true
+	updateCPUStatus(data,1)
+	table.insert(currentlyCrafting,data)
+	currentlyCraftingLookup[data.name] = true
+end
+
+local function pushWaitingToCraft(data)
+	if waitingToCraftLookup[data.name] then return end
+
+	if data.error == "Missing recipe" then
+		table.insert(waitingToCraft,data) -- put it at the end of the list
+	else
+		table.insert(waitingToCraft,1,data)
+	end
+
+	waitingToCraftLookup[data.name] = true
+end
+
+function removeFromCurrentlyCrafting(data)
+	currentlyCraftingLookup[data.name] = nil
+	for i=1,#currentlyCrafting do
+		if currentlyCrafting[i] == data then
+			updateCPUStatus(data,-1)
+			table.remove(currentlyCrafting,i)
+			break
+		end
+	end
+end
+function removeFromWaitingToCraft(data)
+	waitingToCraftLookup[data.name] = nil
+	for i=1,#waitingToCraft do
+		if waitingToCraft[i] == data then
+			table.remove(waitingToCraft,i)
+			break
+		end
+	end
+end
+local function removeFromBoth(data)
+	removeFromWaitingToCraft(data)
+	removeFromCurrentlyCrafting(data)
+end
+
+local eAllRecipes = enumerator(autocraftData)
+local eCrafting = enumerator(currentlyCrafting)
+local function Autocrafting()
+	local cpus = ae.getCpus()
 	cpustatus.activeCPUsTotal = 0
-	cpustatus.totalCPUs = c.n
-
-	for i=1,c.n do
-		if c[i].busy then 
+	cpustatus.totalCPUs = cpus.n
+	for i=1,cpus.n do
+		if cpus[i].busy then 
 			cpustatus.activeCPUsTotal = cpustatus.activeCPUsTotal + 1
 		end
 	end
 
-	local function updateCPUStatus(data,dir)
-		cpustatus.activeCPUs = cpustatus.activeCPUs + dir
-		cpustatus.activeCPUsTotal = cpustatus.activeCPUsTotal + dir
-		if data.unimportant then
-			cpustatus.activeUnimportantCPUs = cpustatus.activeUnimportantCPUs + dir
-		end
-	end
-
-	local function pushCurrentlyCrafting(data)
-		if currentlyCraftingLookup[data.name] then return end
-		table.insert(currentlyCrafting,data)
-		currentlyCraftingLookup[data.name] = true
-	end
-
-	local function pushWaitingToCraft(data)
-		if waitingToCraftLookup[data.name] then return end
-
-		if data.error == "Missing recipe" then
-			table.insert(waitingToCraft,data) -- put it at the end of the list
-		else
-			table.insert(waitingToCraft,1,data)
-		end
-
-		waitingToCraftLookup[data.name] = true
-	end
-
-	local function removeFromBoth(data)
-		waitingToCraftLookup[data.name] = nil
-		currentlyCraftingLookup[data.name] = nil
-
-		for i=1,#waitingToCraft do
-			if waitingToCraft[i] == data then table.remove(waitingToCraft,i) break end
-		end
-
-		for i=1,#currentlyCrafting do
-			if currentlyCrafting[i] == data then table.remove(currentlyCrafting,i) break end
-		end
-	end
-
-	--for name, data in pairs(autocraftData) do
-		--table.insert(debugList,"checking: " .. item)
+	local function checkIfAdd(data)
 		local aeitem = ae.getItemsInNetwork(data.filter)
 		if aeitem[1] ~= nil then
 			aeitem = aeitem[1]
 		else
 			-- item not found, make some fake data and hope for the best
 			aeitem = {
-				size = 0, damage=0, 
+				size=0, damage=0, 
 				label=data.filter.label or name, 
 				name=data.filter.name or name, 
 				maxDamage = 0, maxSize = 64, 
@@ -290,17 +326,6 @@ local function Autocrafting()
 		end
 			
 		data.aeitem = aeitem
-		--table.insert(debugList,"item name: " .. data.filter.label .. ", count: " .. aeitem.size)
-
-		data.finishedAtTheSameTime = nil
-		if data.currentlyCrafting and data.events.isFinished(data,ae,cpustatus) then
-			--table.insert(debugList,"Finished")
-			data.events.finished(data,ae,cpustatus)
-			data.currentlyCrafting = false
-			updateCPUStatus(data,-1)
-			removeFromBoth(data)
-			data.finishedAtTheSameTime = true
-		end
 
 		if not data.currentlyCrafting then
 			local should, err = data.events.shouldCraft(data,ae,cpustatus)
@@ -311,10 +336,8 @@ local function Autocrafting()
 				data.error = err
 				if start then
 					--table.insert(debugList,"Has started")
-					data.currentlyCrafting = true
-
-					updateCPUStatus(data,1)
 					pushCurrentlyCrafting(data)
+					removeFromWaitingToCraft(data)
 				else
 					pushWaitingToCraft(data)
 				end
@@ -324,9 +347,82 @@ local function Autocrafting()
 				removeFromBoth(data)
 			end
 		end
+	end
+	local function checkIfComplete(data)
+		data.finishedAtTheSameTime = nil
+		if data.currentlyCrafting and data.events.isFinished(data,ae,cpustatus) then
+			--table.insert(debugList,"Finished")
+			data.events.finished(data,ae,cpustatus)
+			data.currentlyCrafting = false
+			removeFromBoth(data)
+			data.finishedAtTheSameTime = true
+			return true
+		end
+	end
 
-	--end
+	if checkIfComplete(eCrafting:next()) then
+		checkIfAdd(eCrafting.value)
+	elseif checkIfComplete(eAllRecipes:next()) then
+		checkIfAdd(eAllRecipes.value)
+	end
 end
+
+--local function cpuInit()
+
+	--[[
+	local function getLbl(item)
+		if item.fluid_label then
+			return item.fluid_label .. " fluid"
+		else
+			return item.label
+		end
+	end
+
+	print("Checking recipes currenly crafting")
+	local items = {}
+	for i=1,cpus.n do
+		if cpus[i].busy and cpus[i].cpu then
+			local item = cpus[i].cpu.finalOutput()
+			if item then
+				items[#items+1] = {item,cpus[i]}
+			end
+		end
+	end
+
+	-- get currently crafting
+	local idx=0
+	for k,v in pairs(autocraftData) do
+		idx=idx+1
+		local isCraftingThisItem = true
+		local itemIdx = 0
+
+		for k2, itemcpu in pairs(items) do
+			local item, cpu = itemcpu[1], itemcpu[2]
+			for filterKey, filterValue in pairs(v.filter) do
+				if item[filterKey] ~= filterValue then
+					isCraftingThisItem = false
+					break
+				end
+			end
+			if isCraftingThisItem then
+				items[k2] = nil
+				break
+			end
+		end
+		if isCraftingThisItem then
+			pushCurrentlyCrafting(v)
+			v.amountToCraft = v.keepStocked
+			v.amountAtStart = 0
+			v.startedAt = computer.uptime()
+			v.craftingStatus = {isDone = function() return not cpu.isBusy() end}
+			v.craftingStatus.isCanceled = v.craftingStatus.isDone
+			if not next(items) then break end
+		end
+	end
+	items = nil
+	]]
+--end
+--cpuInit()
 
 --gt
 local batteryBuffers = {}
@@ -378,6 +474,7 @@ local turbinesOn = false
 local warningBlink = false
 local gtPowerDrainAvg = nil
 local gtPowerSupplyAvg = nil
+local gtPowerIOAvg30sec = nil
 local gtPowerIOAvg10min = nil
 local gtPowerIOAvg1hour = nil
 local function Draw()
@@ -425,21 +522,25 @@ local function Draw()
 			gtPowerDrain = gtPowerDrain + drain
 			gtPowerSupply = gtPowerSupply + supply
 
+
 			local percent = math.floor(drain/supply*100+0.5)
-			local clr = 0x00FF00
-			if (drain == 0 and supply == 0) or 
-				percent == math.huge or percent < 0 or percent > 10000 then
-				percent = "-"
+			local color = 0x00FF00
+			if percent == math.huge or percent > 10000 then
+				percent = ">10000"
+				color = 0xFF0000
+			elseif percent <= 0 then
+				percent = "0"
+				color = 0x00FF00
 			else
-				if percent >= 100 then clr = 0xFF0000
-				elseif percent >= 75 then clr = 0xFFFF00 end
+				if percent >= 100 then color = 0xFF0000
+				elseif percent >= 75 then color = 0xFFFF00 end
 			end
 			allbattery_info[i] = {
-				clr,
-				string.format("\t%s\t%s / %s\t\t(%s)",
-					math.floor(pwr/pwrMax*100+0.5).."%",
+				color,
+				string.format("\t%s\t%s / %s\t\t(%s%%)",
+					math.floor(pwr/pwrMax*100+0.5),
 					formatInt(drain), formatInt(supply),
-					percent .. "%"
+					percent
 				)
 			}
 		end
@@ -455,6 +556,10 @@ local function Draw()
 		end
 
 		local diff  = gtPowerSupplyAvg - gtPowerDrainAvg
+
+		if gtPowerIOAvg30sec == nil or uptime < 20 then gtPowerIOAvg30sec = diff else
+			gtPowerIOAvg30sec = gtPowerIOAvg30sec * (1-1/(30*sleepMult)) + diff * (1/(30*sleepMult))
+		end
 		if gtPowerIOAvg10min == nil or uptime < 20 then gtPowerIOAvg10min = diff else
 			gtPowerIOAvg10min = gtPowerIOAvg10min * (1-1/(600*sleepMult)) + diff * (1/(600*sleepMult))
 		end
@@ -485,54 +590,80 @@ local function Draw()
 		cpustatus.activeCPUsTotal,cpustatus.totalCPUs
 	))
 	
-	local function displayList(list, count, slotsLeft, display)
+	local slotsLeft = displayMax
+	local function displayList(list, count, display)
 		local idx = 0
+		local ret = 0
 		for k,v in pairs(list) do
 			idx = idx + 1
 
-			local s = display(k,v)
-			if s then
+			if display(k,v) then
 				slotsLeft = slotsLeft - 1
-				if slotsLeft <= 0 then
-					if count ~= nil then
-						print("+ " .. (count - idx) .. " others")
+				if slotsLeft <= 1 then
+					local moreText = nil
+					if count~=nil then
+						if (count-idx)>1 then
+							moreText = count-idx
+						end
 					else
-						print("+ some others")
+						if next(list,k)~=nil and next(list,next(list,k))~=nil then
+							moreText = "some"
+						end
 					end
-					return slotsLeft
-				end
 
-				print(s)
+					if moreText ~= nil then
+						slotsLeft = slotsLeft - 1
+						print("+ " .. moreText .. " others")
+						return
+					end
+				end
 			end
 		end
-		return slotsLeft
+		return
 	end
 
-	if currentlyCheckingName then
-		print(string.format("Checking item (%s/%s): %s",
-			currentlyCheckingIdx,
+	if eAllRecipes.key then
+		print(string.format("(%s/%s): %s, (%s/%s): %s",
+			eAllRecipes.idx,
 			numberOfCraftData,
-			currentlyCheckingName
+			string.sub(eAllRecipes.key,1,24),
+			eCrafting.idx,
+			cpustatus.activeCPUs,
+			string.sub(eCrafting.value and eCrafting.value.name or "-",1,24)
 		))
 	end
 
-	local slotsLeft = displayMax
 	-- Currently Crafting
 	if #currentlyCrafting > 0 then
+		slotsLeft = slotsLeft - 1
 		printColor(0x00FF00, "= Currently crafting:")
-		slotsLeft = displayList(currentlyCrafting, #currentlyCrafting, slotsLeft, function(k,v) v.events.displayStatus(v) end)
+		displayList(currentlyCrafting, #currentlyCrafting, function(k,v) return v.events.displayStatus(v) end)
+	end
+
+
+	-- Max restart amounts
+	if next(maxRestartAmounts) ~= nil then
+		slotsLeft = slotsLeft - 1
+		printColor(0x00FF00,"= Max restart amounts:")
+		displayList(maxRestartAmounts, nil, function(k,v) print(k .. ": " .. v .. "x") return true end)
+	end
+
+	if next(probablyOutOfItems) ~= nil then
+		slotsLeft = slotsLeft - 2
+		printColor(0xFF0000,"= Probably out of items:")
+		local s,n = {}, 0
+		for name, _ in pairs(probablyOutOfItems) do
+			n = n + 1
+			s[n] = name
+		end
+		printColor(0xFFAA00, table.concat(s,", "))
 	end
 
 	-- Waiting to Craft
 	if #waitingToCraft > 0 then
+		slotsLeft = slotsLeft - 1
 		printColor(0x00FF00,"= Waiting to craft:")
-		slotsLeft = displayList(waitingToCraft, #waitingToCraft, slotsLeft, function(k,v) v.events.displayStatus(v) end)
-	end
-
-	-- Max restart amounts
-	if next(maxRestartAmounts) ~= nil then
-		printColor(0x00FF00,"= Max restart amounts:")
-		slotsLeft = displayList(maxRestartAmounts, nil, slotsLeft, function(k,v) return k .. ": " .. v .. "x" end)
+		displayList(waitingToCraft, #waitingToCraft, function(k,v) return v.events.displayStatus(v) end)
 	end
 
 	-- Crafting error
@@ -578,17 +709,20 @@ local function Draw()
 
 	local percent = math.floor(gtPowerDrainAvg/gtPowerSupplyAvg*100+0.5)
 	local color = 0x00FF00
-	if (gtPowerDrainAvg == 0 and gtPowerSupplyAvg == 0) or 
-		percent == math.huge or percent < 0 or percent > 10000 then
-		percent = "-"
+	if percent == math.huge or percent > 10000 then
+		percent = ">10000"
+		color = 0xFF0000
+	elseif percent <= 0 then
+		percent = "0"
+		color = 0x00FF00
 	else
 		if percent >= 100 then color = 0xFF0000
 		elseif percent >= 75 then color = 0xFFFF00 end
 	end
-	printColor(color, string.format("Total -/+:\t%s / %s\t\t(%s)",
+	printColor(color, string.format("Total -/+:\t%s / %s\t\t(%s%%)",
 		formatInt(gtPowerDrainAvg),
 		formatInt(gtPowerSupplyAvg),
-		percent.."%"
+		percent
 	))
 
 	-- all batteries
@@ -604,7 +738,7 @@ local function Draw()
 	-- Time to zero or full energy
 	local timeToZero = "-"
 	local seconds = 0
-	local powerDelta = gtPowerIOAvg10min*20 --((gtPowerDrainAvg-gtPowerSupplyAvg)*20)
+	local powerDelta = gtPowerIOAvg30sec*20 --((gtPowerDrainAvg-gtPowerSupplyAvg)*20)
 
 	if powerDelta < 0 then
 		seconds = tonumber(gtPower / math.abs(powerDelta))
@@ -635,9 +769,11 @@ local function Draw()
 		timeToZero
 	))
 	printColor((uptime < 20 and 0x00FF00 or (uptime < 600 and 0x0000FF or 0xFFFFFF)),
-		string.format("Avg 10 min:\t%s ",formatInt(gtPowerIOAvg10min).." ("..math.ceil(gtPowerIOAvg10min/gtPowerVoltage).." A)"))
-	printColor((uptime < 20 and 0x00FF00 or (uptime < 3600 and 0x0000FF or 0xFFFFFF)), 
-		string.format("Avg 1 hour:\t%s", formatInt(gtPowerIOAvg1hour).." ("..math.ceil(gtPowerIOAvg1hour/gtPowerVoltage).." A)")
+		string.format(
+			"Avg 10 min:\t%s\t1 hour:\t%s",
+			formatInt(gtPowerIOAvg10min).." ("..math.ceil(gtPowerIOAvg10min/gtPowerVoltage).." A)",
+			formatInt(gtPowerIOAvg1hour).." ("..math.ceil(gtPowerIOAvg1hour/gtPowerVoltage).." A)"
+		)
 	)
 
 	-- control turbines
@@ -687,6 +823,9 @@ while(true) do
 		end
 
 		local diff  = gtPowerSupplyAvg - gtPowerDrainAvg
+		if gtPowerIOAvg30sec == nil or t - startTime < 20 then gtPowerIOAvg30sec = diff else
+			gtPowerIOAvg30sec = gtPowerIOAvg30sec * (1-1/(30*20*seconds)) + diff * (1/(30*20*seconds))
+		end
 		if gtPowerIOAvg10min == nil or t - startTime < 20 then gtPowerIOAvg10min = diff else
 			gtPowerIOAvg10min = gtPowerIOAvg10min * (1-1/(600*20*seconds)) + diff * (1/(600*20*seconds))
 		end

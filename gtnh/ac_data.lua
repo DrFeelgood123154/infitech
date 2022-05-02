@@ -100,7 +100,7 @@ local function basicFilter(label, prefix)
 end
 ]]
 local function stainlessCellFilter(fluid)
-	return {label = "Large Stainless Steel Fluid Cell", fluid_name = string.lower(fluid)}
+	return {label = "Large Stainless Steel Fluid Cell", fluid_label = fluid}
 end
 
 addGTItem("Stainless Oxygen Cell", IMPORTANT, 500).filter = stainlessCellFilter("Oxygen")
@@ -108,24 +108,28 @@ addGTItem("Stainless Hydrogen Cell", IMPORTANT, 500).filter = stainlessCellFilte
 addGTItem("Helium Plasma Cell", IMPORTANT, 500)
 
 local CellSpam = {
-	[64] = {
-		"Ethanol", "Ether", "Heavy Fuel", "Light Fuel", "P-507",
-		"Radon", "Steam", "Molten Silicone Rubber", "Titaniumtetrachloride", 
-		"Propene", "Phenol", "Acetone", "Ethylene", "Water", "Methane",
-		"Molten Polytetrafluoroethylene",
+	[200] = {
+		"Ethanol", "Ether", "Heavy Fuel", "Light Fuel",
+		"Radon", "Titaniumtetrachloride", 
+		"Propene", "Acetone", "Ethylene",  "Methane",
+		"Steam", "Phenol", "Molten Silicone Rubber",
 	},
 	[500] = {
-		"Chlorine", "Helium", "Molten Polybenzimidazole", "Lubricant", "Refined Glue", 
-		"Molten Rubber", "Molten Polyethylene", "Molten Epoxid", "Hydrofluoric Acid",
-		"Oxygen", 
+		"Helium", "Molten Polybenzimidazole", "Lubricant", "Refined Glue", 
+		"Molten Rubber", "Molten Polyethylene", "Molten Epoxid", "Water", 
+		"Oxygen", "Molten Polytetrafluoroethylene",
 	},
 	[1000] = {
-		"Fluorine", "Iron III Chloride", "Sulfuric Acid", 
+		"Fluorine", "Iron III Chloride",
 		"Sodium Persulfate", "Nitric Acid", "Nitrogen Dioxide",
 		"Molten Soldering Alloy", "Mercury", 
 	},
 	[2000] = {
 		"Nitrogen", "Ammonia", "Ammonium Chloride", "Hydrochloric Acid", 
+		"Chlorine", "Hydrofluoric Acid",
+	},
+	[4000] = {
+		"Sulfuric Acid", 
 	}
 }
 
@@ -135,8 +139,14 @@ for amount, cells in pairs( CellSpam ) do
 	end
 end
 
+addGTItem("Stainless Distilled Water Cell", NORMAL, 100).filter = stainlessCellFilter("Distilled Water")
+addGTItem("Stainless Nitrogen Dioxide Cell", NORMAL, 100).filter = stainlessCellFilter("Nitrogen Dioxide")
+addGTItem("Stainless Ammonia Cell", NORMAL, 100).filter = stainlessCellFilter("Ammonia")
+addGTItem("Stainless Helium Cell", NORMAL, 64).filter = stainlessCellFilter("Helium")
 addGTItem("Sodium Hydroxide Dust", NORMAL, 1000)
 addGTItem("Quicklime Dust", NORMAL)
 addGTItem("Enderpearl Dust", NORMAL)
+addGTItem("Industrial TNT", NORMAL, 1000)
+addGTItem("Electric Pump (IV)", NORMAL, 10, 10)
 
 return autocraftData
