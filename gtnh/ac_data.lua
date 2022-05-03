@@ -11,7 +11,7 @@
 
 		-- fixed values (cannot be changed, overwritten by computer)
 		name = "-", -- will always contain the same value as the key of the table
-		aeitem = nil, -- reference to aeitem object
+		aeAmount = 0, -- amount of items in ae
 		error = "string", -- error message set by one of the events or other. should be displayed in displayStatus
 
 		-- options
@@ -148,5 +148,6 @@ addGTItem("Quicklime Dust", NORMAL)
 addGTItem("Enderpearl Dust", NORMAL)
 addGTItem("Industrial TNT", NORMAL, 1000)
 addGTItem("Electric Pump (IV)", NORMAL, 10, 10)
+addGTItem("Silicon Dioxide Dust", NORMAL, 100000)
 
 return autocraftData
