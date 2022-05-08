@@ -1,18 +1,20 @@
 
-local cpustatus = {
-	activeCPUsTotal = 0,
-	activeCPUs = 0,
-	activeUnimportantCPUs = 0,
-	totalCPUs = 0,
-	maxCPUs = 16 -- edit this if necessary
-}
+local function getDefaultCpuStatus()
+	return {
+		activeCPUsTotal = 0,
+		activeCPUs = 0,
+		activeUnimportantCPUs = 0,
+		totalCPUs = 0,
+		maxCPUs = 16 -- edit this if necessary
+	}
+end
+local cpustatus = getDefaultCpuStatus()
 local waitBeforeCrafting = 0 -- seconds
 local autocraftData = {}
 
 local waitingToCraft = {}
 local waitingToCraftLookup = {}
 local currentlyCrafting = {}
-local currentlyCraftingLookup = {}
 local maxRestartAmounts = {}
 local probablyOutOfItems = {}
 local eAllRecipes
@@ -36,8 +38,8 @@ local defaultAutocraftItem = {
 		-- }
 	events = {
 		shouldCraft = function(data,ae,cpustatus)
-			if data.aeAmount < data.threshold or (data.maxCraftBound and data.aeAmount < data.keepStocked) then
-				if data.unimportant and cpustatus.activeCPUsTotal-cpustatus.activeUnimportantCPUs > 0 and cpustatus.totalCPUs-cpustatus.activeCPUsTotal < 10 then
+			if not data.currentlyCrafting and data.aeAmount < data.threshold or (data.maxCraftBound and data.aeAmount < data.keepStocked) then
+				if data.unimportant and cpustatus.activeCPUsTotal-cpustatus.activeUnimportantCPUs > 0 and cpustatus.totalCPUs-cpustatus.activeCPUsTotal < cpustatus.maxCPUs*0.2 then
 					--table.insert(debugList,"Waiting to craft " .. data.name .. " because unimportant")
 					return nil, "Unimportant"
 				end
@@ -108,7 +110,7 @@ local defaultAutocraftItem = {
 			return false, "Missing recipe"
 		end,
 		isFinished = function(data,ae,cpustatus)
-			return data.craftStatus and (data.craftStatus.isDone() or data.craftStatus.isCanceled())
+			return data.craftStatus and (data.craftStatus.isDone() or data.craftStatus.isCanceled()), data.craftStatus.isCanceled()
 		end,
 		finished = function(data,ae,cpustatus)
 			if data.maxCraftBound and data.aeAmount < data.keepStocked then
@@ -164,7 +166,7 @@ local defaultAutocraftItem = {
 			return true
 		end,
 	},
-	aeAmount = 0,
+	aeAmount = -1,
 	threshold = 32,
 	keepStocked = 64,
 	name = "-default-",
@@ -173,21 +175,27 @@ local defaultAutocraftItem = {
 	currentlyCrafting = false,
 }
 
-local function LoadAutocraftData()
+local function getItemKey(i)
+	return string.format("%s;%s;%s",i.label or "",i.name or "",i.fluid_label or "")
+end
+
+local function LoadAutocraftData(oldData)
 	package.loaded.ac_data = nil
-	autocraftData = require("ac_data")
+	local loadedData = require("ac_data")
 
 	ret.numberOfCraftData = 0
-	for name, data in pairs(autocraftData) do
+	autocraftData = {}
+	ret.autocraftData = autocraftData
+	for name, data in pairs(loadedData) do
 		--for k,v in pairs(defaultAutocraftItem) do
 		--	if data[k] == nil then data[k] = v end
 		--end
 		ret.numberOfCraftData = ret.numberOfCraftData + 1
 
-		data.currentlyCrafting = false
 		data.name = name
 		data.threshold = data.threshold or math.floor(data.keepStocked*0.75)
 		data.maxCraft = data.maxCraft or data.keepStocked
+		if not data.waitToCraft then data.waitToCraft = waitBeforeCrafting end
 
 		-- set default filter
 		if not data.filter then
@@ -196,18 +204,43 @@ local function LoadAutocraftData()
 			}
 		end
 
-		if not data.waitToCraft then data.waitToCraft = waitBeforeCrafting end
-		setmetatable(data, {__index=defaultAutocraftItem})
-		--autocraftData[string.format("%s;%s",data.filter.label,data.filter.fluid_label or "")] = data
-		--print("loaded " .. data.name)
+		local key = getItemKey(data.filter)
+		if oldData[key] then -- copy over relevant old data
+			local old = oldData[key]
+			data.startCraftingAt = old.startCraftingAt
+			data.waitToCraft = old.waitToCraft
+			data.maxCraftBound = old.maxCraftBound
+			data.aeAmount = old.aeAmount
+			data.restartAmount = old.restartAmount
+			data.amountToCraft = old.amountToCraft
+			data.amountAtStart = old.amountAtStart
+			data.startedAt = old.startedAt
+			data.craftStatus = old.craftStatus
+			data.currentlyCrafting = old.currentlyCrafting
+			oldData[key] = nil
+			--print("found old data, " .. name .. ", " .. tostring(data.currentlyCrafting) .. ", " .. tostring(data.craftStatus and data.craftStatus.isDone() or "-"))
+		else
+			data.currentlyCrafting = false
+			--print("no old data found, " .. name)
+		end
 		--os.sleep(1)
+
+
+		setmetatable(data, {__index=defaultAutocraftItem})
+
+		autocraftData[key] = data
+		loadedData[name] = nil
+		--print("loaded " .. data.name .. ", " .. getItemKey(data.filter))
+		--os.sleep(0.5)
 	end
+
+	ret.autocraftData = autocraftData
 
 	printColor(0x00FF00, "Loaded "..ret.numberOfCraftData.." autocraft items")
 end
 
-local function enumerator(tbl)
-	local enumer = {
+local function iterator(tbl)
+	local iter = {
 		next = function(self, infl)
 			self.idx = self.idx + 1
 			self.key, self.value = next(tbl, self.key)
@@ -223,18 +256,53 @@ local function enumerator(tbl)
 		end,
 		idx = 0
 	}
-	return enumer
+	return iter
 end
 
-local function Init(_ae, _computer, _craftTime)
+local function Init(_ae, _computer, _craftTime, conf)
 	ae = _ae
 	computer = _computer
 	craftTime = _craftTime
-	LoadAutocraftData()
-	eAllRecipes = enumerator(autocraftData)
-	eCrafting = enumerator(currentlyCrafting)
+	
+	waitingToCraft = conf.waitingToCraft or {}
+	ret.waitingToCraft = waitingToCraft
+	waitingToCraftLookup = conf.waitingToCraftLookup or {}
+	ret.waitingToCraftLookup = waitingToCraftLookup
+	
+	currentlyCrafting = conf.currentlyCrafting or {}
+	ret.currentlyCrafting = currentlyCrafting
+
+	maxRestartAmounts = conf.maxRestartAmounts or {}
+	ret.maxRestartAmounts = maxRestartAmounts
+	probablyOutOfItems = conf.probablyOutOfItems or {}
+	ret.probablyOutOfItems = probablyOutOfItems
+
+	local def = getDefaultCpuStatus()
+	cpustatus = conf.cpustatus or def
+	cpustatus.maxCPUs = def.maxCPUs
+	ret.cpustatus = cpustatus
+
+	LoadAutocraftData(conf.autocraftData or {})
 	--eAllItems = ae.allItems()
 
+	local function checkOldList(list, lookup)
+		for i=#list,1,-1 do
+			local key = getItemKey(list[i].filter)
+			if autocraftData[key] then
+				list[i] = autocraftData[key]
+			else
+				table.remove(list,i)
+				if lookup then
+					lookup[list[i].name] = nil
+				end
+			end
+		end
+	end
+	checkOldList(waitingToCraft, waitingToCraftLookup)
+	checkOldList(currentlyCrafting)
+
+	eAllRecipes = iterator(autocraftData)
+	eCrafting = iterator(currentlyCrafting)
 	ret.eAllRecipes = eAllRecipes
 	ret.eCrafting = eCrafting
 	--[[
@@ -300,11 +368,10 @@ local function updateCPUStatus(data,dir)
 end
 
 local function pushCurrentlyCrafting(data)
-	if currentlyCraftingLookup[data.name] then return end
+	if data.currentlyCrafting then return end
 	data.currentlyCrafting = true
 	updateCPUStatus(data,1)
 	table.insert(currentlyCrafting,data)
-	currentlyCraftingLookup[data.name] = true
 end
 
 local function pushWaitingToCraft(data)
@@ -320,7 +387,7 @@ local function pushWaitingToCraft(data)
 end
 
 function removeFromCurrentlyCrafting(data)
-	currentlyCraftingLookup[data.name] = nil
+	data.currentlyCrafting = false
 	for i=1,#currentlyCrafting do
 		if currentlyCrafting[i] == data then
 			updateCPUStatus(data,-1)
@@ -349,13 +416,16 @@ local function checkIfAdd(data)
 		error("ITEM WITH NO FILTER: " .. data.name)
 		return
 	end
+	--if data.aeAmount == -1 then return end
 
+	---[[
 	local aeitem = ae.getItemsInNetwork(data.filter)
 	if aeitem[1] ~= nil then
 		data.aeAmount = math.floor(aeitem[1].size)
 	else
 		data.aeAmount = 0
 	end
+	--]]
 
 	if not data.currentlyCrafting then
 		local should, err = data.events.shouldCraft(data,ae,cpustatus)
@@ -374,6 +444,7 @@ local function checkIfAdd(data)
 		elseif should == nil then
 			pushWaitingToCraft(data)
 		else
+			probablyOutOfItems[data.name] = nil
 			removeFromBoth(data)
 		end
 	end
@@ -381,12 +452,15 @@ end
 local function checkIfComplete(data)
 	if not data then return false end
 	data.finishedAtTheSameTime = nil
-	if data.currentlyCrafting and data.events.isFinished(data,ae,cpustatus) then
-		data.events.finished(data,ae,cpustatus)
-		data.currentlyCrafting = false
-		removeFromBoth(data)
-		data.finishedAtTheSameTime = true
-		return true
+	if data.currentlyCrafting then
+		local isFinished, isCanceled = data.events.isFinished(data,ae,cpustatus)
+		if isFinished then
+			data.events.finished(data,ae,cpustatus)
+			data.currentlyCrafting = false
+			removeFromBoth(data)
+			data.finishedAtTheSameTime = not isCanceled
+			return true
+		end
 	end
 end
 
@@ -401,28 +475,35 @@ local function Autocrafting()
 	end
 
 	--[[
-	local amount = 1
+	local t = os.clock()
+	local amount = 200
 	local item
+	local nilItems = 10
 	repeat
 		ret.checkingAllItemsIdx = ret.checkingAllItemsIdx + 1
 		item = eAllItems()
 
 		if item == nil then
-			ret.checkingAllItemsTotal = ret.checkingAllItemsIdx
-			ret.checkingAllItemsIdx = 1
-			eAllItems = ae.allItems()
-			item = eAllItems()
-			if item == nil then break end
-		end
-
-		local key = string.format("%s;%s",item.label,item.fluid_label or "")
-		if autocraftData[key] then
-			autocraftData[key].aeAmount = item.size
+			-- check if next 10 items are also nil
+			nilItems = nilItems - 1
+		else
+			local key = getItemKey(item)
+			if autocraftData[key] then
+				autocraftData[key].aeAmount = item.size
+			end
 		end
 
 		amount = amount - 1
-	until amount <= 0
-	]]
+	until nilItems <= 0 or amount <= 0 or (t-os.clock()) > 0.05
+
+	if nilItems <= 0 and item == nil then
+		-- if next item is also nil then we probably reached the end, restart
+		ret.checkingAllItemsTotal = ret.checkingAllItemsIdx
+		ret.checkingAllItemsIdx = 1
+		eAllItems = ae.allItems()
+		item = eAllItems()
+	end
+	--]]
 
 	if checkIfComplete(eCrafting:next()) then
 		checkIfAdd(eCrafting.value)
@@ -435,9 +516,11 @@ ret = {
 	Init = Init,
 	Autocrafting = Autocrafting,
 	currentlyCrafting = currentlyCrafting,
+	waitingToCraft = waitingToCraft,
+	waitingToCraftLookup = waitingToCraftLookup,
 	maxRestartAmounts = maxRestartAmounts,
 	probablyOutOfItems = probablyOutOfItems,
-	waitingToCraft = waitingToCraft,
+	autocraftData = autocraftData,
 	numberOfCraftData = 0,
 	cpustatus = cpustatus,
 	checkingAllItemsIdx = 0,

@@ -214,7 +214,7 @@ local function Draw(updateRate, uptime)
 
 	if crafter.eAllRecipes.key then
 		print(string.format("(%s/%s): %s, (%s/%s): %s",
-			--"[%s/%s]
+			--[%s/%s] 
 			--crafter.checkingAllItemsIdx,
 			--crafter.checkingAllItemsTotal,
 			crafter.eAllRecipes.idx,
@@ -233,13 +233,14 @@ local function Draw(updateRate, uptime)
 		displayList(crafter.currentlyCrafting, #crafter.currentlyCrafting, function(k,v) return v.events.displayStatus(v) end)
 	end
 
-	-- Max restart amounts
-	if next(crafter.maxRestartAmounts) ~= nil then
+	-- Waiting to Craft
+	if #crafter.waitingToCraft > 0 and slotsLeft>2 then
 		slotsLeft = slotsLeft - 1
-		printColor(0x00FF00,"= Max restart amounts:")
-		displayList(crafter.maxRestartAmounts, nil, function(k,v) print(k .. ": " .. v .. "x") return true end)
+		printColor(0x00FF00,"= Waiting to craft:")
+		displayList(crafter.waitingToCraft, #crafter.waitingToCraft, function(k,v) return v.events.displayStatus(v) end)
 	end
 
+	-- Probably out of items
 	if next(crafter.probablyOutOfItems) ~= nil then
 		slotsLeft = slotsLeft - 2
 		printColor(0xFF0000,"= Probably out of items:")
@@ -248,14 +249,17 @@ local function Draw(updateRate, uptime)
 			n = n + 1
 			s[n] = name
 		end
-		printColor(0xFFAA00, table.concat(s,", "))
+		s = table.concat(s,", ")
+		local lines = math.ceil(#s/72)
+		slotsLeft = slotsLeft - lines
+		printColor(0xFFAA00, s)
 	end
 
-	-- Waiting to Craft
-	if #crafter.waitingToCraft > 0 then
+	-- Max restart amounts
+	if next(crafter.maxRestartAmounts) ~= nil and slotsLeft>2 then
 		slotsLeft = slotsLeft - 1
-		printColor(0x00FF00,"= Waiting to craft:")
-		displayList(crafter.waitingToCraft, #crafter.waitingToCraft, function(k,v) return v.events.displayStatus(v) end)
+		printColor(0x00FF00,"= Max restart amounts:")
+		displayList(crafter.maxRestartAmounts, nil, function(k,v) print(k .. ": " .. v .. "x") return true end)
 	end
 
 	-- Crafting error

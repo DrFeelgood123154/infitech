@@ -106,11 +106,12 @@ end
 addGTItem("Stainless Oxygen Cell", IMPORTANT, 500).filter = stainlessCellFilter("Oxygen")
 addGTItem("Stainless Hydrogen Cell", IMPORTANT, 500).filter = stainlessCellFilter("Hydrogen")
 addGTItem("Helium Plasma Cell", IMPORTANT, 500)
+addGTItem("Niobium Plasma Cell", IMPORTANT, 500)
 
 local CellSpam = {
 	[200] = {
 		"Ethanol", "Ether", "Heavy Fuel", "Light Fuel",
-		"Radon", "Titaniumtetrachloride", 
+		"Radon", "Titaniumtetrachloride", "Benzene",
 		"Propene", "Acetone", "Ethylene",  "Methane",
 		"Steam", "Phenol", "Molten Silicone Rubber",
 	},
@@ -143,11 +144,38 @@ addGTItem("Stainless Distilled Water Cell", NORMAL, 100).filter = stainlessCellF
 addGTItem("Stainless Nitrogen Dioxide Cell", NORMAL, 100).filter = stainlessCellFilter("Nitrogen Dioxide")
 addGTItem("Stainless Ammonia Cell", NORMAL, 100).filter = stainlessCellFilter("Ammonia")
 addGTItem("Stainless Helium Cell", NORMAL, 64).filter = stainlessCellFilter("Helium")
+addGTItem("Stainless Benzene Cell", NORMAL, 64).filter = stainlessCellFilter("Benzene")
+addGTItem("Stainless Sulfuric Acid Cell", NORMAL, 64).filter = stainlessCellFilter("Sulfuric Acid")
+addGTItem("Stainless Chlorine Cell", NORMAL, 100).filter = stainlessCellFilter("Chlorine")
+addGTItem("Stainless Fluorine Cell", NORMAL, 100).filter = stainlessCellFilter("Fluorine")
+addGTItem("Stainless Nitrogen Cell", NORMAL, 100).filter = stainlessCellFilter("Nitrogen")
+
 addGTItem("Sodium Hydroxide Dust", NORMAL, 1000)
 addGTItem("Quicklime Dust", NORMAL)
 addGTItem("Enderpearl Dust", NORMAL)
-addGTItem("Industrial TNT", NORMAL, 1000)
+addGTItem("Industrial TNT", NORMAL, 100000)
 addGTItem("Electric Pump (IV)", NORMAL, 10, 10)
 addGTItem("Silicon Dioxide Dust", NORMAL, 100000)
+addGTItem("Potassium Dichromate Dust", NORMAL, 64)
+addGTItem("Aluminium Dust", NORMAL, 1000)
+addGTItem("Sulfur Dust", NORMAL, 10000)
+
+addGTItem("ME Interface", UNIMPORTANT, 256).filter = {label = "ME Interface", name = "appliedenergistics2:tile.BlockInterface"}
+addGTItem("ME Export Bus", UNIMPORTANT, 64)
+addGTItem("ME Storage Bus", UNIMPORTANT, 64)
+addGTItem("ME Smart Cable - Fluix", UNIMPORTANT, 256)
+addGTItem("ME Dense Smart Cable - Fluix", UNIMPORTANT, 64)
+addGTItem("BrainTech Aerospace Advanced Reinforced Duct Tape FAL-84", UNIMPORTANT, 256)
+
+addGTItem("Microprocessor", UNIMPORTANT, 512)
+addGTItem("Integrated Processor", UNIMPORTANT, 512)
+addGTItem("Nanoprocessor", UNIMPORTANT, 512)
+addGTItem("Quantumprocessor", UNIMPORTANT, 1024)
+addGTItem("Crystalprocessor", UNIMPORTANT, 2048)
+
+addGTItem("Aluminium Ingot", UNIMPORTANT, 8192)
+addGTItem("Titanium Ingot", UNIMPORTANT, 8192)
+addGTItem("Tungsten Ingot", UNIMPORTANT, 8192)
+addGTItem("Tungstensteel Ingot", UNIMPORTANT, 8192)
 
 return autocraftData
