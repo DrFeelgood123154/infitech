@@ -11,6 +11,7 @@ local gpu = component.gpu
 local colors = require("colors")
 local ev = require("event")
 
+os.execute("resolution 70 25")
 
 ----
 
@@ -34,6 +35,11 @@ end
 function unformatInt(i)
 	local temp = string.gsub(i,"[^%d]","")
 	return tonumber(temp)
+end
+function formatTime(t)
+	if t > 3600 then return math.floor(t / 3600) .. "h" end
+	if t > 60 then return math.floor(t / 60) .. "m" end
+	return math.floor(t) .. "s"
 end
 
 -- general
@@ -94,7 +100,7 @@ while(true) do
 
 		if t > nextDraw then
 			nextDraw = t + drawTime
-			display.Draw(drawTime, uptime)
+			display.Draw(drawTime, uptime, t)
 		end
 
 		if t > nextCraft then

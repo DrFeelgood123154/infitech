@@ -88,7 +88,7 @@ local function CalcAverage(updateRate, uptime)
 	end
 end
 
-local function Draw(updateRate, uptime)
+local function Draw(updateRate, uptime, cputime)
 	local powerDrain = ae.getAvgPowerUsage()
 	local powerSupply = ae.getAvgPowerInjection()
 	local powerIdle = ae.getIdlePowerUsage()
@@ -230,14 +230,14 @@ local function Draw(updateRate, uptime)
 	if #crafter.currentlyCrafting > 0 then
 		slotsLeft = slotsLeft - 1
 		printColor(0x00FF00, "= Currently crafting:")
-		displayList(crafter.currentlyCrafting, #crafter.currentlyCrafting, function(k,v) return v.events.displayStatus(v) end)
+		displayList(crafter.currentlyCrafting, #crafter.currentlyCrafting, function(k,v) return v.events.displayStatus(v, cputime) end)
 	end
 
 	-- Waiting to Craft
 	if #crafter.waitingToCraft > 0 and slotsLeft>2 then
 		slotsLeft = slotsLeft - 1
 		printColor(0x00FF00,"= Waiting to craft:")
-		displayList(crafter.waitingToCraft, #crafter.waitingToCraft, function(k,v) return v.events.displayStatus(v) end)
+		displayList(crafter.waitingToCraft, #crafter.waitingToCraft, function(k,v) return v.events.displayStatus(v, cputime) end)
 	end
 
 	-- Probably out of items

@@ -115,7 +115,9 @@ local defaultAutocraftItem = {
 		finished = function(data,ae,cpustatus)
 			if data.maxCraftBound and data.aeAmount < data.keepStocked then
 				-- Start quicker next time
-				data.startCraftingAt = computer.uptime() + data.waitToCraft * 0.5
+				data.startCraftingAt = computer.uptime() + math.max(5,data.waitToCraft * 0.5)
+			elseif data.unimportant then
+				data.startCraftingAt = computer.uptime() + math.max(5,data.waitToCraft * 0.5)
 			else
 				-- reset some values
 				data.startCraftingAt = nil
@@ -134,7 +136,7 @@ local defaultAutocraftItem = {
 				probablyOutOfItems[data.name] = nil
 			end
 		end,
-		displayStatus = function(data)
+		displayStatus = function(data, cputime)
 			local clr = {
 				["Unable to craft"] = 0xFF0000,
 				["Missing recipe"] = 0xFF0000,
@@ -156,8 +158,10 @@ local defaultAutocraftItem = {
 			-- Print status
 			printColor(
 				clr[data.error or "default"] or clr.default,
-				string.format("%sx %s%s",
+				string.format("%sx%s (%s) %s%s",
 					math.floor(math.max(0,(data.amountToCraft or data.keepStocked) - (data.aeAmount-(data.amountAtStart or 0)))),
+					(data.maxCraft < data.keepStocked) and " / " .. data.keepStocked .. "x" or "",
+					formatTime(cputime - data.startedAt),
 					data.name,
 					err
 				)
@@ -416,6 +420,12 @@ local function checkIfAdd(data)
 		error("ITEM WITH NO FILTER: " .. data.name)
 		return
 	end
+
+	if (data.unimportant or data.maxCraft < data.keepStocked) and data.finishedAtTheSameTime then 
+		data.finishedAtTheSameTime = nil
+		return 
+	end
+
 	--if data.aeAmount == -1 then return end
 
 	---[[
@@ -448,6 +458,8 @@ local function checkIfAdd(data)
 			removeFromBoth(data)
 		end
 	end
+	
+	data.finishedAtTheSameTime = nil
 end
 local function checkIfComplete(data)
 	if not data then return false end

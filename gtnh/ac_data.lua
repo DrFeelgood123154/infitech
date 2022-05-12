@@ -159,6 +159,8 @@ addGTItem("Silicon Dioxide Dust", NORMAL, 100000)
 addGTItem("Potassium Dichromate Dust", NORMAL, 64)
 addGTItem("Aluminium Dust", NORMAL, 1000)
 addGTItem("Sulfur Dust", NORMAL, 10000)
+addGTItem("Bio Chaff", NORMAL, 10000)
+addGTItem("Uranium 238 Rod", NORMAL, 128)
 
 addGTItem("ME Interface", UNIMPORTANT, 256).filter = {label = "ME Interface", name = "appliedenergistics2:tile.BlockInterface"}
 addGTItem("ME Export Bus", UNIMPORTANT, 64)
@@ -177,5 +179,9 @@ addGTItem("Aluminium Ingot", UNIMPORTANT, 8192)
 addGTItem("Titanium Ingot", UNIMPORTANT, 8192)
 addGTItem("Tungsten Ingot", UNIMPORTANT, 8192)
 addGTItem("Tungstensteel Ingot", UNIMPORTANT, 8192)
+addGTItem("Ruridit Ingot", UNIMPORTANT, 8192)
+addGTItem("Yttrium Barium Cuprate Ingot", UNIMPORTANT, 1024)
+addGTItem("HSS-S Ingot", UNIMPORTANT, 1024)
+
 
 return autocraftData

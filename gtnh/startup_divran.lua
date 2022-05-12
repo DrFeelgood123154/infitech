@@ -1,7 +1,5 @@
 local url = "http://81.233.65.53/opencomputers/gtnh/"
 
-os.execute("resolution 70 25")
-
 local files = {
 	"ac_data.lua",
 	"autocrafter.lua",
