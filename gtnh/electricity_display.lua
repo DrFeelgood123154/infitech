@@ -18,6 +18,7 @@ local highestEnergyIncome = 0
 local highestEnergyDrain = 0
 local crafter
 local ae
+local ret = {}
 
 function GetBatteries(component)
 	local idx = 0
@@ -33,7 +34,8 @@ function GetBatteries(component)
 		if proxy.getEUOutputAverage and 
 			proxy.getEUInputAverage and 
 			proxy.getEUStored and 
-			proxy.getEUMaxStored then
+			proxy.getEUMaxStored and
+			proxy.getSensorInformation then
 				idx = idx + 1
 				batteryBuffers[idx] = proxy
 		end
@@ -162,6 +164,9 @@ local function Draw(updateRate, uptime, cputime)
 		gtPowerAmpMax = overrideAmperage
 	end
 
+	ret.gtPower = gtPower
+	ret.gtPowerMax = gtPowerMax
+
 	if(gtPowerSupplyAvg > highestEnergyIncome) then highestEnergyIncome = gtPowerSupplyAvg end
 	if(gtPowerDrainAvg > highestEnergyDrain) then highestEnergyDrain = gtPowerDrainAvg end
 	gtPowerAmpUsed = math.ceil(gtPowerDrainAvg / gtPowerVoltage)
@@ -209,7 +214,6 @@ local function Draw(updateRate, uptime, cputime)
 				end
 			end
 		end
-		return
 	end
 
 	if crafter.eAllRecipes.key then
@@ -388,9 +392,12 @@ local function Draw(updateRate, uptime, cputime)
 	--]]--
 end
 
-return {
+ret = {
 	Init = Init,
 	CalcAverage = CalcAverage,
 	Draw = Draw,
-	batteryBuffers = batteryBuffers
+	batteryBuffers = batteryBuffers,
+	gtPower = 0,
+	gtPowerMax = 0
 }
+return ret

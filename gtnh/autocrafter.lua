@@ -24,6 +24,7 @@ local computer
 local ae
 local ret
 local craftTime = 1
+local display
 
 local defaultAutocraftItem = {
 	-- arguments to all these functions:
@@ -39,7 +40,17 @@ local defaultAutocraftItem = {
 	events = {
 		shouldCraft = function(data,ae,cpustatus)
 			if not data.currentlyCrafting and data.aeAmount < data.threshold or (data.maxCraftBound and data.aeAmount < data.keepStocked) then
-				if data.unimportant and cpustatus.activeCPUsTotal-cpustatus.activeUnimportantCPUs > 0 and cpustatus.totalCPUs-cpustatus.activeCPUsTotal < cpustatus.maxCPUs*0.2 then
+				if data.unimportant and display.gtPower < display.gtPowerMax * 0.6 then
+					return nil, "Unimp, Pwr<60%"
+				end
+				if not data.important and display.gtPower < display.gtPowerMax * 0.25 then
+					return nil, "Normal, Pwr<25%"
+				end
+
+				if data.unimportant and -- it's unimportant
+					cpustatus.activeCPUsTotal-cpustatus.activeUnimportantCPUs > 0 and -- if all cpus are busy with unimportant recipes start crafting
+					cpustatus.activeCPUsTotal > cpustatus.maxCPUs*0.2 -- or if nr of active cpus is less than maxCpus*0.2 then start crafting
+					then
 					--table.insert(debugList,"Waiting to craft " .. data.name .. " because unimportant")
 					return nil, "Unimportant"
 				end
@@ -155,14 +166,23 @@ local defaultAutocraftItem = {
 				err = " (max " .. data.maxCraft .. "x)"
 			end
 
+			local timeText = "-"
+			if data.currentlyCrafting then
+				if data.startedAt then
+					timeText = formatTime(cputime - data.startedAt)
+				end
+			elseif data.startCraftingAt then
+				timeText = formatTime(math.max(0,data.startCraftingAt - cputime))
+			end
+
 			-- Print status
 			printColor(
 				clr[data.error or "default"] or clr.default,
 				string.format("%sx%s (%s) %s%s",
 					math.floor(math.max(0,(data.amountToCraft or data.keepStocked) - (data.aeAmount-(data.amountAtStart or 0)))),
 					(data.maxCraft < data.keepStocked) and " / " .. data.keepStocked .. "x" or "",
-					formatTime(cputime - data.startedAt),
-					data.name,
+					timeText,
+					string.sub(data.name,0,24),
 					err
 				)
 			)
@@ -263,9 +283,10 @@ local function iterator(tbl)
 	return iter
 end
 
-local function Init(_ae, _computer, _craftTime, conf)
+local function Init(_ae, _computer, _display, _craftTime, conf)
 	ae = _ae
 	computer = _computer
+	display = _display
 	craftTime = _craftTime
 	
 	waitingToCraft = conf.waitingToCraft or {}

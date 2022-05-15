@@ -105,8 +105,8 @@ end
 
 addGTItem("Stainless Oxygen Cell", IMPORTANT, 500).filter = stainlessCellFilter("Oxygen")
 addGTItem("Stainless Hydrogen Cell", IMPORTANT, 500).filter = stainlessCellFilter("Hydrogen")
-addGTItem("Helium Plasma Cell", IMPORTANT, 500)
-addGTItem("Niobium Plasma Cell", IMPORTANT, 500)
+--addGTItem("Helium Plasma Cell", IMPORTANT, 500)
+addGTItem("Niobium Plasma Cell", IMPORTANT, 2000)
 
 local CellSpam = {
 	[200] = {
@@ -140,7 +140,7 @@ for amount, cells in pairs( CellSpam ) do
 	end
 end
 
-addGTItem("Stainless Distilled Water Cell", NORMAL, 100).filter = stainlessCellFilter("Distilled Water")
+addGTItem("Stainless Distilled Water Cell", NORMAL, 400).filter = stainlessCellFilter("Distilled Water")
 addGTItem("Stainless Nitrogen Dioxide Cell", NORMAL, 100).filter = stainlessCellFilter("Nitrogen Dioxide")
 addGTItem("Stainless Ammonia Cell", NORMAL, 100).filter = stainlessCellFilter("Ammonia")
 addGTItem("Stainless Helium Cell", NORMAL, 64).filter = stainlessCellFilter("Helium")
@@ -149,11 +149,11 @@ addGTItem("Stainless Sulfuric Acid Cell", NORMAL, 64).filter = stainlessCellFilt
 addGTItem("Stainless Chlorine Cell", NORMAL, 100).filter = stainlessCellFilter("Chlorine")
 addGTItem("Stainless Fluorine Cell", NORMAL, 100).filter = stainlessCellFilter("Fluorine")
 addGTItem("Stainless Nitrogen Cell", NORMAL, 100).filter = stainlessCellFilter("Nitrogen")
+addGTItem("Stainless Argon Cell", NORMAL, 100).filter = stainlessCellFilter("Argon")
 
 addGTItem("Sodium Hydroxide Dust", NORMAL, 1000)
 addGTItem("Quicklime Dust", NORMAL)
 addGTItem("Enderpearl Dust", NORMAL)
-addGTItem("Industrial TNT", NORMAL, 100000)
 addGTItem("Electric Pump (IV)", NORMAL, 10, 10)
 addGTItem("Silicon Dioxide Dust", NORMAL, 100000)
 addGTItem("Potassium Dichromate Dust", NORMAL, 64)
@@ -161,6 +161,11 @@ addGTItem("Aluminium Dust", NORMAL, 1000)
 addGTItem("Sulfur Dust", NORMAL, 10000)
 addGTItem("Bio Chaff", NORMAL, 10000)
 addGTItem("Uranium 238 Rod", NORMAL, 128)
+addGTItem("Furnace", NORMAL, 1024)
+addGTItem("Blaze Powder", NORMAL, 2048)
+addGTItem("Chiseled Stone Bricks", NORMAL, 10000)
+addGTItem("Industrial TNT", NORMAL, 100000, nil, 2560)
+addGTItem("Gelled Toluene", NORMAL, 100000, nil, 2560)
 
 addGTItem("ME Interface", UNIMPORTANT, 256).filter = {label = "ME Interface", name = "appliedenergistics2:tile.BlockInterface"}
 addGTItem("ME Export Bus", UNIMPORTANT, 64)
@@ -175,13 +180,21 @@ addGTItem("Nanoprocessor", UNIMPORTANT, 512)
 addGTItem("Quantumprocessor", UNIMPORTANT, 1024)
 addGTItem("Crystalprocessor", UNIMPORTANT, 2048)
 
-addGTItem("Aluminium Ingot", UNIMPORTANT, 8192)
-addGTItem("Titanium Ingot", UNIMPORTANT, 8192)
-addGTItem("Tungsten Ingot", UNIMPORTANT, 8192)
-addGTItem("Tungstensteel Ingot", UNIMPORTANT, 8192)
-addGTItem("Ruridit Ingot", UNIMPORTANT, 8192)
-addGTItem("Yttrium Barium Cuprate Ingot", UNIMPORTANT, 1024)
-addGTItem("HSS-S Ingot", UNIMPORTANT, 1024)
+local IngotSpam = {
+	[1024] = {
+		"Yttrium Barium Cuprate", "HSS-S",
+	},
+	[8192] = {
+		"Aluminium", "Titanium", "Tungsten", "Tungstensteel", "Ruridit",
+		"Stainless Steel", "Iridium", "Fluxed Electrum", 
+	}
+}
+
+for amount, ingots in pairs( IngotSpam ) do
+	for _, name in pairs( ingots ) do
+		addGTItem(name .. " Ingot", UNIMPORTANT, amount)
+	end
+end
 
 
 return autocraftData

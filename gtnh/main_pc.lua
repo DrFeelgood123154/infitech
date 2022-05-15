@@ -50,7 +50,7 @@ local startTime = computer.uptime()
 
 -- HARDCODED VALUES IN CASE OF GT_MACHINE MULTIBLOCK
 local hardCodedVoltage = 131072
-local hardCodedAmperage = 64
+local hardCodedAmperage = 128
 
 package.loaded.electricity_display = nil
 package.loaded.autocrafter = nil
@@ -59,7 +59,7 @@ local display = require("electricity_display")
 local crafting_old = crafting
 crafting = require("autocrafter") -- this needs to be global
 
-crafting.Init(ae, computer, craftTime, crafting_old or {})
+crafting.Init(ae, computer, display, craftTime, crafting_old or {})
 display.Init(crafting, ae, component, hardCodedVoltage, hardCodedAmperage)
 
 crafting_old = nil
@@ -76,7 +76,7 @@ eventListener = function(name, keyboardAddress, char, code, playerName)
 	if char == 117 then
 		pause = true
 		os.execute("wget -f http://81.233.65.53/opencomputers/gtnh/ac_data.lua")
-		crafting.Init(ae, computer, craftTime, crafting)
+		crafting.Init(ae, computer, display, craftTime, crafting)
 		pause = false
 	end
 end
