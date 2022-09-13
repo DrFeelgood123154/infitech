@@ -158,9 +158,9 @@ while true do
 				else
 					-- write outputs to pattern
 					io.write("Clearing outputs...\n")
-					for i=pattern.outputs.n,1,-1 do
-						me.clearInterfacePatternOutput(interfaceSlot, i)
-					end
+					--for i=pattern.outputs.n,1,-1 do
+					--	me.clearInterfacePatternOutput(interfaceSlot, i)
+					--end
 					io.write("Writing outputs...\n")
 					for itemidx, amount in pairs(recipe.Output) do
 						local maxAmount = amount
