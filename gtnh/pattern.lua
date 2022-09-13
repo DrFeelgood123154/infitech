@@ -106,12 +106,12 @@ while true do
 		local function readPattern()
 			io.write("--- Loading pattern #1\n")
 			local pattern = me.getInterfacePattern(interfaceSlot)
-			if not pattern then return false end
+			if not pattern then return end
 			io.write("Loading all items into database...\n")
 			storePattern(pattern, "inputs", "Input")
 			storePattern(pattern, "outputs", "Output")
 			io.write("All items loaded\n")
-			return true
+			return pattern
 		end
 
 		if ioboth == "read" then
@@ -145,7 +145,8 @@ while true do
 				clearDB()
 
 				interfaceSlot = interfaceSlot + 1
-				if not readPattern() then break end
+				local pattern = readPattern()
+				if not pattern then break end
 
 				-- multiply amounts
 				local numSlotsI, smallestIdx, smallestAmount = multiply("Input", mult)
@@ -158,9 +159,9 @@ while true do
 				else
 					-- write outputs to pattern
 					io.write("Clearing outputs...\n")
-					--for i=pattern.outputs.n,1,-1 do
-					--	me.clearInterfacePatternOutput(interfaceSlot, i)
-					--end
+					for i=pattern.outputs.n,1,-1 do
+						me.clearInterfacePatternOutput(interfaceSlot, i)
+					end
 					io.write("Writing outputs...\n")
 					for itemidx, amount in pairs(recipe.Output) do
 						local maxAmount = amount
@@ -183,16 +184,16 @@ while true do
 					-- and so that it fills the maximum amount of slots in the input bus each time
 					local ratios = {}
 					local totalNumberOfItemsToWrite = 0
-					local numSlotsOriginal = 0
+					--local numSlotsOriginal = 0
 					local ratioSum = 0
 					for itemidx, amount in pairs(recipe.Original.Input) do
 						ratios[itemidx] = amount / smallestAmount
 						ratioSum = ratioSum + amount / smallestAmount
-						numSlotsOriginal = numSlotsOriginal + math.ceil(amount/64)
+						--numSlotsOriginal = numSlotsOriginal + math.ceil(amount/64)
 						totalNumberOfItemsToWrite = totalNumberOfItemsToWrite + recipe.Input[itemidx]
 					end
 
-					local busRatio = math.floor(busSize / ratioSum)
+					local busRatio = math.max(1,math.floor(busSize / ratioSum))
 					local maxTotal = totalNumberOfItemsToWrite
 
 					io.write("Clearing inputs...\n")
