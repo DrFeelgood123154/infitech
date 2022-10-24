@@ -102,7 +102,7 @@ end
 local function stainlessCellFilter(fluid)
 	return {label = "Large Stainless Steel Fluid Cell", fluid_label = fluid}
 end
-
+--[[
 addGTItem("Stainless Oxygen Cell", IMPORTANT, 500).filter = stainlessCellFilter("Oxygen")
 addGTItem("Stainless Hydrogen Cell", IMPORTANT, 500).filter = stainlessCellFilter("Hydrogen")
 --addGTItem("Helium Plasma Cell", IMPORTANT, 500)
@@ -195,6 +195,6 @@ for amount, ingots in pairs( IngotSpam ) do
 		addGTItem(name .. " Ingot", UNIMPORTANT, amount)
 	end
 end
-
+]]--
 
 return autocraftData
