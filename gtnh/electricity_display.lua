@@ -20,7 +20,14 @@ local crafter
 local ae
 local ret = {}
 
-function GetBatteries(component)
+local function parseFromSensorInfo(str)
+	local n = str:match(": ([%d,]+)EU"):gsub(",","")
+	n = tonumber(n)
+	if n < 0 then n = -n - 2 end -- fix tonumber bullshit
+	return n
+end
+
+local function GetBatteries(component)
 	local idx = 0
 	local maxIdx = #batteryBuffers
 	for id, what in component.list("battery") do
@@ -67,6 +74,10 @@ end
 local function CalcAverage(updateRate, uptime)
 	local gtPowerDrain = batteryBuffers[1].getEUOutputAverage() --bat.getAverageElectricOutput()
 	local gtPowerSupply = batteryBuffers[1].getEUInputAverage() --bat.getAverageElectricInput()
+
+	--local data = batteryBuffers[1].getSensorInformation()
+	--local gtPowerSupply = parseFromSensorInfo(data[5])
+	--local gtPowerDrain = parseFromSensorInfo(data[6])
 
 	local mult = math.max(updateRate,1/20)/5
 
@@ -161,6 +172,11 @@ local function Draw(updateRate, uptime, cputime)
 	else
 		gtPower = batteryBuffers[1].getEUStored()
 		gtPowerMax = batteryBuffers[1].getEUMaxStored()
+		if gtPowerMax < -10^18 or gtPowerMax > 10^18 then
+			local data = batteryBuffers[1].getSensorInformation()
+			gtPower = parseFromSensorInfo(data[2])
+			gtPowerMax = parseFromSensorInfo(data[3])
+		end
 		gtPowerAmpMax = overrideAmperage
 	end
 

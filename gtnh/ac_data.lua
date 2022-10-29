@@ -77,11 +77,11 @@ local NORMAL = 1
 local IMPORTANT = 2
 local UNIMPORTANT = 3
 
-local function addGTItem(name,priority,amount,threshold,maxCraft)
+local function addItem(name,priority,amount,threshold,maxCraft)
 	priority = priority or NORMAL
 	amount = amount or ({[NORMAL]=500,[IMPORTANT]=1000,[UNIMPORTANT]=4000})[priority]
 	threshold = threshold or math.floor(amount * ({[NORMAL]=0.25,[IMPORTANT]=0.5,[UNIMPORTANT]=0.25})[priority])
-	maxCraft = maxCraft or ({[UNIMPORTANT]=256})[priority]
+	maxCraft = maxCraft or ({[NORMAL]=math.min(1024,amount*0.5),[UNIMPORTANT]=math.min(256,amount*0.25)})[priority]
 	autocraftData[name] = {
 		filter = {label=name},
 		keepStocked = amount,
@@ -93,6 +93,50 @@ local function addGTItem(name,priority,amount,threshold,maxCraft)
 	return autocraftData[name]
 end
 
+-- circuit stuff
+addItem("Wafer", UNIMPORTANT, 1000)
+addItem("Phosphorous doped Wafer", UNIMPORTANT, 1000)
+addItem("Naquadah doped Wafer", UNIMPORTANT, 100)
+addItem("Microprocessor", NORMAL, 1000)
+addItem("Integrated Processor", NORMAL, 1000)
+addItem("Nanoprocessor", NORMAL, 1000)
+addItem("Quantumprocessor", NORMAL, 1000)
+addItem("Mainframe", UNIMPORTANT, 100)
+addItem("Nanoprocessor Mainframe", UNIMPORTANT, 10)
+addItem("Quantumprocessor Mainframe", UNIMPORTANT, 10)
+
+-- ebf stuff
+addItem("HSS-S Ingot", UNIMPORTANT, 5000)
+addItem("Ruridit Ingot", UNIMPORTANT, 10000)
+addItem("Tungstensteel Ingot", UNIMPORTANT, 10000)
+addItem("Tungsten Ingot", UNIMPORTANT, 2000)
+addItem("Yttrium Barium Cuprate Ingot", UNIMPORTANT, 1000)
+addItem("Vanadium Gallium Ingot", UNIMPORTANT, 1000)
+addItem("Europium Ingot", UNIMPORTANT, 10000)
+addItem("Iridium Ingot", UNIMPORTANT, 1000)
+addItem("Osmium Ingot", UNIMPORTANT, 1000)
+addItem("Silicon Solar Grade (Poly SI) Ingot", UNIMPORTANT, 10000)
+addItem("Stainless Steel Ingot", UNIMPORTANT, 10000)
+addItem("Europium Ingot", UNIMPORTANT, 10000)
+
+-- ae stuff
+addItem("ME Smart Cable", NORMAL, 1000, 500, 100)
+addItem("ME Dense Smart Cable", NORMAL, 200, 100, 32)
+addItem("Pattern Capacity Card", NORMAL, 64, 32, 16)
+addItem("ME Storage Bus", NORMAL, 128, 64, 16)
+addItem("ME Interface", NORMAL, 128, 64, 16)
+addItem("ME Dual Interface", NORMAL, 128, 64, 16)
+addItem("ME Export Bus", NORMAL, 128, 64, 16)
+addItem("Acceleration Card", NORMAL, 64, 32, 16)
+addItem("Capacity Card", NORMAL, 64, 32, 16)
+addItem("Oredictionary Filter Card", NORMAL, 32, 16, 16)
+addItem("Crafting Card", NORMAL, 64, 32, 16)
+addItem("Fuzzy Card", NORMAL, 32, 16, 16)
+
+-- gt stuff
+addItem("Conveyor Module (HV)", NORMAL, 64, 32, 16)
+addItem("Electric Pump (IV)", NORMAL, 32, 16, 16)
+
 --[[
 local function basicFilter(label, prefix)
 	prefix = prefix or "01"
@@ -102,11 +146,12 @@ end
 local function stainlessCellFilter(fluid)
 	return {label = "Large Stainless Steel Fluid Cell", fluid_label = fluid}
 end
+
 --[[
 addGTItem("Stainless Oxygen Cell", IMPORTANT, 500).filter = stainlessCellFilter("Oxygen")
 addGTItem("Stainless Hydrogen Cell", IMPORTANT, 500).filter = stainlessCellFilter("Hydrogen")
 --addGTItem("Helium Plasma Cell", IMPORTANT, 500)
-addGTItem("Niobium Plasma Cell", IMPORTANT, 2000)
+addGTItem("Niobium Plasma Cell", IMPORTANT, 10000, nil, 2560)
 
 local CellSpam = {
 	[200] = {
@@ -114,6 +159,7 @@ local CellSpam = {
 		"Radon", "Titaniumtetrachloride", "Benzene",
 		"Propene", "Acetone", "Ethylene",  "Methane",
 		"Steam", "Phenol", "Molten Silicone Rubber",
+		"Distilled Water",
 	},
 	[500] = {
 		"Helium", "Molten Polybenzimidazole", "Lubricant", "Refined Glue", 
@@ -150,8 +196,10 @@ addGTItem("Stainless Chlorine Cell", NORMAL, 100).filter = stainlessCellFilter("
 addGTItem("Stainless Fluorine Cell", NORMAL, 100).filter = stainlessCellFilter("Fluorine")
 addGTItem("Stainless Nitrogen Cell", NORMAL, 100).filter = stainlessCellFilter("Nitrogen")
 addGTItem("Stainless Argon Cell", NORMAL, 100).filter = stainlessCellFilter("Argon")
+addGTItem("Stainless Sodium Tungstate Cell", NORMAL, 100).filter = stainlessCellFilter("Sodium Tungstate")
 
-addGTItem("Sodium Hydroxide Dust", NORMAL, 1000)
+addGTItem("Sodium Hydroxide Dust", NORMAL, 10000, nil, 2560)
+addGTItem("Potassium Hydroxide Dust", NORMAL, 10000)
 addGTItem("Quicklime Dust", NORMAL)
 addGTItem("Enderpearl Dust", NORMAL)
 addGTItem("Electric Pump (IV)", NORMAL, 10, 10)
@@ -182,7 +230,7 @@ addGTItem("Crystalprocessor", UNIMPORTANT, 2048)
 
 local IngotSpam = {
 	[1024] = {
-		"Yttrium Barium Cuprate", "HSS-S",
+		"Yttrium Barium Cuprate", "HSS-S", "Draconium"
 	},
 	[8192] = {
 		"Aluminium", "Titanium", "Tungsten", "Tungstensteel", "Ruridit",
@@ -195,6 +243,6 @@ for amount, ingots in pairs( IngotSpam ) do
 		addGTItem(name .. " Ingot", UNIMPORTANT, amount)
 	end
 end
-]]--
+]]
 
 return autocraftData

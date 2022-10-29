@@ -25,6 +25,7 @@ local ae
 local ret
 local craftTime = 1
 local display
+local arePlayersOffline = false
 
 local defaultAutocraftItem = {
 	-- arguments to all these functions:
@@ -40,11 +41,11 @@ local defaultAutocraftItem = {
 	events = {
 		shouldCraft = function(data,ae,cpustatus)
 			if not data.currentlyCrafting and data.aeAmount < data.threshold or (data.maxCraftBound and data.aeAmount < data.keepStocked) then
-				if data.unimportant and display.gtPower < display.gtPowerMax * 0.6 then
-					return nil, "Unimp, Pwr<60%"
+				if data.unimportant and display.gtPower < display.gtPowerMax * 0.4 then
+					return nil, "Unimp, Pwr<40%"
 				end
-				if not data.important and display.gtPower < display.gtPowerMax * 0.25 then
-					return nil, "Normal, Pwr<25%"
+				if not data.important and display.gtPower < display.gtPowerMax * 0.10 then
+					return nil, "Normal, Pwr<10%"
 				end
 
 				if data.unimportant and -- it's unimportant
@@ -55,7 +56,8 @@ local defaultAutocraftItem = {
 					return nil, "Unimportant"
 				end
 
-				if not data.important and cpustatus.activeCPUs >= cpustatus.maxCPUs then
+				local maxCPUs = arePlayersOffline and cpustatus.maxCPUs or 1
+				if not data.important and cpustatus.activeCPUs >= maxCPUs then
 					--table.insert(debugList,"Waiting to craft " .. data.name .. " because out of CPUs")
 					return nil, "Not enough CPUs"
 				end
@@ -182,7 +184,7 @@ local defaultAutocraftItem = {
 					math.floor(math.max(0,(data.amountToCraft or data.keepStocked) - (data.aeAmount-(data.amountAtStart or 0)))),
 					(data.maxCraft < data.keepStocked) and " / " .. data.keepStocked .. "x" or "",
 					timeText,
-					string.sub(data.name,0,24),
+					string.sub(data.name,0,30),
 					err
 				)
 			)
@@ -497,7 +499,7 @@ local function checkIfComplete(data)
 	end
 end
 
-local function Autocrafting()
+local function Autocrafting(plyOffline)
 	local cpus = ae.getCpus()
 	cpustatus.activeCPUsTotal = 0
 	cpustatus.totalCPUs = cpus.n
@@ -506,6 +508,7 @@ local function Autocrafting()
 			cpustatus.activeCPUsTotal = cpustatus.activeCPUsTotal + 1
 		end
 	end
+	arePlayersOffline = plyOffline
 
 	--[[
 	local t = os.clock()

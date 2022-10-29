@@ -10,6 +10,7 @@ local ae = component.me_interface
 local gpu = component.gpu
 local colors = require("colors")
 local ev = require("event")
+local redstone = component.redstone
 
 os.execute("resolution 70 25")
 
@@ -27,7 +28,7 @@ function clearTerminal()
 	term.clear()
 end
 function formatInt(i)
-	if i > 10^18 then return "battery goes brr" end
+	--if i < -10^18 or i > 10^18 then return "battery goes brr" end
 	local neg = i<0
 	i = math.floor(math.abs(i))
 	return (neg and "-" or "") .. (tostring(i):reverse():gsub("%d%d%d", "%1,"):reverse():gsub("^,", ""))
@@ -49,7 +50,7 @@ local craftTime = 1
 local startTime = computer.uptime()
 
 -- HARDCODED VALUES IN CASE OF GT_MACHINE MULTIBLOCK
-local hardCodedVoltage = 131072
+local hardCodedVoltage = 32768
 local hardCodedAmperage = 128
 
 package.loaded.electricity_display = nil
@@ -87,12 +88,22 @@ if #display.batteryBuffers < 2 then sleepTime = 0 end
 
 local nextDraw = computer.uptime() + drawTime
 local nextCraft = computer.uptime() + craftTime
+local lastRedstoneInput = computer.uptime()
+local playersOfflineTime = 600 -- 1800s = 30 minutes
+local arePlayersOffline = false
 while(true) do
 	if pause then
 		os.sleep(math.max(1,sleepTime))
 	else
 		local t = computer.uptime()
 		local uptime = t - startTime
+
+		if redstone.getInput(sides.left) > 0 then
+			lastRedstoneInput = computer.uptime()
+			arePlayersOffline = false
+		else
+			arePlayersOffline = lastRedstoneInput < computer.uptime() - playersOfflineTime
+		end
 
 		if sleepTime == 0 then
 			display.CalcAverage(1/20, uptime)
@@ -105,7 +116,7 @@ while(true) do
 
 		if t > nextCraft then
 			nextCraft = t + craftTime
-			crafting.Autocrafting()
+			crafting.Autocrafting(arePlayersOffline)
 		end
 
 		os.sleep(sleepTime)
