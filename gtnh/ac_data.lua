@@ -94,13 +94,13 @@ local function addItem(name,priority,amount,threshold,maxCraft)
 end
 
 -- circuit stuff
-addItem("Wafer", UNIMPORTANT, 1000)
-addItem("Phosphorous doped Wafer", UNIMPORTANT, 1000)
+addItem("Wafer", UNIMPORTANT, 1000, nil, 128)
+addItem("Phosphorous doped Wafer", UNIMPORTANT, 1000, nil, 128)
 addItem("Naquadah doped Wafer", UNIMPORTANT, 100)
-addItem("Microprocessor", NORMAL, 1000)
-addItem("Integrated Processor", NORMAL, 1000)
-addItem("Nanoprocessor", NORMAL, 1000)
-addItem("Quantumprocessor", NORMAL, 1000)
+addItem("Microprocessor", UNIMPORTANT, 1000, nil, 128)
+addItem("Integrated Processor", UNIMPORTANT, 1000, nil, 128)
+addItem("Nanoprocessor", UNIMPORTANT, 1000, nil, 128)
+addItem("Quantumprocessor", UNIMPORTANT, 1000, nil, 128)
 addItem("Mainframe", UNIMPORTANT, 100)
 addItem("Nanoprocessor Mainframe", UNIMPORTANT, 10)
 addItem("Quantumprocessor Mainframe", UNIMPORTANT, 10)
@@ -132,6 +132,7 @@ addItem("Capacity Card", NORMAL, 64, 32, 16)
 addItem("Oredictionary Filter Card", NORMAL, 32, 16, 16)
 addItem("Crafting Card", NORMAL, 64, 32, 16)
 addItem("Fuzzy Card", NORMAL, 32, 16, 16)
+addItem("Blank Pattern", IMPORTANT, 100, 50, 100)
 
 -- gt stuff
 addItem("Conveyor Module (HV)", NORMAL, 64, 32, 16)
