@@ -502,8 +502,8 @@ end
 local function Autocrafting(plyOffline)
 	local cpus = ae.getCpus()
 	cpustatus.activeCPUsTotal = 0
-	cpustatus.totalCPUs = cpus.n
-	for i=1,cpus.n do
+	cpustatus.totalCPUs = #cpus
+	for i=1,#cpus do
 		if cpus[i].busy then 
 			cpustatus.activeCPUsTotal = cpustatus.activeCPUsTotal + 1
 		end
