@@ -50,8 +50,8 @@ local craftTime = 1
 local startTime = computer.uptime()
 
 -- HARDCODED VALUES IN CASE OF GT_MACHINE MULTIBLOCK
-local hardCodedVoltage = 32768
-local hardCodedAmperage = 128
+local hardCodedVoltage = 131072
+local hardCodedAmperage = 512
 
 package.loaded.electricity_display = nil
 package.loaded.autocrafter = nil

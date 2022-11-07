@@ -97,31 +97,37 @@ end
 addItem("Wafer", UNIMPORTANT, 1000, nil, 128)
 addItem("Phosphorous doped Wafer", UNIMPORTANT, 1000, nil, 128)
 addItem("Naquadah doped Wafer", UNIMPORTANT, 100)
-addItem("Microprocessor", UNIMPORTANT, 1000, nil, 128)
-addItem("Integrated Processor", UNIMPORTANT, 1000, nil, 128)
-addItem("Nanoprocessor", UNIMPORTANT, 1000, nil, 128)
-addItem("Quantumprocessor", UNIMPORTANT, 1000, nil, 128)
-addItem("Mainframe", UNIMPORTANT, 100)
-addItem("Nanoprocessor Mainframe", UNIMPORTANT, 10)
-addItem("Quantumprocessor Mainframe", UNIMPORTANT, 10)
+addItem("Microprocessor", UNIMPORTANT, 1000, nil, 128) -- LV
+addItem("Integrated Processor", UNIMPORTANT, 1000, nil, 128) -- MV
+addItem("Nanoprocessor", UNIMPORTANT, 1000, nil, 128) -- HV
+addItem("Quantumprocessor", UNIMPORTANT, 1000, nil, 128) -- EV
+addItem("Crystalprocessor", UNIMPORTANT, 1000, nil, 128) -- IV
+addItem("Crystalprocessor Assembly", UNIMPORTANT, 500, nil, 128) -- LuV
+addItem("Ultimate Crystalcomputer", UNIMPORTANT, 200, nil, 100) -- ZPM
+addItem("Crystalprocessor Mainframe", UNIMPORTANT, 50, nil, 10) -- UV
 
 -- ebf stuff
 addItem("HSS-S Ingot", UNIMPORTANT, 5000)
 addItem("Ruridit Ingot", UNIMPORTANT, 10000)
 addItem("Tungstensteel Ingot", UNIMPORTANT, 10000)
-addItem("Tungsten Ingot", UNIMPORTANT, 2000)
+addItem("Tungsten Ingot", UNIMPORTANT, 10000)
 addItem("Yttrium Barium Cuprate Ingot", UNIMPORTANT, 1000)
 addItem("Vanadium Gallium Ingot", UNIMPORTANT, 1000)
 addItem("Europium Ingot", UNIMPORTANT, 10000)
 addItem("Iridium Ingot", UNIMPORTANT, 1000)
 addItem("Osmium Ingot", UNIMPORTANT, 1000)
-addItem("Silicon Solar Grade (Poly SI) Ingot", UNIMPORTANT, 10000)
-addItem("Stainless Steel Ingot", UNIMPORTANT, 10000)
-addItem("Europium Ingot", UNIMPORTANT, 10000)
+
+-- big amount ebf stuff
+addItem("Aluminium Ingot", UNIMPORTANT, 100000)
+addItem("Steel Ingot", UNIMPORTANT, 100000)
+addItem("Silicon Solar Grade (Poly SI) Ingot", UNIMPORTANT, 100000)
+addItem("Stainless Steel Ingot", UNIMPORTANT, 50000)
+addItem("Titanium Ingot", UNIMPORTANT, 50000)
+addItem("Iron Ingot", UNIMPORTANT, 100000)
 
 -- ae stuff
-addItem("ME Smart Cable", NORMAL, 1000, 500, 100)
-addItem("ME Dense Smart Cable", NORMAL, 200, 100, 32)
+addItem("ME Smart Cable - Fluix", NORMAL, 1000, 500, 100)
+addItem("ME Dense Smart Cable - Fluix", NORMAL, 200, 100, 32)
 addItem("Pattern Capacity Card", NORMAL, 64, 32, 16)
 addItem("ME Storage Bus", NORMAL, 128, 64, 16)
 addItem("ME Interface", NORMAL, 128, 64, 16)
@@ -137,6 +143,13 @@ addItem("Blank Pattern", IMPORTANT, 100, 50, 100)
 -- gt stuff
 addItem("Conveyor Module (HV)", NORMAL, 64, 32, 16)
 addItem("Electric Pump (IV)", NORMAL, 32, 16, 16)
+addItem("Maintenance Hatch", NORMAL, 64)
+addItem("Muffler Hatch (LV)", NORMAL, 64)
+addItem("Input Hatch (EV)", NORMAL, 64)
+addItem("Output Hatch (EV)", NORMAL, 64)
+addItem("Input Bus (HV)", NORMAL, 64)
+addItem("IV Energy Hatch", NORMAL, 32)
+addItem("LuV Energy Hatch", NORMAL, 16)
 
 --[[
 local function basicFilter(label, prefix)
