@@ -56,7 +56,7 @@ local defaultAutocraftItem = {
 					return nil, "Unimportant"
 				end
 
-				local maxCPUs = arePlayersOffline and cpustatus.maxCPUs or 1
+				local maxCPUs = arePlayersOffline and math.max(cpustatus.maxCPUs,cpustatus.totalCPUs) or 1
 				if not data.important and cpustatus.activeCPUs >= maxCPUs then
 					--table.insert(debugList,"Waiting to craft " .. data.name .. " because out of CPUs")
 					return nil, "Not enough CPUs"

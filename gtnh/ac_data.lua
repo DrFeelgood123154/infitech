@@ -94,37 +94,37 @@ local function addItem(name,priority,amount,threshold,maxCraft)
 end
 
 -- circuit stuff
-addItem("Wafer", UNIMPORTANT, 1000, nil, 128)
-addItem("Phosphorous doped Wafer", UNIMPORTANT, 1000, nil, 128)
-addItem("Naquadah doped Wafer", UNIMPORTANT, 100)
-addItem("Raw Crystal Chip", UNIMPORTANT, 5000, 4000, 250) -- UV
-addItem("Microprocessor", UNIMPORTANT, 1000, nil, 128) -- LV
-addItem("Integrated Processor", UNIMPORTANT, 1000, nil, 128) -- MV
-addItem("Nanoprocessor", UNIMPORTANT, 1000, nil, 128) -- HV
-addItem("Quantumprocessor", UNIMPORTANT, 1000, nil, 128) -- EV
-addItem("Crystalprocessor", UNIMPORTANT, 1000, nil, 128) -- IV
-addItem("Crystalprocessor Assembly", UNIMPORTANT, 500, nil, 128) -- LuV
-addItem("Ultimate Crystalcomputer", UNIMPORTANT, 200, nil, 100) -- ZPM
-addItem("Crystalprocessor Mainframe", UNIMPORTANT, 50, nil, 10) -- UV
+addItem("Wafer", NORMAL, 1000, nil, 128)
+addItem("Phosphorous doped Wafer", NORMAL, 1000, nil, 128)
+addItem("Naquadah doped Wafer", NORMAL, 100)
+addItem("Raw Crystal Chip", NORMAL, 5000, 4000, 250) -- UV
+addItem("Microprocessor", NORMAL, 1000, nil, 128) -- LV
+addItem("Integrated Processor", NORMAL, 1000, nil, 128) -- MV
+addItem("Nanoprocessor", NORMAL, 1000, nil, 128) -- HV
+addItem("Quantumprocessor", NORMAL, 1000, nil, 128) -- EV
+addItem("Crystalprocessor", NORMAL, 1000, nil, 128) -- IV
+addItem("Crystalprocessor Assembly", NORMAL, 500, nil, 128) -- LuV
+addItem("Ultimate Crystalcomputer", NORMAL, 200, nil, 100) -- ZPM
+addItem("Crystalprocessor Mainframe", NORMAL, 50, nil, 10) -- UV
 
 -- ebf stuff
-addItem("HSS-S Ingot", UNIMPORTANT, 5000)
-addItem("Ruridit Ingot", UNIMPORTANT, 10000)
-addItem("Tungstensteel Ingot", UNIMPORTANT, 10000)
-addItem("Tungsten Ingot", UNIMPORTANT, 10000)
-addItem("Yttrium Barium Cuprate Ingot", UNIMPORTANT, 1000)
-addItem("Vanadium Gallium Ingot", UNIMPORTANT, 1000)
-addItem("Europium Ingot", UNIMPORTANT, 10000)
-addItem("Iridium Ingot", UNIMPORTANT, 1000)
-addItem("Osmium Ingot", UNIMPORTANT, 1000)
+addItem("HSS-S Ingot", NORMAL, 5000)
+addItem("Ruridit Ingot", NORMAL, 10000)
+addItem("Tungstensteel Ingot", NORMAL, 10000)
+addItem("Tungsten Ingot", NORMAL, 10000)
+addItem("Yttrium Barium Cuprate Ingot", NORMAL, 1000)
+addItem("Vanadium Gallium Ingot", NORMAL, 1000)
+addItem("Europium Ingot", NORMAL, 1000)
+addItem("Iridium Ingot", NORMAL, 1000)
+addItem("Osmium Ingot", NORMAL, 1000)
 
 -- big amount ebf stuff
-addItem("Aluminium Ingot", UNIMPORTANT, 100000)
-addItem("Steel Ingot", UNIMPORTANT, 100000)
-addItem("Silicon Solar Grade (Poly SI) Ingot", UNIMPORTANT, 100000)
-addItem("Stainless Steel Ingot", UNIMPORTANT, 50000)
-addItem("Titanium Ingot", UNIMPORTANT, 50000)
-addItem("Iron Ingot", UNIMPORTANT, 100000)
+addItem("Aluminium Ingot", NORMAL, 100000)
+addItem("Steel Ingot", NORMAL, 100000)
+addItem("Silicon Solar Grade (Poly SI) Ingot", NORMAL, 100000)
+addItem("Stainless Steel Ingot", NORMAL, 50000)
+addItem("Titanium Ingot", NORMAL, 50000)
+addItem("Iron Ingot", NORMAL, 100000)
 
 -- ae stuff
 addItem("ME Smart Cable - Fluix", NORMAL, 1000, 500, 100)
