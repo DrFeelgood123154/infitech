@@ -97,7 +97,8 @@ end
 addItem("Wafer", NORMAL, 1000, nil, 128)
 addItem("Phosphorous doped Wafer", NORMAL, 1000, nil, 128)
 addItem("Naquadah doped Wafer", NORMAL, 100)
-addItem("Raw Crystal Chip", NORMAL, 5000, 4000, 250) -- UV
+addItem("Raw Crystal Chip", NORMAL, 5000, 4000, 250) -- crystal shit
+addItem("Crystal Processing Unit", NORMAL, 5000, 4000, 250) -- crystal shit
 addItem("Microprocessor", NORMAL, 1000, nil, 128) -- LV
 addItem("Integrated Processor", NORMAL, 1000, nil, 128) -- MV
 addItem("Nanoprocessor", NORMAL, 1000, nil, 128) -- HV

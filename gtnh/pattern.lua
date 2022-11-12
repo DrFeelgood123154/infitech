@@ -62,7 +62,7 @@ while true do
 		end
 
 		local function storePattern(pattern, patternKey, funcName)
-			for i=1,pattern[patternKey].n do
+			for i=1,#pattern[patternKey] do
 				if pattern[patternKey][i] and pattern[patternKey][i].count ~= nil then
 					local amount = pattern[patternKey][i].count
 					me["storeInterfacePattern" .. funcName](interfaceSlot, i, db.address, DBSIZE)
@@ -159,7 +159,7 @@ while true do
 				else
 					-- write outputs to pattern
 					io.write("Clearing outputs...\n")
-					for i=pattern.outputs.n,1,-1 do
+					for i=#pattern.outputs,1,-1 do
 						me.clearInterfacePatternOutput(interfaceSlot, i)
 					end
 					io.write("Writing outputs...\n")
@@ -197,7 +197,7 @@ while true do
 					local maxTotal = totalNumberOfItemsToWrite
 
 					io.write("Clearing inputs...\n")
-					for i=pattern.inputs.n,1,-1 do
+					for i=#pattern.inputs,1,-1 do
 						me.clearInterfacePatternInput(interfaceSlot, i)
 					end
 					io.write("Writing inputs...\n")
