@@ -260,23 +260,27 @@ while true do
 			until amount ~= nil
 
 			if not amount then break end
+			if amount > 0 then
+				local maxAmount = amount
+				repeat
+					local currentAmount = math.min(amount,64)
+					amount = amount - currentAmount
 
-			local maxAmount = amount
-			repeat
-				local currentAmount = math.min(amount,64)
-				amount = amount - currentAmount
+					slots[funcName] = slots[funcName] + 1
+					io.write(string.format("Writing %s (%s/%s) items to %s slot %s",
+						currentAmount, maxAmount-amount, maxAmount,
+						string.lower(funcName), slots[funcName]))
 
-				slots[funcName] = slots[funcName] + 1
-				io.write(string.format("Writing %s (%s/%s) items to %s slot %s",
-					currentAmount, maxAmount-amount, maxAmount,
-					string.lower(funcName), slots[funcName]))
-
-				me["setInterfacePattern"..funcName](1, db.address, i, currentAmount, slots[funcName])
-				if amount > 0 then term.clearLine() else io.write("\n") end
-			until (amount == 0)
+					me["setInterfacePattern"..funcName](1, db.address, i, currentAmount, slots[funcName])
+					if amount > 0 then term.clearLine() else io.write("\n") end
+				until (amount == 0)
+			end
 		end
 	end
 
-	print("DONE! Press enter to go again")
-	io.read()
+	print("DONE!")
+	--print("DONE! Press enter to go again")
+	--io.read()
 end
+
+-- wget -f http://81.233.65.53/opencomputers/gtnh/pattern.lua

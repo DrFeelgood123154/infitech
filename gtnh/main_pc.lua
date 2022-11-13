@@ -49,9 +49,16 @@ local drawTime = 0.5
 local craftTime = 1
 local startTime = computer.uptime()
 
+local function getVoltageOfTier(tier) return 32 * math.pow(4,tier - 1) end
+local voltageNames = {"LV","MV","HV","EV","IV","LuV","ZPM","UV","UHV","UEV","UIV","UMV","UXV","MAX"}
+local voltages = {}
+for i=1, #voltageNames do
+	voltages[voltageNames[i]] = getVoltageOfTier(i)
+end
+
 -- HARDCODED VALUES IN CASE OF GT_MACHINE MULTIBLOCK
-local hardCodedVoltage = 131072
-local hardCodedAmperage = 512
+local hardCodedVoltage = voltages.UV
+local hardCodedAmperage = 4096
 
 package.loaded.electricity_display = nil
 package.loaded.autocrafter = nil

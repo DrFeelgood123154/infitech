@@ -5,7 +5,7 @@ local function getDefaultCpuStatus()
 		activeCPUs = 0,
 		activeUnimportantCPUs = 0,
 		totalCPUs = 0,
-		maxCPUs = 16 -- edit this if necessary
+		maxCPUs = 8 -- edit this if necessary
 	}
 end
 local cpustatus = getDefaultCpuStatus()
@@ -26,6 +26,7 @@ local ret
 local craftTime = 1
 local display
 local arePlayersOffline = false
+local onlyOneActive = {}
 
 local defaultAutocraftItem = {
 	-- arguments to all these functions:
@@ -56,7 +57,11 @@ local defaultAutocraftItem = {
 					return nil, "Unimportant"
 				end
 
-				local maxCPUs = arePlayersOffline and math.max(cpustatus.maxCPUs,cpustatus.totalCPUs) or 1
+				if data.onlyOne and onlyOneActive[data.onlyOne] then
+					return nil, data.onlyOne .. " is busy"
+				end
+
+				local maxCPUs = arePlayersOffline and cpustatus.totalCPUs or cpustatus.maxCPUs
 				if not data.important and cpustatus.activeCPUs >= maxCPUs then
 					--table.insert(debugList,"Waiting to craft " .. data.name .. " because out of CPUs")
 					return nil, "Not enough CPUs"
@@ -112,6 +117,10 @@ local defaultAutocraftItem = {
 				--table.insert(debugList,"Craftable found")
 				craftable = craftable[1]
 
+				if data.onlyOne then
+					onlyOneActive[data.onlyOne] = true
+				end
+
 				data.craftStatus = craftable.request(amount)
 				if data.craftStatus.isCanceled() then
 					return false, "Unable to craft"
@@ -135,6 +144,10 @@ local defaultAutocraftItem = {
 				-- reset some values
 				data.startCraftingAt = nil
 				data.maxCraftBound = nil
+			end
+
+			if data.onlyOne then
+				onlyOneActive[data.onlyOne] = false
 			end
 
 			data.craftStatus = nil
@@ -180,12 +193,13 @@ local defaultAutocraftItem = {
 			-- Print status
 			printColor(
 				clr[data.error or "default"] or clr.default,
-				string.format("%sx%s (%s) %s%s",
+				string.format("%sx%s (%s) %s%s%s",
 					math.floor(math.max(0,(data.amountToCraft or data.keepStocked) - (data.aeAmount-(data.amountAtStart or 0)))),
 					(data.maxCraft < data.keepStocked) and " / " .. data.keepStocked .. "x" or "",
 					timeText,
 					string.sub(data.name,0,30),
-					err
+					err,
+					data.onlyOne and " [" .. data.onlyOne .. "]" or ""
 				)
 			)
 
@@ -280,7 +294,8 @@ local function iterator(tbl)
 			self.idx = 0
 			return self:next(true)
 		end,
-		idx = 0
+		idx = 0,
+		tbl = tbl
 	}
 	return iter
 end
@@ -317,6 +332,9 @@ local function Init(_ae, _computer, _display, _craftTime, conf)
 			local key = getItemKey(list[i].filter)
 			if autocraftData[key] then
 				list[i] = autocraftData[key]
+				if lookup == nil and list[i].onlyOne then
+					onlyOneActive[list[i].onlyOne] = true
+				end
 			else
 				table.remove(list,i)
 				if lookup then
@@ -545,6 +563,10 @@ local function Autocrafting(plyOffline)
 		checkIfAdd(eCrafting.value)
 	else
 		checkIfAdd(eAllRecipes:next())
+	end
+
+	if next(onlyOneActive) ~= nil and #eCrafting.tbl == 0 then
+		onlyOneActive = {}
 	end
 end
 

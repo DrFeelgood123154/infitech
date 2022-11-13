@@ -23,6 +23,7 @@
 		important = false, -- if true, will always craft, ignoring the number of CPUs in use
 		unimportant = false, -- if true, will only craft if nothing else is being crafted (except other unimportant crafts),
 							 -- or if the number of available CPUs is greater 10
+		onlyOne = false, -- if true, only allow one of these at a time to be active
 
 		events = {  -- optional table of events
 					-- keep in mind overriding these functions will make your code 
@@ -99,33 +100,34 @@ addItem("Phosphorous doped Wafer", NORMAL, 1000, nil, 128)
 addItem("Naquadah doped Wafer", NORMAL, 100)
 addItem("Raw Crystal Chip", NORMAL, 5000, 4000, 250) -- crystal shit
 addItem("Crystal Processing Unit", NORMAL, 5000, 4000, 250) -- crystal shit
-addItem("Microprocessor", NORMAL, 1000, nil, 128) -- LV
-addItem("Integrated Processor", NORMAL, 1000, nil, 128) -- MV
-addItem("Nanoprocessor", NORMAL, 1000, nil, 128) -- HV
-addItem("Quantumprocessor", NORMAL, 1000, nil, 128) -- EV
-addItem("Crystalprocessor", NORMAL, 1000, nil, 128) -- IV
-addItem("Crystalprocessor Assembly", NORMAL, 500, nil, 128) -- LuV
-addItem("Ultimate Crystalcomputer", NORMAL, 200, nil, 100) -- ZPM
-addItem("Crystalprocessor Mainframe", NORMAL, 50, nil, 10) -- UV
+addItem("Microprocessor", NORMAL, 1000, nil, 128).onlyOne = "CAL" -- LV
+addItem("Integrated Processor", NORMAL, 1000, nil, 128).onlyOne = "CAL" -- MV
+addItem("Nanoprocessor", NORMAL, 1000, nil, 128).onlyOne = "CAL" -- HV
+addItem("Quantumprocessor", NORMAL, 1000, nil, 128).onlyOne = "CAL" -- EV
+addItem("Crystalprocessor", NORMAL, 1000, nil, 128).onlyOne = "CAL" -- IV
+addItem("Crystalprocessor Assembly", NORMAL, 500, nil, 128).onlyOne = "CAL" -- LuV
+addItem("Ultimate Crystalcomputer", NORMAL, 200, nil, 100).onlyOne = "CAL" -- ZPM
+addItem("Crystalprocessor Mainframe", NORMAL, 50, nil, 10).onlyOne = "CAL" -- UV
 
 -- ebf stuff
-addItem("HSS-S Ingot", NORMAL, 5000)
-addItem("Ruridit Ingot", NORMAL, 10000)
-addItem("Tungstensteel Ingot", NORMAL, 10000)
-addItem("Tungsten Ingot", NORMAL, 10000)
-addItem("Yttrium Barium Cuprate Ingot", NORMAL, 1000)
-addItem("Vanadium Gallium Ingot", NORMAL, 1000)
-addItem("Europium Ingot", NORMAL, 1000)
-addItem("Iridium Ingot", NORMAL, 1000)
-addItem("Osmium Ingot", NORMAL, 1000)
+addItem("HSS-S Ingot", NORMAL, 5000).onlyOne = "EBF"
+addItem("Ruridit Ingot", NORMAL, 10000).onlyOne = "EBF"
+addItem("Tungstensteel Ingot", NORMAL, 10000).onlyOne = "EBF"
+addItem("Tungsten Ingot", NORMAL, 10000).onlyOne = "EBF"
+addItem("Yttrium Barium Cuprate Ingot", NORMAL, 1000).onlyOne = "EBF"
+addItem("Vanadium Gallium Ingot", NORMAL, 1000).onlyOne = "EBF"
+addItem("Europium Ingot", NORMAL, 1000).onlyOne = "EBF"
+addItem("Iridium Ingot", NORMAL, 1000).onlyOne = "EBF"
+addItem("Osmium Ingot", NORMAL, 1000).onlyOne = "EBF"
+addItem("Naquadah Ingot", NORMAL, 1000).onlyOne = "EBF"
 
 -- big amount ebf stuff
-addItem("Aluminium Ingot", NORMAL, 100000)
-addItem("Steel Ingot", NORMAL, 100000)
-addItem("Silicon Solar Grade (Poly SI) Ingot", NORMAL, 100000)
-addItem("Stainless Steel Ingot", NORMAL, 50000)
-addItem("Titanium Ingot", NORMAL, 50000)
-addItem("Iron Ingot", NORMAL, 100000)
+addItem("Aluminium Ingot", NORMAL, 100000).onlyOne = "EBF"
+addItem("Steel Ingot", NORMAL, 100000).onlyOne = "EBF"
+addItem("Silicon Solar Grade (Poly SI) Ingot", NORMAL, 100000).onlyOne = "EBF"
+addItem("Stainless Steel Ingot", NORMAL, 50000).onlyOne = "EBF"
+addItem("Titanium Ingot", NORMAL, 50000).onlyOne = "EBF"
+addItem("Iron Ingot", NORMAL, 100000).onlyOne = "EBF"
 
 -- ae stuff
 addItem("ME Smart Cable - Fluix", NORMAL, 1000, 500, 100)
@@ -141,9 +143,11 @@ addItem("Oredictionary Filter Card", NORMAL, 32, 16, 16)
 addItem("Crafting Card", NORMAL, 64, 32, 16)
 addItem("Fuzzy Card", NORMAL, 32, 16, 16)
 addItem("Blank Pattern", IMPORTANT, 100, 50, 100)
+addItem("Output Bus (ME)", NORMAL, 64)
 
 -- gt stuff
 addItem("Conveyor Module (HV)", NORMAL, 64, 32, 16)
+addItem("Conveyor Module (IV)", NORMAL, 64, 32, 16)
 addItem("Electric Pump (IV)", NORMAL, 32, 16, 16)
 addItem("Maintenance Hatch", NORMAL, 64)
 addItem("Muffler Hatch (LV)", NORMAL, 64)
@@ -152,6 +156,19 @@ addItem("Output Hatch (EV)", NORMAL, 64)
 addItem("Input Bus (HV)", NORMAL, 64)
 addItem("IV Energy Hatch", NORMAL, 32)
 addItem("LuV Energy Hatch", NORMAL, 16)
+addItem("Super Bus (I) (EV)", NORMAL, 64)
+addItem("Super Bus (O) (EV)", NORMAL, 64)
+
+-- redstone shit
+addItem("Redstone Receiver (Internal)", NORMAL, 64)
+addItem("Redstone Receiver (External)", NORMAL, 64)
+addItem("Redstone Transmitter (External)", NORMAL, 16)
+addItem("Red Alloy Wire", NORMAL, 128)
+addItem("Framed Red Alloy Wire", NORMAL, 128)
+addItem("RS Latch", NORMAL, 32)
+addItem("NOT Gate", NORMAL, 32)
+addItem("AND Gate", NORMAL, 32)
+addItem("Dense Redcrystal", NORMAL, 64)
 
 --[[
 local function basicFilter(label, prefix)
