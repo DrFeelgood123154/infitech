@@ -336,10 +336,10 @@ local function Init(_ae, _computer, _display, _craftTime, conf)
 					onlyOneActive[list[i].onlyOne] = true
 				end
 			else
-				table.remove(list,i)
 				if lookup then
 					lookup[list[i].name] = nil
 				end
+				table.remove(list,i)
 			end
 		end
 	end

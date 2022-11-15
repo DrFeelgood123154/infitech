@@ -308,7 +308,7 @@ local function Draw(updateRate, uptime, cputime)
 		else color = 0xFF0000 end
 	end
 
-	printColor(color, string.format("= GT Power: %s\t%s / %s EU\t%s / %s Amps",
+	printColor(color, string.format("= GT Power: %s\t%s / %s EU\t%s / %s A",
 		math.floor(gtPower/gtPowerMax*100).."%",
 		formatInt(gtPower),
 		formatInt(gtPowerMax),

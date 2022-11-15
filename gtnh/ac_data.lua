@@ -96,7 +96,7 @@ end
 
 -- circuit stuff
 addItem("Wafer", NORMAL, 1000, nil, 128)
-addItem("Phosphorous doped Wafer", NORMAL, 1000, nil, 128)
+addItem("Phosphorus doped Wafer", NORMAL, 1000, nil, 128)
 addItem("Naquadah doped Wafer", NORMAL, 100)
 addItem("Raw Crystal Chip", NORMAL, 5000, 4000, 250) -- crystal shit
 addItem("Crystal Processing Unit", NORMAL, 5000, 4000, 250) -- crystal shit
@@ -115,7 +115,7 @@ addItem("Ruridit Ingot", NORMAL, 10000).onlyOne = "EBF"
 addItem("Tungstensteel Ingot", NORMAL, 10000).onlyOne = "EBF"
 addItem("Tungsten Ingot", NORMAL, 10000).onlyOne = "EBF"
 addItem("Yttrium Barium Cuprate Ingot", NORMAL, 1000).onlyOne = "EBF"
-addItem("Vanadium Gallium Ingot", NORMAL, 1000).onlyOne = "EBF"
+addItem("Vanadium-Gallium Ingot", NORMAL, 1000).onlyOne = "EBF"
 addItem("Europium Ingot", NORMAL, 1000).onlyOne = "EBF"
 addItem("Iridium Ingot", NORMAL, 1000).onlyOne = "EBF"
 addItem("Osmium Ingot", NORMAL, 1000).onlyOne = "EBF"
@@ -158,6 +158,8 @@ addItem("IV Energy Hatch", NORMAL, 32)
 addItem("LuV Energy Hatch", NORMAL, 16)
 addItem("Super Bus (I) (EV)", NORMAL, 64)
 addItem("Super Bus (O) (EV)", NORMAL, 64)
+addItem("Machine Controller Cover", NORMAL, 64)
+addItem("Fluid Detector Cover", NORMAL, 64)
 
 -- redstone shit
 addItem("Redstone Receiver (Internal)", NORMAL, 64)
