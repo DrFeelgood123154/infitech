@@ -94,6 +94,7 @@ local function addItem(name,priority,amount,threshold,maxCraft)
 	return autocraftData[name]
 end
 
+---[[
 -- circuit stuff
 addItem("Wafer", NORMAL, 1000, nil, 128)
 addItem("Phosphorus doped Wafer", NORMAL, 1000, nil, 128)
@@ -160,6 +161,7 @@ addItem("Super Bus (I) (EV)", NORMAL, 64)
 addItem("Super Bus (O) (EV)", NORMAL, 64)
 addItem("Machine Controller Cover", NORMAL, 64)
 addItem("Fluid Detector Cover", NORMAL, 64)
+addItem("Reinforced Glass", NORMAL, 10000)
 
 -- redstone shit
 addItem("Redstone Receiver (Internal)", NORMAL, 64)
@@ -171,18 +173,21 @@ addItem("RS Latch", NORMAL, 32)
 addItem("NOT Gate", NORMAL, 32)
 addItem("AND Gate", NORMAL, 32)
 addItem("Dense Redcrystal", NORMAL, 64)
+--]]
 
 --[[
 local function basicFilter(label, prefix)
 	prefix = prefix or "01"
 	return {label = "gt.metaitem." .. prefix .. "." .. label .. ".name"}
 end
-]]
 local function stainlessCellFilter(fluid)
 	return {label = "Large Stainless Steel Fluid Cell", fluid_label = fluid}
 end
+]]
 
 --[[
+-- OLD SHIT
+
 addGTItem("Stainless Oxygen Cell", IMPORTANT, 500).filter = stainlessCellFilter("Oxygen")
 addGTItem("Stainless Hydrogen Cell", IMPORTANT, 500).filter = stainlessCellFilter("Hydrogen")
 --addGTItem("Helium Plasma Cell", IMPORTANT, 500)
