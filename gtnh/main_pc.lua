@@ -71,13 +71,13 @@ crafting.Init(ae, computer, display, craftTime, crafting_old or {})
 display.Init(crafting, ae, component, hardCodedVoltage, hardCodedAmperage)
 
 crafting_old = nil
+local pause = false
 
+--[[
 -- reload autocrafting when pressing "u"
 if eventListener then
 	ev.ignore( "key_down", eventListener )
 end
-
-local pause = false
 
 -- this must be global
 eventListener = function(name, keyboardAddress, char, code, playerName)
@@ -89,6 +89,7 @@ eventListener = function(name, keyboardAddress, char, code, playerName)
 	end
 end
 ev.listen("key_down", eventListener) -- listen for keypress
+]]
 
 --redstone.setBundledOutput(sides.left,colors.red,0) -- reset when starting
 if #display.batteryBuffers < 2 then sleepTime = 0 end
