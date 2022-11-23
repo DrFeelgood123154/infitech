@@ -82,7 +82,7 @@ local function addItem(name,priority,amount,threshold,maxCraft)
 	priority = priority or NORMAL
 	amount = amount or ({[NORMAL]=500,[IMPORTANT]=1000,[UNIMPORTANT]=4000})[priority]
 	threshold = threshold or math.floor(amount * ({[NORMAL]=0.25,[IMPORTANT]=0.5,[UNIMPORTANT]=0.25})[priority])
-	maxCraft = maxCraft or ({[NORMAL]=math.min(1024,amount*0.5),[UNIMPORTANT]=math.min(256,amount*0.25)})[priority]
+	maxCraft = maxCraft or ({[NORMAL]=amount*0.1,[UNIMPORTANT]=math.max(256,amount*0.05)})[priority]
 	autocraftData[name] = {
 		filter = {label=name},
 		keepStocked = amount,
@@ -96,60 +96,58 @@ end
 
 ---[[
 -- circuit stuff
-addItem("Wafer", NORMAL, 1000, nil, 128)
-addItem("Phosphorus doped Wafer", NORMAL, 1000, nil, 128)
-addItem("Naquadah doped Wafer", NORMAL, 100)
-addItem("Raw Crystal Chip", NORMAL, 5000, 4000, 250) -- crystal shit
-addItem("Crystal Processing Unit", NORMAL, 5000, 4000, 250) -- crystal shit
-addItem("Microprocessor", NORMAL, 1000, nil, 128).onlyOne = "CAL" -- LV
-addItem("Integrated Processor", NORMAL, 1000, nil, 128).onlyOne = "CAL" -- MV
-addItem("Nanoprocessor", NORMAL, 1000, nil, 128).onlyOne = "CAL" -- HV
-addItem("Quantumprocessor", NORMAL, 1000, nil, 128).onlyOne = "CAL" -- EV
-addItem("Crystalprocessor", NORMAL, 1000, nil, 128).onlyOne = "CAL" -- IV
-addItem("Crystalprocessor Assembly", NORMAL, 500, nil, 128).onlyOne = "CAL" -- LuV
-addItem("Ultimate Crystalcomputer", NORMAL, 200, nil, 100).onlyOne = "CAL" -- ZPM
-addItem("Crystalprocessor Mainframe", NORMAL, 50, nil, 10).onlyOne = "CAL" -- UV
+addItem("Wafer", NORMAL, 1000)
+addItem("Phosphorus doped Wafer", NORMAL, 1000)
+addItem("Naquadah doped Wafer", NORMAL, 1000)
+addItem("Raw Crystal Chip", NORMAL, 100000) -- crystal shit
+addItem("Crystal Processing Unit", NORMAL, 5000) -- crystal shit
+addItem("Microprocessor", NORMAL, 5000).onlyOne = "CAL" -- LV
+addItem("Integrated Processor", NORMAL, 5000).onlyOne = "CAL" -- MV
+addItem("Nanoprocessor", NORMAL, 200000).onlyOne = "CAL" -- HV
+addItem("Quantumprocessor", NORMAL, 5000).onlyOne = "CAL" -- EV
+addItem("Crystalprocessor", NORMAL, 1e5).onlyOne = "CAL" -- IV
+addItem("Crystalprocessor Assembly", NORMAL, 5e4).onlyOne = "CAL" -- LuV
+addItem("Ultimate Crystalcomputer", NORMAL, 1000).onlyOne = "CAL" -- ZPM
+addItem("Crystalprocessor Mainframe", NORMAL, 100).onlyOne = "CAL" -- UV
 
 -- ebf stuff
-addItem("HSS-S Ingot", NORMAL, 5000).onlyOne = "EBF"
-addItem("Ruridit Ingot", NORMAL, 10000).onlyOne = "EBF"
-addItem("Tungstensteel Ingot", NORMAL, 10000).onlyOne = "EBF"
-addItem("Tungsten Ingot", NORMAL, 10000).onlyOne = "EBF"
-addItem("Yttrium Barium Cuprate Ingot", NORMAL, 1000).onlyOne = "EBF"
-addItem("Vanadium-Gallium Ingot", NORMAL, 1000).onlyOne = "EBF"
-addItem("Europium Ingot", NORMAL, 1000).onlyOne = "EBF"
-addItem("Iridium Ingot", NORMAL, 1000).onlyOne = "EBF"
-addItem("Osmium Ingot", NORMAL, 1000).onlyOne = "EBF"
-addItem("Naquadah Ingot", NORMAL, 1000).onlyOne = "EBF"
+addItem("HSS-S Ingot", NORMAL, 5e4).onlyOne = "EBF"
+addItem("Ruridit Ingot", NORMAL, 1e5).onlyOne = "EBF"
+addItem("Tungstensteel Ingot", NORMAL, 1e5).onlyOne = "EBF"
+addItem("Tungsten Ingot", NORMAL, 1e5).onlyOne = "EBF"
+addItem("Yttrium Barium Cuprate Ingot", NORMAL, 1e4).onlyOne = "EBF"
+addItem("Vanadium-Gallium Ingot", NORMAL, 3e5).onlyOne = "EBF"
+addItem("Europium Ingot", NORMAL, 1e3).onlyOne = "EBF"
+addItem("Iridium Ingot", NORMAL, 1e4).onlyOne = "EBF"
+addItem("Osmium Ingot", NORMAL, 1e4).onlyOne = "EBF"
+addItem("Naquadah Ingot", NORMAL, 1e4).onlyOne = "EBF"
 
 -- big amount ebf stuff
-addItem("Aluminium Ingot", NORMAL, 100000).onlyOne = "EBF"
-addItem("Steel Ingot", NORMAL, 100000).onlyOne = "EBF"
-addItem("Silicon Solar Grade (Poly SI) Ingot", NORMAL, 100000).onlyOne = "EBF"
-addItem("Stainless Steel Ingot", NORMAL, 50000).onlyOne = "EBF"
-addItem("Titanium Ingot", NORMAL, 50000).onlyOne = "EBF"
-addItem("Iron Ingot", NORMAL, 100000).onlyOne = "EBF"
+addItem("Aluminium Ingot", NORMAL, 1e6).onlyOne = "EBF"
+addItem("Steel Ingot", NORMAL, 1e6).onlyOne = "EBF"
+addItem("Silicon Solar Grade (Poly SI) Ingot", NORMAL, 1e5).onlyOne = "EBF"
+addItem("Stainless Steel Ingot", NORMAL, 1e5).onlyOne = "EBF"
+addItem("Titanium Ingot", NORMAL, 1e5).onlyOne = "EBF"
 
 -- ae stuff
-addItem("ME Smart Cable - Fluix", NORMAL, 1000, 500, 100)
-addItem("ME Dense Smart Cable - Fluix", NORMAL, 200, 100, 32)
-addItem("Pattern Capacity Card", NORMAL, 64, 32, 16)
-addItem("ME Storage Bus", NORMAL, 128, 64, 16)
-addItem("ME Interface", NORMAL, 128, 64, 16)
-addItem("ME Dual Interface", NORMAL, 128, 64, 16)
-addItem("ME Export Bus", NORMAL, 128, 64, 16)
-addItem("Acceleration Card", NORMAL, 64, 32, 16)
-addItem("Capacity Card", NORMAL, 64, 32, 16)
-addItem("Oredictionary Filter Card", NORMAL, 32, 16, 16)
-addItem("Crafting Card", NORMAL, 64, 32, 16)
-addItem("Fuzzy Card", NORMAL, 32, 16, 16)
-addItem("Blank Pattern", IMPORTANT, 100, 50, 100)
+addItem("ME Smart Cable - Fluix", NORMAL, 1000)
+addItem("ME Dense Smart Cable - Fluix", NORMAL, 500)
+addItem("Pattern Capacity Card", NORMAL, 64)
+addItem("ME Storage Bus", NORMAL, 128)
+addItem("ME Interface", NORMAL, 128)
+addItem("ME Dual Interface", NORMAL, 128)
+addItem("ME Export Bus", NORMAL, 128)
+addItem("Acceleration Card", NORMAL, 64)
+addItem("Capacity Card", NORMAL, 64)
+addItem("Oredictionary Filter Card", NORMAL, 64)
+addItem("Crafting Card", NORMAL, 64)
+addItem("Fuzzy Card", NORMAL, 64)
+addItem("Blank Pattern", IMPORTANT, 100)
 addItem("Output Bus (ME)", NORMAL, 64)
 
 -- gt stuff
-addItem("Conveyor Module (HV)", NORMAL, 64, 32, 16)
-addItem("Conveyor Module (IV)", NORMAL, 64, 32, 16)
-addItem("Electric Pump (IV)", NORMAL, 32, 16, 16)
+addItem("Conveyor Module (HV)", NORMAL, 64)
+addItem("Conveyor Module (IV)", NORMAL, 64)
 addItem("Maintenance Hatch", NORMAL, 64)
 addItem("Muffler Hatch (LV)", NORMAL, 64)
 addItem("Input Hatch (EV)", NORMAL, 64)
@@ -161,7 +159,54 @@ addItem("Super Bus (I) (EV)", NORMAL, 64)
 addItem("Super Bus (O) (EV)", NORMAL, 64)
 addItem("Machine Controller Cover", NORMAL, 64)
 addItem("Fluid Detector Cover", NORMAL, 64)
-addItem("Reinforced Glass", NORMAL, 10000)
+
+-- big amount stuff
+addItem("Reinforced Glass", NORMAL, 1e5)
+addItem("1x Naquadah Cable", NORMAL, 1e4)
+addItem("Eye of Ender", NORMAL, 5e4)
+addItem("Lapotron Crystal", NORMAL, 5e4)
+addItem("Block of Silicon Solar Grade (Poly SI)", NORMAL, 1e4)
+addItem("ASoC", NORMAL, 2e5)
+addItem("Advanced SMD Resistor", NORMAL, 5e4)
+addItem("Advanced SMD Diode", NORMAL, 5e4)
+addItem("Advanced SMD Transistor", NORMAL, 1e6)
+addItem("Advanced SMD Capacitor", NORMAL, 1e6)
+addItem("4x Niobium-Titanium Wire", NORMAL, 1e5)
+addItem("Advanced Alloy", NORMAL, 1e4)
+addItem("Block of Olivine", NORMAL, 1e4)
+addItem("Small Coil", NORMAL, 1e6)
+addItem("Random Access Memory Chip", NORMAL, 2e6)
+addItem("NAND Memory Chip", NORMAL, 1e6)
+addItem("NOR Memory Chip", NORMAL, 5e5)
+addItem("Nanocomponent Central Processing Unit", NORMAL, 3e5)
+addItem("HPIC Wafer", NORMAL, 1e5)
+
+addItem("Advanced Circuit Board", UNIMPORTANT, 2e5)
+addItem("Niobium-Titanium Ingot", UNIMPORTANT, 3e5)
+addItem("Fiber-Reinforced Circuit Board", UNIMPORTANT, 5e5)
+addItem("Multilayer Fiber-Reinforced Circuit Board", UNIMPORTANT, 3e5)
+addItem("Elite Circuit Board", UNIMPORTANT, 2e5)
+
+addItem("Electric Motor (LuV)", NORMAL, 5000)
+addItem("Electric Motor (ZPM)", NORMAL, 1000)
+addItem("Electric Motor (UV)", NORMAL, 100)
+addItem("Electric Motor (UHV)", NORMAL, 50)
+
+addItem("Electric Pump (IV)", NORMAL, 200)
+addItem("Electric Pump (LuV)", NORMAL, 200)
+addItem("Electric Pump (ZPM)", NORMAL, 200)
+addItem("Electric Pump (UV)", NORMAL, 20)
+
+addItem("Iron Ingot", NORMAL, 5e5)
+addItem("Electrum Ingot", NORMAL, 5e5)
+addItem("Gold Ingot", NORMAL, 5e5)
+addItem("Silver Ingot", NORMAL, 5e5)
+addItem("Electrum Ingot", NORMAL, 5e5)
+
+-- repair shit
+addItem("BrainTech Aerospace Advanced Reinforced Duct Tape FAL-84", NORMAL, 10000)
+addItem("Steel Screw", NORMAL, 10000)
+addItem("Lubricant Cell", NORMAL, 10000)
 
 -- redstone shit
 addItem("Redstone Receiver (Internal)", NORMAL, 64)

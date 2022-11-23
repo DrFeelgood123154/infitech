@@ -147,7 +147,7 @@ local defaultAutocraftItem = {
 			end
 
 			if data.onlyOne then
-				onlyOneActive[data.onlyOne] = false
+				onlyOneActive[data.onlyOne] = nil
 			end
 
 			data.craftStatus = nil
