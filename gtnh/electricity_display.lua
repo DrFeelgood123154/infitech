@@ -72,12 +72,13 @@ end
 
 
 local function CalcAverage(updateRate, uptime)
-	local gtPowerDrain = batteryBuffers[1].getEUOutputAverage() --bat.getAverageElectricOutput()
-	local gtPowerSupply = batteryBuffers[1].getEUInputAverage() --bat.getAverageElectricInput()
+	--local gtPowerDrain = batteryBuffers[1].getEUOutputAverage() --bat.getAverageElectricOutput()
+	--local gtPowerSupply = batteryBuffers[1].getEUInputAverage() --bat.getAverageElectricInput()
 
-	--local data = batteryBuffers[1].getSensorInformation()
-	--local gtPowerSupply = parseFromSensorInfo(data[5])
-	--local gtPowerDrain = parseFromSensorInfo(data[6])
+	local data = batteryBuffers[1].getSensorInformation()
+	if not data then return end
+	local gtPowerSupply = parseFromSensorInfo(data[5])
+	local gtPowerDrain = parseFromSensorInfo(data[6])
 
 	local mult = math.max(updateRate,1/20)/5
 

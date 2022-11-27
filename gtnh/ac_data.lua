@@ -94,7 +94,7 @@ local function addItem(name,priority,amount,threshold,maxCraft)
 	return autocraftData[name]
 end
 
----[[
+--[[
 -- circuit stuff
 addItem("Wafer", NORMAL, 1000)
 addItem("Phosphorus doped Wafer", NORMAL, 1000)
