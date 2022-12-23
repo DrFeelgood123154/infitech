@@ -1,6 +1,4 @@
---[[
-
-	Data structure
+--[[	Data structure
 
 	autocraftData[ name of item ] = {
 		filter = { -- filter used by AE to find the item. If unspecified, uses the name of the item from the key of autocraftData in place of filter.label
@@ -69,9 +67,7 @@
 				-- return: string to print (OR return nothing and instead print it yourself)
 		}
 	}
-
-]]--
-
+]]
 local autocraftData = {}
 
 local NORMAL = 1
@@ -94,40 +90,79 @@ local function addItem(name,priority,amount,threshold,maxCraft)
 	return autocraftData[name]
 end
 
---[[
+-- power stuff
+addItem("Wrapped Uranium Ingot", IMPORTANT, 500000)
+addItem("Wrapped Plutonium Ingot", IMPORTANT, 150000)
+addItem("Atomic Separation Catalyst Dust", IMPORTANT, 5000)
+addItem("Infinity Dust", IMPORTANT, 1000)
+addItem("drop of Molten Atomic Separation Catalyst", IMPORTANT, 1e5)
+
+-- ====== partially passive ======
+addItem("Biocells", NORMAL, 1e5)
+addItem("TCetiE-Seaweed Extract", NORMAL, 1e4)
+-- ##elevator mining##
+addItem("Neutronium Rod", NORMAL, 512)
+addItem("Neutronium Drill Tip", NORMAL, 512)
+-- ##radio hatches##
+addItem("Enriched Naquadah Rod", NORMAL, 1024)
+addItem("Naquadah Rod", NORMAL, 1024)
+addItem("Naquadria Rod", NORMAL, 1024)
+addItem("Plutonium 241 Rod", NORMAL, 1024)
+-- ##seaweed broth##
+addItem("Energium Dust", NORMAL, 1e4)
+addItem("drop of Unknown Nutrient Agar", NORMAL, 1e6)
+-- mytryl is mined
+-- seaweed is passived
+-- ##raw growth medium##
+addItem("Mince Meat", NORMAL, 1e5)
+addItem("Agar", NORMAL, 1e5)
+
+-- ##raw bio catalyst##
+-- note that this is the shittest tier recipe
+addItem("Stemcells", NORMAL, 1e5)
+addItem("Unknown Crystal Shard", NORMAL, 1e4)
+addItem("Tritanium dust", NORMAL, 1e4)
+addItem("Tiny Pile of Infinity Catalyst Dust", NORMAL, 1e4)
+-- ##xenoxene##
+addItem("Antimony Trioxide Dust", NORMAL, 1e4)
+-- osmium is passived
+
+
 -- circuit stuff
 addItem("Wafer", NORMAL, 1000)
 addItem("Phosphorus doped Wafer", NORMAL, 1000)
 addItem("Naquadah doped Wafer", NORMAL, 1000)
 addItem("Raw Crystal Chip", NORMAL, 100000) -- crystal shit
 addItem("Crystal Processing Unit", NORMAL, 5000) -- crystal shit
-addItem("Microprocessor", NORMAL, 5000).onlyOne = "CAL" -- LV
-addItem("Integrated Processor", NORMAL, 5000).onlyOne = "CAL" -- MV
-addItem("Nanoprocessor", NORMAL, 200000).onlyOne = "CAL" -- HV
-addItem("Quantumprocessor", NORMAL, 5000).onlyOne = "CAL" -- EV
+addItem("Microprocessor", NORMAL, 50000) -- LV
+addItem("Integrated Processor", NORMAL, 5000) -- MV
+addItem("Nanoprocessor", NORMAL, 200000) -- HV
+addItem("Quantumprocessor", NORMAL, 50000) -- EV
 addItem("Crystalprocessor", NORMAL, 1e5).onlyOne = "CAL" -- IV
-addItem("Crystalprocessor Assembly", NORMAL, 5e4).onlyOne = "CAL" -- LuV
-addItem("Ultimate Crystalcomputer", NORMAL, 1000).onlyOne = "CAL" -- ZPM
-addItem("Crystalprocessor Mainframe", NORMAL, 100).onlyOne = "CAL" -- UV
+addItem("Crystalprocessor Assembly", NORMAL, 500000).onlyOne = "CAL" -- LuV
+addItem("Ultimate Crystalcomputer", NORMAL, 100000).onlyOne = "CAL" -- ZPM
+addItem("Crystalprocessor Mainframe", NORMAL, 10000).onlyOne = "CAL" -- UV
+addItem("Wetware Mainframe", NORMAL, 5000) -- UHV
+addItem("Bio Mainframe", NORMAL, 100) -- UEV
 
 -- ebf stuff
-addItem("HSS-S Ingot", NORMAL, 5e4).onlyOne = "EBF"
-addItem("Ruridit Ingot", NORMAL, 1e5).onlyOne = "EBF"
-addItem("Tungstensteel Ingot", NORMAL, 1e5).onlyOne = "EBF"
-addItem("Tungsten Ingot", NORMAL, 1e5).onlyOne = "EBF"
-addItem("Yttrium Barium Cuprate Ingot", NORMAL, 1e4).onlyOne = "EBF"
-addItem("Vanadium-Gallium Ingot", NORMAL, 3e5).onlyOne = "EBF"
-addItem("Europium Ingot", NORMAL, 1e3).onlyOne = "EBF"
-addItem("Iridium Ingot", NORMAL, 1e4).onlyOne = "EBF"
-addItem("Osmium Ingot", NORMAL, 1e4).onlyOne = "EBF"
-addItem("Naquadah Ingot", NORMAL, 1e4).onlyOne = "EBF"
+addItem("HSS-S Ingot", NORMAL, 5e4)
+addItem("Ruridit Ingot", NORMAL, 1e5)
+addItem("Tungstensteel Ingot", NORMAL, 1e5)
+addItem("Tungsten Ingot", NORMAL, 1e5)
+addItem("Yttrium Barium Cuprate Ingot", NORMAL, 1e4)
+addItem("Vanadium-Gallium Ingot", NORMAL, 3e5)
+addItem("Europium Ingot", NORMAL, 1e3)
+addItem("Iridium Ingot", NORMAL, 1e4)
+addItem("Osmium Ingot", NORMAL, 1e4)
+addItem("Naquadah Ingot", NORMAL, 1e4)
 
 -- big amount ebf stuff
-addItem("Aluminium Ingot", NORMAL, 1e6).onlyOne = "EBF"
-addItem("Steel Ingot", NORMAL, 1e6).onlyOne = "EBF"
-addItem("Silicon Solar Grade (Poly SI) Ingot", NORMAL, 1e5).onlyOne = "EBF"
-addItem("Stainless Steel Ingot", NORMAL, 1e5).onlyOne = "EBF"
-addItem("Titanium Ingot", NORMAL, 1e5).onlyOne = "EBF"
+addItem("Aluminium Ingot", NORMAL, 1e6)
+addItem("Steel Ingot", NORMAL, 1e6)
+addItem("Silicon Solar Grade (Poly SI) Ingot", NORMAL, 1e5)
+addItem("Stainless Steel Ingot", NORMAL, 1e5)
+addItem("Titanium Ingot", NORMAL, 1e5)
 
 -- ae stuff
 addItem("ME Smart Cable - Fluix", NORMAL, 1000)
@@ -146,33 +181,45 @@ addItem("Blank Pattern", IMPORTANT, 100)
 addItem("Output Bus (ME)", NORMAL, 64)
 
 -- gt stuff
-addItem("Conveyor Module (HV)", NORMAL, 64)
-addItem("Conveyor Module (IV)", NORMAL, 64)
 addItem("Maintenance Hatch", NORMAL, 64)
+addItem("Auto-Taping Maintenance Hatch", NORMAL, 256)
 addItem("Muffler Hatch (LV)", NORMAL, 64)
 addItem("Input Hatch (EV)", NORMAL, 64)
 addItem("Output Hatch (EV)", NORMAL, 64)
 addItem("Input Bus (HV)", NORMAL, 64)
 addItem("IV Energy Hatch", NORMAL, 32)
 addItem("LuV Energy Hatch", NORMAL, 16)
+addItem("ZPM Energy Hatch", NORMAL, 16)
+addItem("UV Energy Hatch", NORMAL, 16)
+addItem("UHV Energy Hatch", NORMAL, 16)
+addItem("UEV Energy Hatch", NORMAL, 16)
 addItem("Super Bus (I) (EV)", NORMAL, 64)
 addItem("Super Bus (O) (EV)", NORMAL, 64)
+addItem("Super Bus (I) (UV)", NORMAL, 20)
+addItem("Super Bus (O) (UV)", NORMAL, 5)
 addItem("Machine Controller Cover", NORMAL, 64)
 addItem("Fluid Detector Cover", NORMAL, 64)
+addItem("Redstone Receiver (Internal)", NORMAL, 256)
+addItem("Multi-Use Casing", NORMAL, 4096, nil, 256)
+addItem("Superconducting Coil Block", NORMAL, 2048)
 
 -- big amount stuff
-addItem("Reinforced Glass", NORMAL, 1e5)
+addItem("Reinforced Glass", NORMAL, 1e6)
 addItem("1x Naquadah Cable", NORMAL, 1e4)
 addItem("Eye of Ender", NORMAL, 5e4)
-addItem("Lapotron Crystal", NORMAL, 5e4)
+addItem("Lapotron Crystal", NORMAL, 5e5)
 addItem("Block of Silicon Solar Grade (Poly SI)", NORMAL, 1e4)
 addItem("ASoC", NORMAL, 2e5)
-addItem("Advanced SMD Resistor", NORMAL, 5e4)
-addItem("Advanced SMD Diode", NORMAL, 5e4)
-addItem("Advanced SMD Transistor", NORMAL, 1e6)
-addItem("Advanced SMD Capacitor", NORMAL, 1e6)
+addItem("Advanced SMD Resistor", NORMAL, 5e3)
+addItem("Advanced SMD Diode", NORMAL, 5e3)
+addItem("Advanced SMD Transistor", NORMAL, 1e3)
+addItem("Advanced SMD Capacitor", NORMAL, 1e3)
+addItem("Optical SMD Resistor", NORMAL, 5e3)
+addItem("Optical SMD Diode", NORMAL, 5e3)
+addItem("Optical SMD Transistor", NORMAL, 1e3)
+addItem("Optical SMD Capacitor", NORMAL, 1e3)
 addItem("4x Niobium-Titanium Wire", NORMAL, 1e5)
-addItem("Advanced Alloy", NORMAL, 1e4)
+addItem("Advanced Alloy", NORMAL, 1e5)
 addItem("Block of Olivine", NORMAL, 1e4)
 addItem("Small Coil", NORMAL, 1e6)
 addItem("Random Access Memory Chip", NORMAL, 2e6)
@@ -186,16 +233,31 @@ addItem("Niobium-Titanium Ingot", UNIMPORTANT, 3e5)
 addItem("Fiber-Reinforced Circuit Board", UNIMPORTANT, 5e5)
 addItem("Multilayer Fiber-Reinforced Circuit Board", UNIMPORTANT, 3e5)
 addItem("Elite Circuit Board", UNIMPORTANT, 2e5)
+addItem("Reinforced Glass Tube", UNIMPORTANT, 5e5)
+
+addItem("Conveyor Module (HV)", NORMAL, 64)
+addItem("Conveyor Module (IV)", NORMAL, 64)
+addItem("Conveyor Module (ZPM)", NORMAL, 64)
+addItem("Conveyor Module (UV)", NORMAL, 64)
 
 addItem("Electric Motor (LuV)", NORMAL, 5000)
 addItem("Electric Motor (ZPM)", NORMAL, 1000)
 addItem("Electric Motor (UV)", NORMAL, 100)
-addItem("Electric Motor (UHV)", NORMAL, 50)
+addItem("Electric Motor (UHV)", NORMAL, 100)
 
 addItem("Electric Pump (IV)", NORMAL, 200)
 addItem("Electric Pump (LuV)", NORMAL, 200)
 addItem("Electric Pump (ZPM)", NORMAL, 200)
-addItem("Electric Pump (UV)", NORMAL, 20)
+addItem("Electric Pump (UV)", NORMAL, 200)
+addItem("Electric Pump (UHV)", NORMAL, 200)
+
+addItem("Sensor (UHV)", NORMAL, 200)
+addItem("Emitter (UHV)", NORMAL, 200)
+
+addItem("1x Superconductor ZPM Wire", UNIMPORTANT, 5000)
+addItem("1x Superconductor UV Wire", UNIMPORTANT, 5000)
+addItem("1x Superconductor UHV Wire", UNIMPORTANT, 5000)
+addItem("1x Superconductor UEV Wire", UNIMPORTANT, 500)
 
 addItem("Iron Ingot", NORMAL, 5e5)
 addItem("Electrum Ingot", NORMAL, 5e5)
@@ -218,116 +280,8 @@ addItem("RS Latch", NORMAL, 32)
 addItem("NOT Gate", NORMAL, 32)
 addItem("AND Gate", NORMAL, 32)
 addItem("Dense Redcrystal", NORMAL, 64)
---]]
 
---[[
-local function basicFilter(label, prefix)
-	prefix = prefix or "01"
-	return {label = "gt.metaitem." .. prefix .. "." .. label .. ".name"}
-end
-local function stainlessCellFilter(fluid)
-	return {label = "Large Stainless Steel Fluid Cell", fluid_label = fluid}
-end
-]]
-
---[[
--- OLD SHIT
-
-addGTItem("Stainless Oxygen Cell", IMPORTANT, 500).filter = stainlessCellFilter("Oxygen")
-addGTItem("Stainless Hydrogen Cell", IMPORTANT, 500).filter = stainlessCellFilter("Hydrogen")
---addGTItem("Helium Plasma Cell", IMPORTANT, 500)
-addGTItem("Niobium Plasma Cell", IMPORTANT, 10000, nil, 2560)
-
-local CellSpam = {
-	[200] = {
-		"Ethanol", "Ether", "Heavy Fuel", "Light Fuel",
-		"Radon", "Titaniumtetrachloride", "Benzene",
-		"Propene", "Acetone", "Ethylene",  "Methane",
-		"Steam", "Phenol", "Molten Silicone Rubber",
-		"Distilled Water",
-	},
-	[500] = {
-		"Helium", "Molten Polybenzimidazole", "Lubricant", "Refined Glue", 
-		"Molten Rubber", "Molten Polyethylene", "Molten Epoxid", "Water", 
-		"Oxygen", "Molten Polytetrafluoroethylene",
-	},
-	[1000] = {
-		"Fluorine", "Iron III Chloride",
-		"Sodium Persulfate", "Nitric Acid", "Nitrogen Dioxide",
-		"Molten Soldering Alloy", "Mercury", 
-	},
-	[2000] = {
-		"Nitrogen", "Ammonia", "Ammonium Chloride", "Hydrochloric Acid", 
-		"Chlorine", "Hydrofluoric Acid",
-	},
-	[4000] = {
-		"Sulfuric Acid", 
-	}
-}
-
-for amount, cells in pairs( CellSpam ) do
-	for _, name in pairs( cells ) do
-		addGTItem(name .. " Cell", NORMAL, amount)
-	end
-end
-
-addGTItem("Stainless Distilled Water Cell", NORMAL, 400).filter = stainlessCellFilter("Distilled Water")
-addGTItem("Stainless Nitrogen Dioxide Cell", NORMAL, 100).filter = stainlessCellFilter("Nitrogen Dioxide")
-addGTItem("Stainless Ammonia Cell", NORMAL, 100).filter = stainlessCellFilter("Ammonia")
-addGTItem("Stainless Helium Cell", NORMAL, 64).filter = stainlessCellFilter("Helium")
-addGTItem("Stainless Benzene Cell", NORMAL, 64).filter = stainlessCellFilter("Benzene")
-addGTItem("Stainless Sulfuric Acid Cell", NORMAL, 64).filter = stainlessCellFilter("Sulfuric Acid")
-addGTItem("Stainless Chlorine Cell", NORMAL, 100).filter = stainlessCellFilter("Chlorine")
-addGTItem("Stainless Fluorine Cell", NORMAL, 100).filter = stainlessCellFilter("Fluorine")
-addGTItem("Stainless Nitrogen Cell", NORMAL, 100).filter = stainlessCellFilter("Nitrogen")
-addGTItem("Stainless Argon Cell", NORMAL, 100).filter = stainlessCellFilter("Argon")
-addGTItem("Stainless Sodium Tungstate Cell", NORMAL, 100).filter = stainlessCellFilter("Sodium Tungstate")
-
-addGTItem("Sodium Hydroxide Dust", NORMAL, 10000, nil, 2560)
-addGTItem("Potassium Hydroxide Dust", NORMAL, 10000)
-addGTItem("Quicklime Dust", NORMAL)
-addGTItem("Enderpearl Dust", NORMAL)
-addGTItem("Electric Pump (IV)", NORMAL, 10, 10)
-addGTItem("Silicon Dioxide Dust", NORMAL, 100000)
-addGTItem("Potassium Dichromate Dust", NORMAL, 64)
-addGTItem("Aluminium Dust", NORMAL, 1000)
-addGTItem("Sulfur Dust", NORMAL, 10000)
-addGTItem("Bio Chaff", NORMAL, 10000)
-addGTItem("Uranium 238 Rod", NORMAL, 128)
-addGTItem("Furnace", NORMAL, 1024)
-addGTItem("Blaze Powder", NORMAL, 2048)
-addGTItem("Chiseled Stone Bricks", NORMAL, 10000)
-addGTItem("Industrial TNT", NORMAL, 100000, nil, 2560)
-addGTItem("Gelled Toluene", NORMAL, 100000, nil, 2560)
-
-addGTItem("ME Interface", UNIMPORTANT, 256).filter = {label = "ME Interface", name = "appliedenergistics2:tile.BlockInterface"}
-addGTItem("ME Export Bus", UNIMPORTANT, 64)
-addGTItem("ME Storage Bus", UNIMPORTANT, 64)
-addGTItem("ME Smart Cable - Fluix", UNIMPORTANT, 256)
-addGTItem("ME Dense Smart Cable - Fluix", UNIMPORTANT, 64)
-addGTItem("BrainTech Aerospace Advanced Reinforced Duct Tape FAL-84", UNIMPORTANT, 256)
-
-addGTItem("Microprocessor", UNIMPORTANT, 512)
-addGTItem("Integrated Processor", UNIMPORTANT, 512)
-addGTItem("Nanoprocessor", UNIMPORTANT, 512)
-addGTItem("Quantumprocessor", UNIMPORTANT, 1024)
-addGTItem("Crystalprocessor", UNIMPORTANT, 2048)
-
-local IngotSpam = {
-	[1024] = {
-		"Yttrium Barium Cuprate", "HSS-S", "Draconium"
-	},
-	[8192] = {
-		"Aluminium", "Titanium", "Tungsten", "Tungstensteel", "Ruridit",
-		"Stainless Steel", "Iridium", "Fluxed Electrum", 
-	}
-}
-
-for amount, ingots in pairs( IngotSpam ) do
-	for _, name in pairs( ingots ) do
-		addGTItem(name .. " Ingot", UNIMPORTANT, amount)
-	end
-end
-]]
+-- endgame shit
+addItem("Eternal Singularity", NORMAL, 64, nil, 1)
 
 return autocraftData
