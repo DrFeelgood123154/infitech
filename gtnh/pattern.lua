@@ -99,12 +99,12 @@ while true do
 			recipe.Output = {}
 			recipe.Original.Input = {}
 			recipe.Original.Output = {}
-			slots.Inputs = 0
-			slots.Outputs = 0
+			slots.Input = 0
+			slots.Output = 0
 		end
 
 		local function readPattern()
-			io.write("--- Loading pattern #1\n")
+			io.write("--- Loading pattern #" .. interfaceSlot .. "\n")
 			local pattern = me.getInterfacePattern(interfaceSlot)
 			if not pattern then return end
 			io.write("Loading all items into database...\n")
@@ -145,6 +145,7 @@ while true do
 				clearDB()
 
 				interfaceSlot = interfaceSlot + 1
+				if interfaceSlot > 36 then break end
 				local pattern = readPattern()
 				if not pattern then break end
 

@@ -348,7 +348,8 @@ local function Draw(updateRate, uptime, cputime)
 	-- Time to zero or full energy
 	local timeToZero = "-"
 	local seconds = 0
-	local powerDelta = gtPowerIOAvg30sec*20 --((gtPowerDrainAvg-gtPowerSupplyAvg)*20)
+	--local powerDelta = gtPowerIOAvg30sec*20 --((gtPowerDrainAvg-gtPowerSupplyAvg)*20)
+	local powerDelta = gtPowerIOAvg10min*20
 
 	if powerDelta < 0 then
 		seconds = tonumber(gtPower / math.abs(powerDelta))

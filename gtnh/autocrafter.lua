@@ -42,10 +42,10 @@ local defaultAutocraftItem = {
 	events = {
 		shouldCraft = function(data,ae,cpustatus)
 			if not data.currentlyCrafting and data.aeAmount < data.threshold or (data.maxCraftBound and data.aeAmount < data.keepStocked) then
-				if data.unimportant and display.gtPower < display.gtPowerMax * 0.4 then
+				if data.unimportant and display.gtPower < display.gtPowerMax * 0.4 and display.gtPowerMax < 9e18 then
 					return nil, "Unimp, Pwr<40%"
 				end
-				if not data.important and display.gtPower < display.gtPowerMax * 0.10 then
+				if not data.important and display.gtPower < display.gtPowerMax * 0.10 and display.gtPowerMax < 9e18 then
 					return nil, "Normal, Pwr<10%"
 				end
 
