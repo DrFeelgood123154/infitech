@@ -116,7 +116,6 @@ addItem("drop of Unknown Nutrient Agar", NORMAL, 1e6)
 -- ##raw growth medium##
 addItem("Mince Meat", NORMAL, 1e5)
 addItem("Agar", NORMAL, 1e5)
-
 -- ##raw bio catalyst##
 -- note that this is the shittest tier recipe
 addItem("Stemcells", NORMAL, 1e5)
@@ -126,6 +125,8 @@ addItem("Tiny Pile of Infinity Catalyst Dust", NORMAL, 1e4)
 -- ##xenoxene##
 addItem("Antimony Trioxide Dust", NORMAL, 1e4)
 -- osmium is passived
+-- ##bastline?##
+addItem("drop of Acetone", NORMAL, 1e8)
 
 
 -- circuit stuff
