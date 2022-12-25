@@ -5,7 +5,7 @@ local function getDefaultCpuStatus()
 		activeCPUs = 0,
 		activeUnimportantCPUs = 0,
 		totalCPUs = 0,
-		maxCPUs = 8 -- edit this if necessary
+		maxCPUs = 20 -- edit this if necessary
 	}
 end
 local cpustatus = getDefaultCpuStatus()

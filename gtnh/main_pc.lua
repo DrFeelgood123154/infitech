@@ -57,8 +57,8 @@ for i=1, #voltageNames do
 end
 
 -- HARDCODED VALUES IN CASE OF GT_MACHINE MULTIBLOCK
-local hardCodedVoltage = voltages.UV
-local hardCodedAmperage = 4096
+local hardCodedVoltage = voltages.UHV
+local hardCodedAmperage = 131072
 
 package.loaded.electricity_display = nil
 package.loaded.autocrafter = nil
