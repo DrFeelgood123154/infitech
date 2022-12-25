@@ -126,7 +126,7 @@ addItem("Tiny Pile of Infinity Catalyst Dust", NORMAL, 1e4)
 addItem("Antimony Trioxide Dust", NORMAL, 1e4)
 -- osmium is passived
 -- ##bastline?##
-addItem("Drop of Acetone", IMPORTANT, 1e8)
+addItem("drop of Acetone", IMPORTANT, 1e8)
 
 
 -- circuit stuff
