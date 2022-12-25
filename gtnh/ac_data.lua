@@ -95,7 +95,7 @@ addItem("Wrapped Uranium Ingot", IMPORTANT, 500000)
 addItem("Wrapped Plutonium Ingot", IMPORTANT, 150000)
 addItem("Atomic Separation Catalyst Dust", IMPORTANT, 5000)
 addItem("Infinity Dust", IMPORTANT, 1000)
-addItem("drop of Molten Atomic Separation Catalyst", IMPORTANT, 1e5)
+addItem("Molten Atomic Separation Catalyst", IMPORTANT, 1e5)
 
 -- ====== partially passive ======
 addItem("Biocells", NORMAL, 1e5)
@@ -110,7 +110,7 @@ addItem("Naquadria Rod", NORMAL, 1024)
 addItem("Plutonium 241 Rod", NORMAL, 1024)
 -- ##seaweed broth##
 addItem("Energium Dust", NORMAL, 1e4)
-addItem("drop of Unknown Nutrient Agar", NORMAL, 1e6)
+addItem("Unknown Nutrient Agar", NORMAL, 1e6)
 -- mytryl is mined
 -- seaweed is passived
 -- ##raw growth medium##
@@ -126,7 +126,7 @@ addItem("Tiny Pile of Infinity Catalyst Dust", NORMAL, 1e4)
 addItem("Antimony Trioxide Dust", NORMAL, 1e4)
 -- osmium is passived
 -- ##bastline?##
-addItem("Drop of Acetone", IMPORTANT, 1e8)
+addItem("Acetone", IMPORTANT, 1e8)
 
 
 -- circuit stuff
