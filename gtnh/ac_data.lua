@@ -121,7 +121,7 @@ addItem("Agar", NORMAL, 1e5)
 -- note that this is the shittest tier recipe
 addItem("Stemcells", NORMAL, 1e5)
 addItem("Unknown Crystal Shard", NORMAL, 1e4)
-addItem("Tritanium dust", NORMAL, 1e4)
+addItem("Tritanium dust", IMPORTANT, 1e4)
 addItem("Tiny Pile of Infinity Catalyst Dust", NORMAL, 1e4)
 -- ##xenoxene##
 addItem("Antimony Trioxide Dust", NORMAL, 1e4)
