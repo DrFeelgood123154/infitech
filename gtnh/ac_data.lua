@@ -129,7 +129,11 @@ addItem("Antimony Trioxide Dust", NORMAL, 1e4)
 addItem("drop of Acetone", IMPORTANT, 1e8)
 
 
+addItem("drop of Radon Plasma", IMPORTANT, 1e6)
+
+
 -- circuit stuff
+addItem("Indalloy 140 Cell", NORMAL, 2e4)
 addItem("Wafer", NORMAL, 1000)
 addItem("Phosphorus doped Wafer", NORMAL, 1000)
 addItem("Naquadah doped Wafer", NORMAL, 1000)
@@ -157,6 +161,7 @@ addItem("Europium Ingot", NORMAL, 1e3)
 addItem("Iridium Ingot", NORMAL, 1e4)
 addItem("Osmium Ingot", NORMAL, 1e4)
 addItem("Naquadah Ingot", NORMAL, 1e4)
+addItem("Raw Neutronium", NORMAL, 1e5)
 
 -- big amount ebf stuff
 addItem("Aluminium Ingot", NORMAL, 1e6)
