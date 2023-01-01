@@ -129,7 +129,9 @@ addItem("Antimony Trioxide Dust", NORMAL, 1e4)
 addItem("drop of Acetone", IMPORTANT, 1e8)
 
 
-addItem("drop of Radon Plasma", IMPORTANT, 1e6)
+addItem("drop of Radon Plasma", NORMAL, 1e6)
+addItem("drop of Blazing Pyrotheum", IMPORTANT, 1e6)
+addItem("drop of Mutated Living Solder", NORMAL, 1e7)
 
 
 -- circuit stuff
