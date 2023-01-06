@@ -278,6 +278,7 @@ addItem("Electrum Ingot", NORMAL, 5e5)
 addItem("BrainTech Aerospace Advanced Reinforced Duct Tape FAL-84", NORMAL, 10000)
 addItem("Steel Screw", NORMAL, 10000)
 addItem("Lubricant Cell", NORMAL, 10000)
+addItem("drop of Lubricant", IMPORTANT, 1e8)
 
 -- redstone shit
 addItem("Redstone Receiver (Internal)", NORMAL, 64)

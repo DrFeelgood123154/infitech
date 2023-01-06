@@ -31,7 +31,11 @@ function formatInt(i)
 	--if i < -10^18 or i > 10^18 then return "battery goes brr" end
 	local neg = i<0
 	i = math.floor(math.abs(i))
-	return (neg and "-" or "") .. (tostring(i):reverse():gsub("%d%d%d", "%1,"):reverse():gsub("^,", ""))
+	if i <= 1e9 then
+		return (neg and "-" or "") .. (tostring(i):reverse():gsub("%d%d%d", "%1,"):reverse():gsub("^,", ""))
+	else
+		return string.format("%e", i)
+	end
 end
 function unformatInt(i)
 	local temp = string.gsub(i,"[^%d]","")

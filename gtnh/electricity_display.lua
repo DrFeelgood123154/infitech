@@ -21,7 +21,7 @@ local ae
 local ret = {}
 
 local function parseFromSensorInfo(str)
-	local n = str:match(": ([%d,]+)EU"):gsub(",","")
+	local n = str:match("^[^%d]*([%d,]+)E?U?/?t?$"):gsub(",","")
 	n = tonumber(n)
 	if n < 0 then n = -n - 2 end -- fix tonumber bullshit
 	return n
@@ -175,7 +175,7 @@ local function Draw(updateRate, uptime, cputime)
 		gtPowerMax = batteryBuffers[1].getEUMaxStored()
 		if gtPowerMax < -10^18 or gtPowerMax > 10^18 then
 			local data = batteryBuffers[1].getSensorInformation()
-			gtPower = parseFromSensorInfo(data[2])
+			gtPower = parseFromSensorInfo(data[2]) + ((data[12]~=nil) and parseFromSensorInfo(data[12]) or 0)
 			gtPowerMax = parseFromSensorInfo(data[3])
 		end
 		gtPowerAmpMax = overrideAmperage
@@ -308,7 +308,6 @@ local function Draw(updateRate, uptime, cputime)
 		if warningBlink then color = 0xFFFF00
 		else color = 0xFF0000 end
 	end
-
 	printColor(color, string.format("= GT Power: %s\t%s / %s EU\t%s / %s A",
 		math.floor(gtPower/gtPowerMax*100).."%",
 		formatInt(gtPower),
