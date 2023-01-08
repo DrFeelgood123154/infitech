@@ -99,14 +99,14 @@ addItem("drop of Molten Atomic Separation Catalyst", IMPORTANT, 1e5)
 
 -- ====== partially passive ======
 addItem("Biocells", NORMAL, 1e6)
-addItem("TCetiE-Seaweed Extract", NORMAL, 1e6)
+addItem("TCetiE-Seaweed Extract", NORMAL, 1e6, nil, 2000)
 -- ##elevator mining##
 addItem("Neutronium Rod", NORMAL, 512)
 addItem("Neutronium Drill Tip", NORMAL, 512)
 -- ##radio hatches##
 addItem("Enriched Naquadah Rod", NORMAL, 1e6)
 addItem("Naquadah Rod", NORMAL, 1e6)
-addItem("Naquadria Rod", NORMAL, 1024)
+addItem("Naquadria Rod", NORMAL, 1e6)
 addItem("Plutonium 241 Rod", NORMAL, 1e6)
 -- ##seaweed broth##
 addItem("Energium Dust", NORMAL, 1e6)
