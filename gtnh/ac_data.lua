@@ -98,30 +98,30 @@ addItem("Infinity Dust", IMPORTANT, 1000)
 addItem("drop of Molten Atomic Separation Catalyst", IMPORTANT, 1e5)
 
 -- ====== partially passive ======
-addItem("Biocells", NORMAL, 1e5)
-addItem("TCetiE-Seaweed Extract", NORMAL, 1e4)
+addItem("Biocells", NORMAL, 1e6)
+addItem("TCetiE-Seaweed Extract", NORMAL, 1e6)
 -- ##elevator mining##
 addItem("Neutronium Rod", NORMAL, 512)
 addItem("Neutronium Drill Tip", NORMAL, 512)
 -- ##radio hatches##
-addItem("Enriched Naquadah Rod", NORMAL, 1024)
-addItem("Naquadah Rod", NORMAL, 1024)
+addItem("Enriched Naquadah Rod", NORMAL, 1e6)
+addItem("Naquadah Rod", NORMAL, 1e6)
 addItem("Naquadria Rod", NORMAL, 1024)
-addItem("Plutonium 241 Rod", NORMAL, 1024)
+addItem("Plutonium 241 Rod", NORMAL, 1e6)
 -- ##seaweed broth##
-addItem("Energium Dust", NORMAL, 1e4)
+addItem("Energium Dust", NORMAL, 1e6)
 addItem("drop of Unknown Nutrient Agar", NORMAL, 1e6)
 -- mytryl is mined
 -- seaweed is passived
 -- ##raw growth medium##
-addItem("Mince Meat", NORMAL, 1e5)
-addItem("Agar", NORMAL, 1e5)
+addItem("Mince Meat", NORMAL, 1e6)
+addItem("Agar", NORMAL, 1e6)
 -- ##raw bio catalyst##
 -- note that this is the shittest tier recipe
-addItem("Stemcells", NORMAL, 1e5)
-addItem("Unknown Crystal Shard", NORMAL, 2e5)
-addItem("Tritanium Dust", IMPORTANT, 1e4)
-addItem("Tiny Pile of Infinity Catalyst Dust", NORMAL, 1e4)
+addItem("Stemcells", NORMAL, 1e6)
+addItem("Unknown Crystal Shard", NORMAL, 2e6)
+addItem("Tritanium Dust", IMPORTANT, 1e6)
+addItem("Tiny Pile of Infinity Catalyst Dust", NORMAL, 1e5)
 -- ##xenoxene##
 addItem("Antimony Trioxide Dust", NORMAL, 1e4)
 -- osmium is passived
@@ -164,7 +164,7 @@ addItem("Europium Ingot", NORMAL, 1e3)
 addItem("Iridium Ingot", NORMAL, 1e4)
 addItem("Osmium Ingot", NORMAL, 1e4)
 addItem("Naquadah Ingot", NORMAL, 1e4)
-addItem("Raw Neutronium", NORMAL, 1e5)
+addItem("Raw Neutronium Dust", NORMAL, 1e6)
 
 -- big amount ebf stuff
 addItem("Aluminium Ingot", NORMAL, 1e6)
@@ -204,8 +204,7 @@ addItem("UHV Energy Hatch", NORMAL, 16)
 addItem("UEV Energy Hatch", NORMAL, 16)
 addItem("Super Bus (I) (EV)", NORMAL, 64)
 addItem("Super Bus (O) (EV)", NORMAL, 64)
-addItem("Super Bus (I) (UV)", NORMAL, 20)
-addItem("Super Bus (O) (UV)", NORMAL, 5)
+addItem("Super Bus (I) (UV)", NORMAL, 64)
 addItem("Machine Controller Cover", NORMAL, 64)
 addItem("Fluid Detector Cover", NORMAL, 64)
 addItem("Redstone Receiver (Internal)", NORMAL, 256)
