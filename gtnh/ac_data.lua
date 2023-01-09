@@ -119,7 +119,7 @@ addItem("Agar", NORMAL, 1e6)
 -- ##raw bio catalyst##
 -- note that this is the shittest tier recipe
 addItem("Stemcells", NORMAL, 1e6)
-addItem("Unknown Crystal Shard", NORMAL, 2e6)
+addItem("Unknown Crystal Shard", NORMAL, 1e6)
 addItem("Tritanium Dust", IMPORTANT, 1e6)
 addItem("Tiny Pile of Infinity Catalyst Dust", NORMAL, 1e5)
 -- ##xenoxene##
