@@ -110,7 +110,7 @@ addItem("Naquadria Rod", NORMAL, 1e6)
 addItem("Plutonium 241 Rod", NORMAL, 1e6)
 -- ##seaweed broth##
 addItem("Energium Dust", NORMAL, 1e6)
-addItem("drop of Unknown Nutrient Agar", NORMAL, 1e6)
+addItem("drop of Unknown Nutrient Agar", NORMAL, 1e7)
 -- mytryl is mined
 -- seaweed is passived
 -- ##raw growth medium##
