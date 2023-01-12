@@ -133,7 +133,8 @@ addItem("drop of Radon Plasma", NORMAL, 1e6)
 addItem("drop of Blazing Pyrotheum", IMPORTANT, 1e6)
 addItem("drop of Mutated Living Solder", NORMAL, 1e7)
 addItem("drop of Tin Plasma", IMPORTANT, 1e7)
-
+addItem("Naquadah Drill Tip", IMPORTANT, 1e4)
+addItem("drop of Duranium", NORMAL, 1e7)
 
 -- circuit stuff
 addItem("Indalloy 140 Cell", NORMAL, 2e4)
