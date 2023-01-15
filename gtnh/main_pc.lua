@@ -50,7 +50,7 @@ end
 -- general
 local sleepTime = 0.5
 local drawTime = 0.5
-local craftTime = 1
+local craftTime = 10
 local startTime = computer.uptime()
 
 local function getVoltageOfTier(tier) return 32 * math.pow(4,tier - 1) end
