@@ -101,7 +101,7 @@ addItem("drop of Molten Atomic Separation Catalyst", IMPORTANT, 1e5)
 
 -- ====== partially passive ======
 addItem("Biocells", NORMAL, 1e6)
-addItem("TCetiE-Seaweed Extract", NORMAL, 1e6)
+addItem("TCetiE-Seaweed Extract", NORMAL, 1e6, nil, 10000)
 -- ##elevator mining##
 addItem("Neutronium Rod", NORMAL, 512)
 addItem("Neutronium Drill Tip", NORMAL, 512)
