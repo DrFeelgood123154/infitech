@@ -90,16 +90,18 @@ local function addItem(name,priority,amount,threshold,maxCraft)
 	return autocraftData[name]
 end
 
+addItem("drop of Excited Dimensionally Transcendent Exotic Catalyst", NORMAL, 1e9, nil, 1e7)
+
 -- power stuff
-addItem("Wrapped Uranium Ingot", IMPORTANT, 500000)
-addItem("Wrapped Plutonium Ingot", IMPORTANT, 150000)
+--addItem("Wrapped Uranium Ingot", IMPORTANT, 500000)
+--addItem("Wrapped Plutonium Ingot", IMPORTANT, 150000)
 addItem("Atomic Separation Catalyst Dust", IMPORTANT, 5000)
 addItem("Infinity Dust", IMPORTANT, 1000)
 addItem("drop of Molten Atomic Separation Catalyst", IMPORTANT, 1e5)
 
 -- ====== partially passive ======
 addItem("Biocells", NORMAL, 1e6)
-addItem("TCetiE-Seaweed Extract", NORMAL, 1e6, nil, 2000)
+addItem("TCetiE-Seaweed Extract", NORMAL, 1e6)
 -- ##elevator mining##
 addItem("Neutronium Rod", NORMAL, 512)
 addItem("Neutronium Drill Tip", NORMAL, 512)
