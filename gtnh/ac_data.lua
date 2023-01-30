@@ -95,9 +95,9 @@ addItem("drop of Excited Dimensionally Transcendent Exotic Catalyst", NORMAL, 1e
 -- power stuff
 --addItem("Wrapped Uranium Ingot", IMPORTANT, 500000)
 --addItem("Wrapped Plutonium Ingot", IMPORTANT, 150000)
-addItem("Atomic Separation Catalyst Dust", IMPORTANT, 5000)
-addItem("Infinity Dust", IMPORTANT, 1000)
-addItem("drop of Molten Atomic Separation Catalyst", IMPORTANT, 1e5)
+--addItem("Atomic Separation Catalyst Dust", IMPORTANT, 5000)
+--addItem("Infinity Dust", IMPORTANT, 1000)
+--addItem("drop of Molten Atomic Separation Catalyst", IMPORTANT, 1e5)
 
 -- ====== partially passive ======
 -- ## DTPF ##
@@ -112,7 +112,7 @@ addItem("Botmium Plate", IMPORTANT, 1e4)
 addItem("Arcanite Screw", IMPORTANT, 1e4)
 addItem("Ender-Quantum Component", IMPORTANT, 1e4)
 
-addItem("Biocells", NORMAL, 1e6)
+--addItem("Biocells", NORMAL, 1e6)
 addItem("TCetiE-Seaweed Extract", NORMAL, 1e6, nil, 100000)
 -- ##elevator mining##
 addItem("Neutronium Rod", NORMAL, 512)
@@ -132,10 +132,10 @@ addItem("Mince Meat", NORMAL, 5e7)
 addItem("Agar", NORMAL, 5e7)
 -- ##raw bio catalyst##
 -- note that this is the shittest tier recipe
-addItem("Stemcells", NORMAL, 1e6)
-addItem("Unknown Crystal Shard", NORMAL, 1e6)
-addItem("Tritanium Dust", IMPORTANT, 1e6)
-addItem("Tiny Pile of Infinity Catalyst Dust", NORMAL, 1e5)
+--addItem("Stemcells", NORMAL, 1e6)
+--addItem("Unknown Crystal Shard", NORMAL, 1e6)
+--addItem("Tritanium Dust", IMPORTANT, 1e6)
+--addItem("Tiny Pile of Infinity Catalyst Dust", NORMAL, 1e5)
 -- ##xenoxene##
 addItem("Antimony Trioxide Dust", NORMAL, 1e4)
 -- osmium is passived
@@ -144,9 +144,9 @@ addItem("Antimony Trioxide Dust", NORMAL, 1e4)
 
 
 addItem("drop of Radon Plasma", NORMAL, 1e6)
-addItem("drop of Blazing Pyrotheum", IMPORTANT, 1e6)
-addItem("drop of Mutated Living Solder", NORMAL, 1e7)
-addItem("drop of Tin Plasma", IMPORTANT, 1e7)
+--addItem("drop of Blazing Pyrotheum", IMPORTANT, 1e6)
+--addItem("drop of Mutated Living Solder", NORMAL, 1e7)
+--addItem("drop of Tin Plasma", IMPORTANT, 1e7)
 addItem("Naquadah Drill Tip", IMPORTANT, 1e4)
 addItem("drop of Molten Duranium", NORMAL, 1e7)
 
@@ -154,60 +154,60 @@ addItem("drop of Molten Duranium", NORMAL, 1e7)
 addItem("Indalloy 140 Cell", NORMAL, 2e4)
 --addItem("Wafer", NORMAL, 1000)
 --addItem("Phosphorus doped Wafer", NORMAL, 1000)
-addItem("Naquadah doped Wafer", NORMAL, 1000)
-addItem("Raw Crystal Chip", NORMAL, 100000) -- crystal shit
-addItem("Crystal Processing Unit", NORMAL, 5000) -- crystal shit
-addItem("Microprocessor", NORMAL, 50000) -- LV
-addItem("Integrated Processor", NORMAL, 5000) -- MV
-addItem("Nanoprocessor", NORMAL, 200000) -- HV
-addItem("Quantumprocessor", NORMAL, 50000) -- EV
-addItem("Crystalprocessor", NORMAL, 1e5).onlyOne = "CAL" -- IV
-addItem("Crystalprocessor Assembly", NORMAL, 500000).onlyOne = "CAL" -- LuV
-addItem("Ultimate Crystalcomputer", NORMAL, 100000).onlyOne = "CAL" -- ZPM
-addItem("Crystalprocessor Mainframe", NORMAL, 10000).onlyOne = "CAL" -- UV
-addItem("Wetware Mainframe", NORMAL, 5000) -- UHV
-addItem("Bio Mainframe", NORMAL, 100) -- UEV
+--addItem("Naquadah doped Wafer", NORMAL, 1000)
+--addItem("Raw Crystal Chip", NORMAL, 100000) -- crystal shit
+--addItem("Crystal Processing Unit", NORMAL, 5000) -- crystal shit
+--addItem("Microprocessor", NORMAL, 50000) -- LV
+--addItem("Integrated Processor", NORMAL, 5000) -- MV
+--addItem("Nanoprocessor", NORMAL, 200000) -- HV
+--addItem("Quantumprocessor", NORMAL, 50000) -- EV
+--addItem("Crystalprocessor", NORMAL, 1e5).onlyOne = "CAL" -- IV
+--addItem("Crystalprocessor Assembly", NORMAL, 500000).onlyOne = "CAL" -- LuV
+--addItem("Ultimate Crystalcomputer", NORMAL, 100000).onlyOne = "CAL" -- ZPM
+--addItem("Crystalprocessor Mainframe", NORMAL, 10000).onlyOne = "CAL" -- UV
+--addItem("Wetware Mainframe", NORMAL, 5000) -- UHV
+--addItem("Bio Mainframe", NORMAL, 100) -- UEV
 
 -- ebf stuff
-addItem("HSS-S Ingot", NORMAL, 5e4)
-addItem("Ruridit Ingot", NORMAL, 1e5)
-addItem("Tungstensteel Ingot", NORMAL, 1e5)
-addItem("Tungsten Ingot", NORMAL, 1e5)
-addItem("Yttrium Barium Cuprate Ingot", NORMAL, 1e4)
-addItem("Vanadium-Gallium Ingot", NORMAL, 3e5)
-addItem("Europium Ingot", NORMAL, 1e3)
-addItem("Iridium Ingot", NORMAL, 1e4)
-addItem("Osmium Ingot", NORMAL, 1e4)
+--addItem("HSS-S Ingot", NORMAL, 5e4)
+--addItem("Ruridit Ingot", NORMAL, 1e5)
+--addItem("Tungstensteel Ingot", NORMAL, 1e5)
+--addItem("Tungsten Ingot", NORMAL, 1e5)
+--addItem("Yttrium Barium Cuprate Ingot", NORMAL, 1e4)
+--addItem("Vanadium-Gallium Ingot", NORMAL, 3e5)
+--addItem("Europium Ingot", NORMAL, 1e3)
+--addItem("Iridium Ingot", NORMAL, 1e4)
+--addItem("Osmium Ingot", NORMAL, 1e4)
 --addItem("Naquadah Ingot", NORMAL, 1e4)
 --addItem("Raw Neutronium Dust", NORMAL, 1e6)
 
 -- big amount ebf stuff
-addItem("Aluminium Ingot", NORMAL, 1e6)
-addItem("Steel Ingot", NORMAL, 1e6)
-addItem("Silicon Solar Grade (Poly SI) Ingot", NORMAL, 1e5)
-addItem("Stainless Steel Ingot", NORMAL, 1e5)
-addItem("Titanium Ingot", NORMAL, 1e5)
+--addItem("Aluminium Ingot", NORMAL, 1e6)
+--addItem("Steel Ingot", NORMAL, 1e6)
+--addItem("Silicon Solar Grade (Poly SI) Ingot", NORMAL, 1e5)
+--addItem("Stainless Steel Ingot", NORMAL, 1e5)
+--addItem("Titanium Ingot", NORMAL, 1e5)
 
 -- ae stuff
-addItem("ME Smart Cable - Fluix", NORMAL, 1000)
-addItem("ME Dense Smart Cable - Fluix", NORMAL, 500)
-addItem("Pattern Capacity Card", NORMAL, 64)
-addItem("ME Storage Bus", NORMAL, 128)
-addItem("ME Interface", NORMAL, 128)
-addItem("ME Dual Interface", NORMAL, 128)
-addItem("ME Export Bus", NORMAL, 128)
-addItem("Acceleration Card", NORMAL, 64)
-addItem("Capacity Card", NORMAL, 64)
-addItem("Oredictionary Filter Card", NORMAL, 64)
-addItem("Crafting Card", NORMAL, 64)
-addItem("Fuzzy Card", NORMAL, 64)
-addItem("Blank Pattern", IMPORTANT, 100)
-addItem("Output Bus (ME)", NORMAL, 64)
+--addItem("ME Smart Cable - Fluix", NORMAL, 1000)
+--addItem("ME Dense Smart Cable - Fluix", NORMAL, 500)
+--addItem("Pattern Capacity Card", NORMAL, 64)
+--addItem("ME Storage Bus", NORMAL, 128)
+--addItem("ME Interface", NORMAL, 128)
+--addItem("ME Dual Interface", NORMAL, 128)
+--addItem("ME Export Bus", NORMAL, 128)
+--addItem("Acceleration Card", NORMAL, 64)
+--addItem("Capacity Card", NORMAL, 64)
+--addItem("Oredictionary Filter Card", NORMAL, 64)
+--addItem("Crafting Card", NORMAL, 64)
+--addItem("Fuzzy Card", NORMAL, 64)
+--addItem("Blank Pattern", IMPORTANT, 100)
+--addItem("Output Bus (ME)", NORMAL, 64)
 
 -- gt stuff
 --addItem("Maintenance Hatch", NORMAL, 64)
-addItem("Auto-Taping Maintenance Hatch", NORMAL, 256)
-addItem("Muffler Hatch (LV)", NORMAL, 64)
+--addItem("Auto-Taping Maintenance Hatch", NORMAL, 256)
+--addItem("Muffler Hatch (LV)", NORMAL, 64)
 --addItem("Input Hatch (EV)", NORMAL, 64)
 --addItem("Output Hatch (EV)", NORMAL, 64)
 --addItem("Input Bus (HV)", NORMAL, 64)
@@ -215,47 +215,47 @@ addItem("Muffler Hatch (LV)", NORMAL, 64)
 --addItem("LuV Energy Hatch", NORMAL, 16)
 --addItem("ZPM Energy Hatch", NORMAL, 16)
 --addItem("UV Energy Hatch", NORMAL, 16)
-addItem("UHV Energy Hatch", NORMAL, 16)
-addItem("UEV Energy Hatch", NORMAL, 16)
+--addItem("UHV Energy Hatch", NORMAL, 16)
+--addItem("UEV Energy Hatch", NORMAL, 16)
 --addItem("Super Bus (I) (EV)", NORMAL, 64)
 --addItem("Super Bus (O) (EV)", NORMAL, 64)
-addItem("Super Bus (I) (UV)", NORMAL, 64)
-addItem("Machine Controller Cover", NORMAL, 64)
-addItem("Fluid Detector Cover", NORMAL, 64)
+--addItem("Super Bus (I) (UV)", NORMAL, 64)
+--addItem("Machine Controller Cover", NORMAL, 64)
+--addItem("Fluid Detector Cover", NORMAL, 64)
 --addItem("Multi-Use Casing", NORMAL, 4096, nil, 256)
 --addItem("Superconducting Coil Block", NORMAL, 2048)
 
 -- big amount stuff
-addItem("Reinforced Glass", NORMAL, 1e6)
-addItem("1x Naquadah Cable", NORMAL, 1e4)
+--addItem("Reinforced Glass", NORMAL, 1e6)
+--addItem("1x Naquadah Cable", NORMAL, 1e4)
 --addItem("Eye of Ender", NORMAL, 5e4)
-addItem("Lapotron Crystal", NORMAL, 5e5)
-addItem("Block of Silicon Solar Grade (Poly SI)", NORMAL, 1e4)
-addItem("ASoC", NORMAL, 2e5)
-addItem("Advanced SMD Resistor", NORMAL, 5e3)
-addItem("Advanced SMD Diode", NORMAL, 5e3)
-addItem("Advanced SMD Transistor", NORMAL, 1e3)
-addItem("Advanced SMD Capacitor", NORMAL, 1e3)
-addItem("Optical SMD Resistor", NORMAL, 5e3)
-addItem("Optical SMD Diode", NORMAL, 5e3)
-addItem("Optical SMD Transistor", NORMAL, 1e3)
-addItem("Optical SMD Capacitor", NORMAL, 1e3)
-addItem("4x Niobium-Titanium Wire", NORMAL, 1e5)
-addItem("Advanced Alloy", NORMAL, 1e5)
-addItem("Block of Olivine", NORMAL, 1e4)
-addItem("Small Coil", NORMAL, 1e6)
-addItem("Random Access Memory Chip", NORMAL, 2e6)
-addItem("NAND Memory Chip", NORMAL, 1e6)
-addItem("NOR Memory Chip", NORMAL, 5e5)
-addItem("Nanocomponent Central Processing Unit", NORMAL, 3e5)
-addItem("HPIC Wafer", NORMAL, 1e5)
+--addItem("Lapotron Crystal", NORMAL, 5e5)
+--addItem("Block of Silicon Solar Grade (Poly SI)", NORMAL, 1e4)
+--addItem("ASoC", NORMAL, 2e5)
+--addItem("Advanced SMD Resistor", NORMAL, 5e3)
+--addItem("Advanced SMD Diode", NORMAL, 5e3)
+--addItem("Advanced SMD Transistor", NORMAL, 1e3)
+--addItem("Advanced SMD Capacitor", NORMAL, 1e3)
+--addItem("Optical SMD Resistor", NORMAL, 5e3)
+--addItem("Optical SMD Diode", NORMAL, 5e3)
+--addItem("Optical SMD Transistor", NORMAL, 1e3)
+--addItem("Optical SMD Capacitor", NORMAL, 1e3)
+--addItem("4x Niobium-Titanium Wire", NORMAL, 1e5)
+--addItem("Advanced Alloy", NORMAL, 1e5)
+--addItem("Block of Olivine", NORMAL, 1e4)
+--addItem("Small Coil", NORMAL, 1e6)
+--addItem("Random Access Memory Chip", NORMAL, 2e6)
+--addItem("NAND Memory Chip", NORMAL, 1e6)
+--addItem("NOR Memory Chip", NORMAL, 5e5)
+--addItem("Nanocomponent Central Processing Unit", NORMAL, 3e5)
+--addItem("HPIC Wafer", NORMAL, 1e5)
 
-addItem("Advanced Circuit Board", UNIMPORTANT, 2e5)
-addItem("Niobium-Titanium Ingot", UNIMPORTANT, 3e5)
-addItem("Fiber-Reinforced Circuit Board", UNIMPORTANT, 5e5)
-addItem("Multilayer Fiber-Reinforced Circuit Board", UNIMPORTANT, 3e5)
-addItem("Elite Circuit Board", UNIMPORTANT, 2e5)
-addItem("Reinforced Glass Tube", UNIMPORTANT, 5e5)
+--addItem("Advanced Circuit Board", UNIMPORTANT, 2e5)
+--addItem("Niobium-Titanium Ingot", UNIMPORTANT, 3e5)
+--addItem("Fiber-Reinforced Circuit Board", UNIMPORTANT, 5e5)
+--addItem("Multilayer Fiber-Reinforced Circuit Board", UNIMPORTANT, 3e5)
+--addItem("Elite Circuit Board", UNIMPORTANT, 2e5)
+--addItem("Reinforced Glass Tube", UNIMPORTANT, 5e5)
 
 --addItem("Conveyor Module (HV)", NORMAL, 64)
 --addItem("Conveyor Module (IV)", NORMAL, 64)
@@ -265,38 +265,38 @@ addItem("Reinforced Glass Tube", UNIMPORTANT, 5e5)
 --addItem("Electric Motor (LuV)", NORMAL, 5000)
 --addItem("Electric Motor (ZPM)", NORMAL, 1000)
 --addItem("Electric Motor (UV)", NORMAL, 100)
-addItem("Electric Motor (UHV)", NORMAL, 100)
+--addItem("Electric Motor (UHV)", NORMAL, 100)
 
 --addItem("Electric Pump (IV)", NORMAL, 200)
 --addItem("Electric Pump (LuV)", NORMAL, 200)
 --addItem("Electric Pump (ZPM)", NORMAL, 200)
 --addItem("Electric Pump (UV)", NORMAL, 200)
-addItem("Electric Pump (UHV)", NORMAL, 200)
+--addItem("Electric Pump (UHV)", NORMAL, 200)
 
-addItem("Sensor (UHV)", NORMAL, 200)
-addItem("Emitter (UHV)", NORMAL, 200)
+--addItem("Sensor (UHV)", NORMAL, 200)
+--addItem("Emitter (UHV)", NORMAL, 200)
 
-addItem("1x Superconductor ZPM Wire", UNIMPORTANT, 5000)
-addItem("1x Superconductor UV Wire", UNIMPORTANT, 5000)
-addItem("1x Superconductor UHV Wire", UNIMPORTANT, 5000)
-addItem("1x Superconductor UEV Wire", UNIMPORTANT, 500)
+--addItem("1x Superconductor ZPM Wire", UNIMPORTANT, 5000)
+--addItem("1x Superconductor UV Wire", UNIMPORTANT, 5000)
+--addItem("1x Superconductor UHV Wire", UNIMPORTANT, 5000)
+--addItem("1x Superconductor UEV Wire", UNIMPORTANT, 500)
 
-addItem("Iron Ingot", NORMAL, 5e5)
-addItem("Electrum Ingot", NORMAL, 5e5)
-addItem("Gold Ingot", NORMAL, 5e5)
-addItem("Silver Ingot", NORMAL, 5e5)
-addItem("Electrum Ingot", NORMAL, 5e5)
+--addItem("Iron Ingot", NORMAL, 5e5)
+--addItem("Electrum Ingot", NORMAL, 5e5)
+--addItem("Gold Ingot", NORMAL, 5e5)
+--addItem("Silver Ingot", NORMAL, 5e5)
+--addItem("Electrum Ingot", NORMAL, 5e5)
 
 -- repair shit
-addItem("BrainTech Aerospace Advanced Reinforced Duct Tape FAL-84", NORMAL, 10000)
-addItem("Steel Screw", NORMAL, 10000)
-addItem("Lubricant Cell", NORMAL, 10000)
-addItem("drop of Lubricant", IMPORTANT, 1e9)
+--addItem("BrainTech Aerospace Advanced Reinforced Duct Tape FAL-84", NORMAL, 10000)
+--addItem("Steel Screw", NORMAL, 10000)
+--addItem("Lubricant Cell", NORMAL, 10000)
+--addItem("drop of Lubricant", IMPORTANT, 1e9)
 
 -- redstone shit
-addItem("Redstone Receiver (Internal)", NORMAL, 64)
-addItem("Redstone Receiver (External)", NORMAL, 64)
-addItem("Redstone Transmitter (External)", NORMAL, 16)
+--addItem("Redstone Receiver (Internal)", NORMAL, 64)
+--addItem("Redstone Receiver (External)", NORMAL, 64)
+--addItem("Redstone Transmitter (External)", NORMAL, 16)
 --addItem("Red Alloy Wire", NORMAL, 128)
 --addItem("Framed Red Alloy Wire", NORMAL, 128)
 --addItem("RS Latch", NORMAL, 32)
