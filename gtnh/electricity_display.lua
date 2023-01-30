@@ -175,7 +175,7 @@ local function Draw(updateRate, uptime, cputime)
 		gtPowerMax = batteryBuffers[1].getEUMaxStored()
 		if gtPowerMax < -10^18 or gtPowerMax > 10^18 then
 			local data = batteryBuffers[1].getSensorInformation()
-			gtPower = parseFromSensorInfo(data[2]) + ((data[12]~=nil) and parseFromSensorInfo(data[12]) or 0)
+			gtPower = parseFromSensorInfo(data[2]) -- + ((data[12]~=nil) and parseFromSensorInfo(data[12]) or 0)
 			gtPowerMax = parseFromSensorInfo(data[3])
 		end
 		gtPowerAmpMax = overrideAmperage
