@@ -92,6 +92,8 @@ end
 
 addItem("drop of Excited Dimensionally Transcendent Exotic Catalyst", NORMAL, 1e9, nil, 1e7)
 
+addItem("Glass Dust", NORMAL, 1e7)
+
 -- power stuff
 --addItem("Wrapped Uranium Ingot", IMPORTANT, 500000)
 --addItem("Wrapped Plutonium Ingot", IMPORTANT, 150000)
