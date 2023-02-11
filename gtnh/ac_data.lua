@@ -90,7 +90,7 @@ local function addItem(name,priority,amount,threshold,maxCraft)
 	return autocraftData[name]
 end
 
-addItem("drop of Excited Dimensionally Transcendent Exotic Catalyst", NORMAL, 1e9, nil, 1e7)
+--addItem("drop of Excited Dimensionally Transcendent Exotic Catalyst", NORMAL, 1e9, nil, 1e7)
 
 addItem("Glass Dust", NORMAL, 1e7)
 
