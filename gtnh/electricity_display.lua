@@ -103,9 +103,9 @@ local function CalcAverage(updateRate, uptime)
 end
 
 local function Draw(updateRate, uptime, cputime)
-	local powerDrain = ae.getAvgPowerUsage()
-	local powerSupply = ae.getAvgPowerInjection()
-	local powerIdle = ae.getIdlePowerUsage()
+	local powerDrain = ae and ae.getAvgPowerUsage() or 0
+	local powerSupply = ae and ae.getAvgPowerInjection() or 0
+	local powerIdle = ae and ae.getIdlePowerUsage() or 0
 	local powerColor = 0x00FF00
 	local gtPowerMax = 0
 	local gtPower = 0
@@ -145,7 +145,6 @@ local function Draw(updateRate, uptime, cputime)
 			gtPowerMax = gtPowerMax + pwrMax
 			gtPowerDrain = gtPowerDrain + drain
 			gtPowerSupply = gtPowerSupply + supply
-
 
 			local percent = math.floor(drain/supply*100+0.5)
 			local color = 0x00FF00
@@ -194,106 +193,110 @@ local function Draw(updateRate, uptime, cputime)
 	clearTerminal()
 
 	-- CPU Status
-	local clr = 0x00FF00
-	if crafter.cpustatus.activeCPUs >= crafter.cpustatus.maxCPUs then clr = 0xFFFF00
-	elseif crafter.cpustatus.activeCPUs > math.ceil(crafter.cpustatus.totalCPUs*0.8) then clr = 0xFF0000 end
-	printColor(clr,string.format("=== CPUs: OC/Allowed: %s/%s - Active/Total: %s/%s",
-		crafter.cpustatus.activeCPUs,crafter.cpustatus.maxCPUs,
-		crafter.cpustatus.activeCPUsTotal,crafter.cpustatus.totalCPUs
-	))
+	if crafter then
+		local clr = 0x00FF00
+		if crafter.cpustatus.activeCPUs >= crafter.cpustatus.maxCPUs then clr = 0xFFFF00
+		elseif crafter.cpustatus.activeCPUs > math.ceil(crafter.cpustatus.totalCPUs*0.8) then clr = 0xFF0000 end
+		printColor(clr,string.format("=== CPUs: OC/Allowed: %s/%s - Active/Total: %s/%s",
+			crafter.cpustatus.activeCPUs,crafter.cpustatus.maxCPUs,
+			crafter.cpustatus.activeCPUsTotal,crafter.cpustatus.totalCPUs
+		))
 	
-	local slotsLeft = displayMax
-	local function displayList(list, count, display)
-		local idx = 0
-		local ret = 0
-		for k,v in pairs(list) do
-			idx = idx + 1
+		local slotsLeft = displayMax
+		local function displayList(list, count, display)
+			local idx = 0
+			local ret = 0
+			for k,v in pairs(list) do
+				idx = idx + 1
 
-			if display(k,v) then
-				slotsLeft = slotsLeft - 1
-				if slotsLeft <= 1 then
-					local moreText = nil
-					if count~=nil then
-						if (count-idx)>1 then
-							moreText = count-idx
+				if display(k,v) then
+					slotsLeft = slotsLeft - 1
+					if slotsLeft <= 1 then
+						local moreText = nil
+						if count~=nil then
+							if (count-idx)>1 then
+								moreText = count-idx
+							end
+						else
+							if next(list,k)~=nil and next(list,next(list,k))~=nil then
+								moreText = "some"
+							end
 						end
-					else
-						if next(list,k)~=nil and next(list,next(list,k))~=nil then
-							moreText = "some"
-						end
-					end
 
-					if moreText ~= nil then
-						slotsLeft = slotsLeft - 1
-						print("+ " .. moreText .. " others")
-						return
+						if moreText ~= nil then
+							slotsLeft = slotsLeft - 1
+							print("+ " .. moreText .. " others")
+							return
+						end
 					end
 				end
 			end
 		end
-	end
 
-	if crafter.eAllRecipes.key then
-		print(string.format("(%s/%s): %s, (%s/%s): %s",
-			--[%s/%s] 
-			--crafter.checkingAllItemsIdx,
-			--crafter.checkingAllItemsTotal,
-			crafter.eAllRecipes.idx,
-			crafter.numberOfCraftData,
-			string.sub(crafter.eAllRecipes.value.name,1,24),
-			crafter.eCrafting.idx,
-			crafter.cpustatus.activeCPUs,
-			string.sub(crafter.eCrafting.value and crafter.eCrafting.value.name or "-",1,24)
-		))
-	end
-
-	-- Currently Crafting
-	if #crafter.currentlyCrafting > 0 then
-		slotsLeft = slotsLeft - 1
-		printColor(0x00FF00, "= Currently crafting:")
-		displayList(crafter.currentlyCrafting, #crafter.currentlyCrafting, function(k,v) return v.events.displayStatus(v, cputime) end)
-	end
-
-	-- Waiting to Craft
-	if #crafter.waitingToCraft > 0 and slotsLeft>2 then
-		slotsLeft = slotsLeft - 1
-		printColor(0x00FF00,"= Waiting to craft:")
-		displayList(crafter.waitingToCraft, #crafter.waitingToCraft, function(k,v) return v.events.displayStatus(v, cputime) end)
-	end
-
-	-- Probably out of items
-	if next(crafter.probablyOutOfItems) ~= nil then
-		slotsLeft = slotsLeft - 2
-		printColor(0xFF0000,"= Probably out of items:")
-		local s,n = {}, 0
-		for name, _ in pairs(crafter.probablyOutOfItems) do
-			n = n + 1
-			s[n] = name
+		if crafter.eAllRecipes.key then
+			print(string.format("(%s/%s): %s, (%s/%s): %s",
+				--[%s/%s] 
+				--crafter.checkingAllItemsIdx,
+				--crafter.checkingAllItemsTotal,
+				crafter.eAllRecipes.idx,
+				crafter.numberOfCraftData,
+				string.sub(crafter.eAllRecipes.value.name,1,24),
+				crafter.eCrafting.idx,
+				crafter.cpustatus.activeCPUs,
+				string.sub(crafter.eCrafting.value and crafter.eCrafting.value.name or "-",1,24)
+			))
 		end
-		s = table.concat(s,", ")
-		local lines = math.ceil(#s/72)
-		slotsLeft = slotsLeft - lines
-		printColor(0xFFAA00, s)
-	end
 
-	-- Max restart amounts
-	if next(crafter.maxRestartAmounts) ~= nil and slotsLeft>2 then
-		slotsLeft = slotsLeft - 1
-		printColor(0x00FF00,"= Max restart amounts:")
-		displayList(crafter.maxRestartAmounts, nil, function(k,v) print(k .. ": " .. v .. "x") return true end)
+		-- Currently Crafting
+		if #crafter.currentlyCrafting > 0 then
+			slotsLeft = slotsLeft - 1
+			printColor(0x00FF00, "= Currently crafting:")
+			displayList(crafter.currentlyCrafting, #crafter.currentlyCrafting, function(k,v) return v.events.displayStatus(v, cputime) end)
+		end
+
+		-- Waiting to Craft
+		if #crafter.waitingToCraft > 0 and slotsLeft>2 then
+			slotsLeft = slotsLeft - 1
+			printColor(0x00FF00,"= Waiting to craft:")
+			displayList(crafter.waitingToCraft, #crafter.waitingToCraft, function(k,v) return v.events.displayStatus(v, cputime) end)
+		end
+
+		-- Probably out of items
+		if next(crafter.probablyOutOfItems) ~= nil then
+			slotsLeft = slotsLeft - 2
+			printColor(0xFF0000,"= Probably out of items:")
+			local s,n = {}, 0
+			for name, _ in pairs(crafter.probablyOutOfItems) do
+				n = n + 1
+				s[n] = name
+			end
+			s = table.concat(s,", ")
+			local lines = math.ceil(#s/72)
+			slotsLeft = slotsLeft - lines
+			printColor(0xFFAA00, s)
+		end
+
+		-- Max restart amounts
+		if next(crafter.maxRestartAmounts) ~= nil and slotsLeft>2 then
+			slotsLeft = slotsLeft - 1
+			printColor(0x00FF00,"= Max restart amounts:")
+			displayList(crafter.maxRestartAmounts, nil, function(k,v) print(k .. ": " .. v .. "x") return true end)
+		end
 	end
 
 	-- Crafting error
 	--print("Redstone frequency: "..emitRedstoneAt)
 
-	printColor(powerColor,
-		string.format("=== AE Power: %s (%s/%s) Idle: %s",
-			math.floor(powerDrain/powerSupply*100).."%",
-			formatInt(powerDrain),
-			formatInt(powerSupply),
-			math.floor(powerIdle)
+	if ae then
+		printColor(powerColor,
+			string.format("=== AE Power: %s (%s/%s) Idle: %s",
+				math.floor(powerDrain/powerSupply*100).."%",
+				formatInt(powerDrain),
+				formatInt(powerSupply),
+				math.floor(powerIdle)
+			)
 		)
-	)
+	end
 
 	local color
 	if(gtPower < gtPowerMax*0.10) then color = 0xFF0000

@@ -6,11 +6,13 @@ local term = require("term")
 local computer = require("computer")
 local sides = require("sides")
 --local redstone = component.redstone
-local ae = component.me_interface
+local b, ae = pcall(function() return component.me_interface end)
+if not b then ae = nil end
 local gpu = component.gpu
 local colors = require("colors")
 local ev = require("event")
-local redstone = component.redstone
+local b, redstone = pcall(function() return component.redstone end)
+if not b then redstone = nil end
 
 os.execute("resolution 70 25")
 
@@ -62,17 +64,20 @@ end
 voltages.Dyson = 100000000000
 
 -- HARDCODED VALUES IN CASE OF GT_MACHINE MULTIBLOCK
-local hardCodedVoltage = voltages.Dyson
-local hardCodedAmperage = 131072
+local hardCodedVoltage = voltages.UV
+local hardCodedAmperage = 65536
 
 package.loaded.electricity_display = nil
 package.loaded.autocrafter = nil
 local display = require("electricity_display")
 
 local crafting_old = crafting
-crafting = require("autocrafter") -- this needs to be global
+if ae then
+	crafting = require("autocrafter") -- this needs to be global
 
-crafting.Init(ae, computer, display, craftTime, crafting_old or {})
+	crafting.Init(ae, computer, display, craftTime, crafting_old or {})
+end
+
 display.Init(crafting, ae, component, hardCodedVoltage, hardCodedAmperage)
 
 crafting_old = nil
@@ -111,11 +116,13 @@ while(true) do
 		local t = computer.uptime()
 		local uptime = t - startTime
 
-		if redstone.getInput(sides.left) > 0 then
-			lastRedstoneInput = computer.uptime()
-			arePlayersOffline = false
-		else
-			arePlayersOffline = lastRedstoneInput < computer.uptime() - playersOfflineTime
+		if redstone then
+			if redstone.getInput(sides.left) > 0 then
+				lastRedstoneInput = computer.uptime()
+				arePlayersOffline = false
+			else
+				arePlayersOffline = lastRedstoneInput < computer.uptime() - playersOfflineTime
+			end
 		end
 
 		if sleepTime == 0 then
@@ -127,7 +134,7 @@ while(true) do
 			display.Draw(drawTime, uptime, t)
 		end
 
-		if t > nextCraft then
+		if ae and t > nextCraft then
 			nextCraft = t + craftTime
 			crafting.Autocrafting(arePlayersOffline)
 		end

@@ -90,6 +90,7 @@ local function addItem(name,priority,amount,threshold,maxCraft)
 	return autocraftData[name]
 end
 
+--[[
 --addItem("drop of Excited Dimensionally Transcendent Exotic Catalyst", NORMAL, 1e9, nil, 1e7)
 
 addItem("Glass Dust", NORMAL, 1e7)
@@ -308,5 +309,6 @@ addItem("Indalloy 140 Cell", NORMAL, 2e4)
 
 -- endgame shit
 --addItem("Eternal Singularity", NORMAL, 1000, nil, 5)
+]]
 
 return autocraftData
