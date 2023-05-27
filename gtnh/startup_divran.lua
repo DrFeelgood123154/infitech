@@ -5,6 +5,7 @@ local files = {
 	"autocrafter.lua",
 	"electricity_display.lua",
 	"main_pc.lua"
+	--"superezpowercontrol.lua"
 }
 for k,v in pairs(files) do os.execute("wget -f " .. url .. v) end
 os.execute(files[#files])

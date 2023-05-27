@@ -16,8 +16,9 @@ local function parseFromSensorInfo(str)
 	return n
 end
 
-local max = 1e14
+local max = 1e15
 local side = sides.right
+local side2 = sides.left
 
 --redstone.setOutput(side,0)
 local function doThing()
@@ -36,6 +37,7 @@ local function doThing()
 	local redOut = math.floor(percent * 15)
 	print(string.format("Fake max: %s\nPercent: %s%%\nRedstone: %s", max, math.floor(percent*100), redOut))
 	redstone.setOutput(side,redOut)
+	redstone.setOutput(side2,redOut)
 end
 
 while true do
