@@ -394,7 +394,7 @@ local function Draw(updateRate, uptime, cputime)
 
 	-- WIRELESS
 	if wireless>0 then
-		print(string.format("Wireless: %s",
+		print(string.format("Wireless:\t%s",
 			formatInt(wireless)
 		))
 	end
