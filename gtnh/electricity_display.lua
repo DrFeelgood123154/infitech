@@ -19,6 +19,7 @@ local highestEnergyDrain = 0
 local crafter
 local ae
 local ret = {}
+local wireless = 0
 
 local function parseFromSensorInfo(str)
 	local n = str:match("^[^%d]*([%d,]+)E?U?/?t?$"):gsub(",","")
@@ -176,6 +177,8 @@ local function Draw(updateRate, uptime, cputime)
 			local data = batteryBuffers[1].getSensorInformation()
 			gtPower = parseFromSensorInfo(data[2]) -- + ((data[12]~=nil) and parseFromSensorInfo(data[12]) or 0)
 			gtPowerMax = parseFromSensorInfo(data[3])
+
+			wireless = (data[15]~=nil) and parseFromSensorInfo(data[15]) or 0
 		--end
 		gtPowerAmpMax = overrideAmperage
 	end
@@ -388,6 +391,14 @@ local function Draw(updateRate, uptime, cputime)
 			formatInt(gtPowerIOAvg1hour).." ("..math.ceil(gtPowerIOAvg1hour/gtPowerVoltage).." A)"
 		)
 	)
+
+	-- WIRELESS
+	if wireless>0 then
+		print(string.format("Wireless: %s",
+			formatInt(wireless)
+		))
+	end
+
 
 	-- control turbines
 	--[[
