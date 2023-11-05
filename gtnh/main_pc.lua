@@ -36,7 +36,7 @@ function formatInt(i)
 	if i <= 1e9 then
 		return (neg and "-" or "") .. (tostring(i):reverse():gsub("%d%d%d", "%1,"):reverse():gsub("^,", ""))
 	else
-		return string.format("%e", i)
+		return (neg and "-" or "") .. string.format("%e", i)
 	end
 end
 function unformatInt(i)
