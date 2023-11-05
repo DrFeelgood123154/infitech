@@ -94,7 +94,7 @@ local function CalcAverage(updateRate, uptime)
 		if wirelessIO >= 0 then
 			gtPowerSupply = wirelessIO
 		else
-			gtPowerDrain = wirelessIO
+			gtPowerDrain = math.abs(wirelessIO)
 		end
 
 		mult = math.max(updateRate,1/20)
@@ -381,6 +381,11 @@ local function Draw(updateRate, uptime, cputime)
 	local seconds = 0
 	--local powerDelta = gtPowerIOAvg30sec*20 --((gtPowerDrainAvg-gtPowerSupplyAvg)*20)
 	local powerDelta = gtPowerIOAvg10min*20
+
+	if WIRELESSONLY then
+		powerDelta = gtPowerIOAvg1hour*20
+		gtPower = wireless
+	end
 
 	if powerDelta < 0 then
 		seconds = tonumber(gtPower / math.abs(powerDelta))
