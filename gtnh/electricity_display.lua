@@ -71,17 +71,39 @@ local function Init(_crafter, _ae, component, _overrideVoltage, _overrideAmperag
 	print("Found "..#batteryBuffers.." battery buffers")
 end
 
-
+local WIRELESSONLY = true
+local previousWireless
 local function CalcAverage(updateRate, uptime)
 	--local gtPowerDrain = batteryBuffers[1].getEUOutputAverage() --bat.getAverageElectricOutput()
 	--local gtPowerSupply = batteryBuffers[1].getEUInputAverage() --bat.getAverageElectricInput()
 
 	local data = batteryBuffers[1].getSensorInformation()
 	if not data then return end
-	local gtPowerSupply = parseFromSensorInfo(data[5])
-	local gtPowerDrain = parseFromSensorInfo(data[6])
 
-	local mult = math.max(updateRate,1/20)/5
+	local gtPowerSupply = 0
+	local gtPowerDrain = 0
+	local mult = 1
+	if WIRELESSONLY then
+		local wireless = (data[15]~=nil) and parseFromSensorInfo(data[15]) or 0
+		if previousWireless == nil then previousWireless = wireless end
+
+		local wirelessIO = wireless - previousWireless
+
+		previousWireless = wireless
+
+		if wirelessIO >= 0 then
+			gtPowerSupply = wirelessIO
+		else
+			gtPowerDrain = wirelessIO
+		end
+
+		mult = math.max(updateRate,1/20)
+	else
+		gtPowerSupply = parseFromSensorInfo(data[5])
+		gtPowerDrain = parseFromSensorInfo(data[6])
+		mult = math.max(updateRate,1/20)/5
+	end
+
 
 	if gtPowerDrainAvg == nil then gtPowerDrainAvg = gtPowerDrain else
 		gtPowerDrainAvg = gtPowerDrainAvg * (1-mult) + gtPowerDrain * (mult)
@@ -322,6 +344,10 @@ local function Draw(updateRate, uptime, cputime)
 		gtPowerAmpMax
 	))
 
+	if WIRELESSONLY then
+		print("The following stats are for wireless storage, not LSC:")
+	end
+
 	local percent = math.floor(gtPowerDrainAvg/gtPowerSupplyAvg*100+0.5)
 	local color = 0x00FF00
 	if percent == math.huge or percent > 10000 then
@@ -359,7 +385,7 @@ local function Draw(updateRate, uptime, cputime)
 	if powerDelta < 0 then
 		seconds = tonumber(gtPower / math.abs(powerDelta))
 		timeToZero = "Zero: "
-	elseif powerDelta > 0 then
+	elseif powerDelta > 0 and WIRELESSONLY == false then
 		seconds = tonumber((gtPowerMax - gtPower) / powerDelta)
 		timeToZero = "Full: "
 	end

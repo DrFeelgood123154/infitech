@@ -61,11 +61,12 @@ local voltages = {}
 for i=1, #voltageNames do
 	voltages[voltageNames[i]] = getVoltageOfTier(i)
 end
-voltages.Dyson = 100000000000
+voltages.Dyson = 233000000000
+voltages.EOH = 12e12
 
 -- HARDCODED VALUES IN CASE OF GT_MACHINE MULTIBLOCK
-local hardCodedVoltage = voltages.UV
-local hardCodedAmperage = 65536
+local hardCodedVoltage = voltages.EOH
+local hardCodedAmperage = 1
 
 package.loaded.electricity_display = nil
 package.loaded.autocrafter = nil
