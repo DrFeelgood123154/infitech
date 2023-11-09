@@ -61,7 +61,7 @@ local voltages = {}
 for i=1, #voltageNames do
 	voltages[voltageNames[i]] = getVoltageOfTier(i)
 end
-voltages.Dyson = 233000000000
+voltages.Dyson = 330000000000
 voltages.EOH = 12e12
 
 -- HARDCODED VALUES IN CASE OF GT_MACHINE MULTIBLOCK

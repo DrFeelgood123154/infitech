@@ -101,10 +101,10 @@ local function CalcAverage(updateRate, uptime)
 	else
 		gtPowerSupply = parseFromSensorInfo(data[5])
 		gtPowerDrain = parseFromSensorInfo(data[6])
-		mult = math.max(updateRate,1/20)/5
+		mult = math.max(updateRate,1/20) -- /5 -- does this still need /5?
 	end
 
-
+	-- mult = 1/20
 	if gtPowerDrainAvg == nil then gtPowerDrainAvg = gtPowerDrain else
 		gtPowerDrainAvg = gtPowerDrainAvg * (1-mult) + gtPowerDrain * (mult)
 	end
@@ -114,14 +114,17 @@ local function CalcAverage(updateRate, uptime)
 	end
 
 	local diff  = gtPowerSupplyAvg - gtPowerDrainAvg
+	mult = mult / 120 -- updateRate / 120
 	if gtPowerIOAvg30sec == nil or uptime < 20 then gtPowerIOAvg30sec = diff else
-		gtPowerIOAvg30sec = gtPowerIOAvg30sec * (1-mult/6) + diff * (mult/6)
+		gtPowerIOAvg30sec = gtPowerIOAvg30sec * (1-mult) + diff * (mult)
 	end
-	if gtPowerIOAvg10min == nil or uptime < 20 then gtPowerIOAvg10min = diff else
-		gtPowerIOAvg10min = gtPowerIOAvg10min * (1-mult/120) + diff * (mult/120)
+	mult = mult / 5 -- updateRate / 600
+	if gtPowerIOAvg10min == nil or uptime < 40 then gtPowerIOAvg10min = gtPowerIOAvg30sec else
+		gtPowerIOAvg10min = gtPowerIOAvg10min * (1-mult) + diff * (mult)
 	end
-	if gtPowerIOAvg1hour == nil or uptime < 20 then gtPowerIOAvg1hour = diff else
-		gtPowerIOAvg1hour = gtPowerIOAvg1hour * (1-mult/720) + diff * (mult/720)
+	mult = mult / 6 -- updateRate / 3600
+	if gtPowerIOAvg1hour == nil or uptime < 60 then gtPowerIOAvg1hour = gtPowerIOAvg10min else
+		gtPowerIOAvg1hour = gtPowerIOAvg1hour * (1-mult) + diff * (mult)
 	end
 end
 
