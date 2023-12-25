@@ -65,8 +65,8 @@ voltages.Dyson = 330000000000
 voltages.EOH = 12e12
 
 -- HARDCODED VALUES IN CASE OF GT_MACHINE MULTIBLOCK
-local hardCodedVoltage = voltages.EOH
-local hardCodedAmperage = 1
+local hardCodedVoltage = voltages.LuV --voltages.EOH
+local hardCodedAmperage = 128
 
 package.loaded.electricity_display = nil
 package.loaded.autocrafter = nil

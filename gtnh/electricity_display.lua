@@ -71,7 +71,7 @@ local function Init(_crafter, _ae, component, _overrideVoltage, _overrideAmperag
 	print("Found "..#batteryBuffers.." battery buffers")
 end
 
-local WIRELESSONLY = true
+local WIRELESSONLY = false
 local previousWireless
 local function CalcAverage(updateRate, uptime)
 	--local gtPowerDrain = batteryBuffers[1].getEUOutputAverage() --bat.getAverageElectricOutput()
