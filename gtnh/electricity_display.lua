@@ -382,8 +382,10 @@ local function Draw(updateRate, uptime, cputime)
 	-- Time to zero or full energy
 	local timeToZero = "-"
 	local seconds = 0
-	--local powerDelta = gtPowerIOAvg30sec*20 --((gtPowerDrainAvg-gtPowerSupplyAvg)*20)
-	local powerDelta = gtPowerIOAvg10min*20
+	local powerDelta = gtPowerIOAvg30sec*20 --((gtPowerDrainAvg-gtPowerSupplyAvg)*20)
+	if gtPowerMax > 1e12 then
+		powerDelta = gtPowerIOAvg10min*20
+	end
 
 	if WIRELESSONLY then
 		powerDelta = gtPowerIOAvg1hour*20

@@ -14,7 +14,8 @@ local ev = require("event")
 local b, redstone = pcall(function() return component.redstone end)
 if not b then redstone = nil end
 
-os.execute("resolution 70 25")
+--os.execute("resolution 70 25")
+os.execute("resolution 104 25")
 
 ----
 
@@ -65,7 +66,7 @@ voltages.Dyson = 330000000000
 voltages.EOH = 12e12
 
 -- HARDCODED VALUES IN CASE OF GT_MACHINE MULTIBLOCK
-local hardCodedVoltage = voltages.LuV --voltages.EOH
+local hardCodedVoltage = voltages.ZPM --voltages.EOH
 local hardCodedAmperage = 128
 
 package.loaded.electricity_display = nil
