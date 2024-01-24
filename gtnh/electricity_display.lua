@@ -387,8 +387,11 @@ local function Draw(updateRate, uptime, cputime)
 		powerDelta = gtPowerIOAvg10min*20
 	end
 
-	if WIRELESSONLY then
+	if wireless > 1e16 or WIRELESSONLY then
 		powerDelta = gtPowerIOAvg1hour*20
+	end
+
+	if WIRELESSONLY then
 		gtPower = wireless
 	end
 
